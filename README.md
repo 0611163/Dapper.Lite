@@ -771,7 +771,7 @@ var sql = session.Queryable<SysUser>()
 
 var sql2 = session.Queryable<SysUser>().Where(t => t.RealName.Contains("管理员"));
 
-sql.Append(" union all ", sql2);
+sql.AppendSubSql(" union all ", sql2);
 
 List<SysUser> list = sql.QueryList<SysUser>();
 
@@ -1790,7 +1790,7 @@ namespace ClickHouseTest
 
             List<PeopleFace> list = session.Queryable<PeopleFace>()
                 .Where(t => t.CapturedTime <= DateTime.Now && t.CapturedTime >= new DateTime(2022, 1, 1))
-                .Append<PeopleFace>(" union all ", sql)
+                .AppendSubSql(" union all ", sql)
                 .ToList();
 
             Console.WriteLine("总数=" + list.Count);
