@@ -16,7 +16,13 @@
         <Authors>suxiang</Authors>
         <Copyright>Copyright @ 2022</Copyright>
         <Description>一款同时支持原生SQL和Lambda表达式的轻量级ORM，支持Oracle、MSSQL、MySQL、PostgreSQL、SQLite、Access数据库，以及任意ADO.NET支持的数据库。</Description>
-        <PackageReleaseNotes>命名空间、接口、类重命名</PackageReleaseNotes>
+        <PackageReleaseNotes>
+            主要重构内容：
+            1. DBSession重命名为DbSession
+            2. 扩展IDapperLiteClient接口，在没有数据库事务操作时，可以直接访问IDbSession的部分接口，无需先获取IDbSession，以简化调用
+            3. 重构ISqlString和ISqlQueryable接口，Lambda表达式和拼接SQL混写时，主表拼接无需使用泛型方法，以简化调用
+            4. 移除自定义实体类特性，引用System.ComponentModel.Annotations库，以便兼容Entity Framework的实体类
+        </PackageReleaseNotes>
     </PropertyGroup>
 
     <ItemGroup>

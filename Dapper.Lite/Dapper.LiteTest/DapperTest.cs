@@ -21,7 +21,7 @@ namespace Dapper.LiteTest
         #region 构造函数
         public DapperTest()
         {
-            LiteSqlFactory.GetSession();
+            DapperLiteFactory.GetSession();
         }
         #endregion
 
@@ -29,7 +29,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void TestUseDapper()
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             session.SetTypeMap<SysUser>(); //设置数据库字段名与实体类属性名映射
 
@@ -68,7 +68,7 @@ namespace Dapper.LiteTest
                 {
                     try
                     {
-                        var session = LiteSqlFactory.GetSession();
+                        var session = DapperLiteFactory.GetSession();
                         var list = session.Queryable<SysUser>().Where(t => t.Id < 20).ToList();
                         Console.WriteLine("Dapper.Lite查询成功, count=" + list.Count);
                     }
@@ -83,7 +83,7 @@ namespace Dapper.LiteTest
                 {
                     try
                     {
-                        var session = LiteSqlFactory.GetSession();
+                        var session = DapperLiteFactory.GetSession();
 
                         session.SetTypeMap<SysUser>(); //设置数据库字段名与实体类属性名映射
 
@@ -121,7 +121,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void TestUseDapper3()
         {
-            var db = LiteSqlFactory.Client;
+            var db = DapperLiteFactory.Client;
 
             db.SetTypeMap<SysUser>(); //设置数据库字段名与实体类属性名映射
 

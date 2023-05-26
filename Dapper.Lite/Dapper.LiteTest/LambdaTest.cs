@@ -33,7 +33,7 @@ namespace Dapper.LiteTest
             DateTime? startTime = new DateTime(2010, 1, 1);
             DateTime? endTime = DateTime.Now.AddDays(1);
 
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             session.OnExecuting = (s, p) => Console.WriteLine(s);
 
@@ -61,7 +61,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void TestQueryByLambda2()
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             ISqlQueryable<BsOrder> sql = session.Sql<BsOrder>(@"
                 select t.*, u.real_name as OrderUserRealName
@@ -101,7 +101,7 @@ namespace Dapper.LiteTest
 
             string[] idsNotIn = new string[] { "100007", "100008", "100009" };
 
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             session.OnExecuting = (s, p) =>
                 {
@@ -149,7 +149,7 @@ namespace Dapper.LiteTest
 
             List<string> idsNotIn = new List<string>() { "100007", "100008", "100009" };
 
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             session.OnExecuting = (s, p) =>
             {
@@ -198,7 +198,7 @@ namespace Dapper.LiteTest
 
             List<string> idsNotIn = new List<string>() { "100007", "100008", "100009" };
 
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             ISqlQueryable<BsOrder> sql = session.Sql<BsOrder>(@"
                 select t.*, u.real_name as OrderUserRealName
@@ -240,7 +240,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void TestQueryByLambda6()
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             session.OnExecuting = (s, p) =>
             {
@@ -273,7 +273,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void TestQueryByLambda8()
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             ISqlQueryable<BsOrder> sql = session.Queryable<BsOrder>();
 
@@ -303,7 +303,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void TestQueryByLambda5()
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
@@ -330,7 +330,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void TestQueryByLambda5_2()
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
@@ -359,7 +359,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void TestQueryByLambda7()
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             session.OnExecuting = (s, p) =>
             {
@@ -395,7 +395,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void TestQueryByLambda9()
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             ISqlQueryable<BsOrder> sql = session.Sql<BsOrder>(@"
                 select t.*, u.real_name as OrderUserRealName
@@ -408,7 +408,7 @@ namespace Dapper.LiteTest
                 && t.Remark != null
                 && t.OrderTime >= new DateTime(2010, 1, 1)
                 && t.OrderTime <= DateTime.Now.AddDays(1))
-                .WhereIf<SysUser>(true, u => u.CreateTime < DateTime.Now)
+                .WhereIf(true, u => u.CreateTime < DateTime.Now)
                 .OrderByDescending(t => t.OrderTime).OrderBy(t => t.Id)
                 .ToList();
 
@@ -424,7 +424,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void TestQueryByLambda10()
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             session.OnExecuting = (s, p) => Console.WriteLine(s);
 
@@ -458,7 +458,7 @@ namespace Dapper.LiteTest
 
         private async void TestQueryByLambda11Internal()
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
@@ -481,7 +481,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void TestQueryByLambda12() //拼接子查询
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
@@ -511,7 +511,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void TestQueryByLambda13() //拼接子查询
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
@@ -541,7 +541,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void TestQueryByLambda14()
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
@@ -570,7 +570,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void TestQueryByLambda15()
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 

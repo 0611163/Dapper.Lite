@@ -20,7 +20,7 @@ namespace DAL
         /// </summary>
         public void Preheat()
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
             session.QuerySingle("select count(*) from bs_order");
         }
         #endregion
@@ -31,7 +31,7 @@ namespace DAL
         /// </summary>
         public string Insert(BsOrder order, List<BsOrderDetail> detailList)
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             try
             {
@@ -77,7 +77,7 @@ namespace DAL
         /// </summary>
         public async Task<string> InsertAsync(BsOrder order, List<BsOrderDetail> detailList)
         {
-            var session = await LiteSqlFactory.GetSessionAsync();
+            var session = await DapperLiteFactory.GetSessionAsync();
             try
             {
                 session.BeginTransaction();
@@ -117,7 +117,7 @@ namespace DAL
         /// </summary>
         public string Update(BsOrder order, List<BsOrderDetail> detailList)
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             try
             {
@@ -180,7 +180,7 @@ namespace DAL
         /// </summary>
         public async Task<string> UpdateAsync(BsOrder order, List<BsOrderDetail> detailList)
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             try
             {
@@ -238,7 +238,7 @@ namespace DAL
         /// </summary>
         public BsOrder Get(string id)
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             session.OnExecuting = (s, p) =>
             {
@@ -260,7 +260,7 @@ namespace DAL
         /// </summary>
         public BsOrder GetFirst()
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             BsOrder result = session.Query<BsOrder>("select * from bs_order");
 
@@ -277,7 +277,7 @@ namespace DAL
         /// </summary>
         public List<BsOrder> GetList(int? status, string remark, DateTime? startTime, DateTime? endTime, string ids)
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             ISqlString sql = session.Sql(@"
                 select t.*, u.real_name as OrderUserRealName
@@ -311,7 +311,7 @@ namespace DAL
         /// </summary>
         public async Task<List<BsOrder>> GetListAsync(int? status, string remark, DateTime? startTime, DateTime? endTime)
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             ISqlString sql = session.Sql(@"
                 select t.*, u.real_name as OrderUserRealName
@@ -340,7 +340,7 @@ namespace DAL
         /// </summary>
         public List<BsOrder> GetListPage(ref PageModel pageModel, int? status, string remark, DateTime? startTime, DateTime? endTime)
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             session.OnExecuting = (s, p) => Console.WriteLine(s);
 
@@ -372,7 +372,7 @@ namespace DAL
         /// </summary>
         public async Task<List<BsOrder>> GetListPageAsync(PageModel pageModel, int? status, string remark, DateTime? startTime, DateTime? endTime)
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             ISqlString sql = session.Sql(@"
                 select t.*, u.real_name as OrderUserRealName
@@ -402,7 +402,7 @@ namespace DAL
         /// </summary>
         public List<BsOrder> GetListExt(int? status, string remark, DateTime? startTime, DateTime? endTime, string ids)
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             ISqlString sql = session.Sql(@"
                 select t.*, u.real_name as OrderUserRealName

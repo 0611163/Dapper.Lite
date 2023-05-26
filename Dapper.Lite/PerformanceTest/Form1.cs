@@ -37,7 +37,7 @@ namespace PerformanceTest
         {
             RunTask(() =>
             {
-                LiteSqlFactory.GetSession();  //预热
+                DapperLiteFactory.GetSession();  //预热
                 Log("预热完成");
             });
         }
@@ -117,7 +117,7 @@ namespace PerformanceTest
             RunTask(() =>
             {
                 Log("删除 开始");
-                var session = LiteSqlFactory.GetSession();
+                var session = DapperLiteFactory.GetSession();
                 session.Sql("id>@Id", 12).DeleteByCondition<SysUser>();
                 Log("删除 完成");
             });
@@ -134,7 +134,7 @@ namespace PerformanceTest
                 Log("批量修改 开始 count=" + userList.Count);
                 DateTime dt = DateTime.Now;
 
-                var session = LiteSqlFactory.GetSession();
+                var session = DapperLiteFactory.GetSession();
                 if (_printSql)
                 {
                     session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
@@ -187,7 +187,7 @@ namespace PerformanceTest
                 Log("批量添加 开始 count=" + userList.Count);
                 DateTime dt = DateTime.Now;
 
-                var session = LiteSqlFactory.GetSession();
+                var session = DapperLiteFactory.GetSession();
                 if (_printSql)
                 {
                     session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
@@ -221,7 +221,7 @@ namespace PerformanceTest
                 Log("循环修改 开始 count=" + userList.Count);
                 DateTime dt = DateTime.Now;
 
-                var session = LiteSqlFactory.GetSession();
+                var session = DapperLiteFactory.GetSession();
                 if (_printSql)
                 {
                     session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
@@ -277,7 +277,7 @@ namespace PerformanceTest
                 Log("循环添加 开始 count=" + userList.Count);
                 DateTime dt = DateTime.Now;
 
-                var session = LiteSqlFactory.GetSession();
+                var session = DapperLiteFactory.GetSession();
                 if (_printSql)
                 {
                     session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
@@ -314,7 +314,7 @@ namespace PerformanceTest
 
                 for (int i = 0; i < 10; i++)
                 {
-                    var session = LiteSqlFactory.GetSession();
+                    var session = DapperLiteFactory.GetSession();
 
                     session.OnExecuting = (s, p) =>
                     {
@@ -351,7 +351,7 @@ namespace PerformanceTest
                     int total = m_SysUserDal.GetTotalCount();
                     int pageSize = 100;
                     int pageCount = (total - 1) / pageSize + 1;
-                    var session = LiteSqlFactory.GetSession();
+                    var session = DapperLiteFactory.GetSession();
 
                     List<SysUser> userList = new List<SysUser>();
                     for (int page = 1; page <= pageCount; page++)
@@ -393,7 +393,7 @@ namespace PerformanceTest
                     int index = i;
                     Task task = RunTask(() =>
                     {
-                        var session = LiteSqlFactory.GetSession();
+                        var session = DapperLiteFactory.GetSession();
 
                         ISqlString sql = session.Sql(@"
                             select t.* 
@@ -445,7 +445,7 @@ namespace PerformanceTest
                 {
                     var task = RunTask(user =>
                     {
-                        LiteSqlFactory.GetSession().Insert(user);
+                        DapperLiteFactory.GetSession().Insert(user);
                     }, item);
                     tasks.Add(task);
                 }

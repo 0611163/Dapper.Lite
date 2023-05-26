@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Dapper.Lite
 {
     /// <summary>
-    /// IDbSession接口
+    /// IDbSession接口实例表示与数据库的会话
     /// 一个IDbSession实例对应一个数据库连接，一个IDbSession实例只有一个数据库连接
     /// IDbSession不是线程安全的，不能跨线程使用
     /// </summary>

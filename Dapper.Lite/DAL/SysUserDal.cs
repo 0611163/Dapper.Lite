@@ -20,7 +20,7 @@ namespace DAL
         /// </summary>
         public SysUser Get(long id)
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             return session.QueryById<SysUser>(id);
         }
@@ -32,7 +32,7 @@ namespace DAL
         /// </summary>
         public int GetTotalCount()
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             return session.QuerySingle<int>("select count(*) from sys_user");
         }
@@ -44,7 +44,7 @@ namespace DAL
         /// </summary>
         public List<SysUser> GetList(string sql)
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             return session.QueryList<SysUser>(sql);
         }
@@ -56,7 +56,7 @@ namespace DAL
         /// </summary>
         public long Insert(SysUser info)
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
@@ -72,7 +72,7 @@ namespace DAL
         /// </summary>
         public async Task<long> InsertAsync(SysUser info)
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
@@ -90,7 +90,7 @@ namespace DAL
         {
             list.ForEach(item => item.CreateTime = DateTime.Now);
 
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             try
             {
@@ -116,7 +116,7 @@ namespace DAL
         {
             list.ForEach(item => item.CreateTime = DateTime.Now);
 
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             await session.InsertAsync(list);
         }
@@ -128,7 +128,7 @@ namespace DAL
         /// </summary>
         public void Update(SysUser info)
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             info.UpdateTime = DateTime.Now;
             session.Update(info);
@@ -141,7 +141,7 @@ namespace DAL
         /// </summary>
         public async Task UpdateAsync(SysUser info)
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
@@ -159,7 +159,7 @@ namespace DAL
         {
             list.ForEach(item => item.UpdateTime = DateTime.Now);
 
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             try
             {
@@ -185,7 +185,7 @@ namespace DAL
         {
             list.ForEach(item => item.UpdateTime = DateTime.Now);
 
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             var task = session.UpdateAsync(list);
             await task;
@@ -198,7 +198,7 @@ namespace DAL
         /// </summary>
         public void Delete(long id)
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             session.OnExecuting = (s, p) =>
             {

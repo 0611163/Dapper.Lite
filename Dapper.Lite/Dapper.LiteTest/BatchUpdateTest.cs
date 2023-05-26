@@ -41,7 +41,7 @@ namespace Dapper.LiteTest
             }
             m_SysUserDal.Update(userList);
 
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
@@ -65,7 +65,7 @@ namespace Dapper.LiteTest
             }
             await m_SysUserDal.UpdateAsync(userList);
 
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 

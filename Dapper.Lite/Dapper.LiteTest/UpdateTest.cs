@@ -78,7 +78,7 @@ namespace Dapper.LiteTest
 
             m_BsOrderDal.Update(order, order.DetailList);
 
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
             BsOrder orderInfo = session.Sql(
                 "select * from bs_order where Id like @Id", new { Id = order.Id })
                 .Query<BsOrder>();
@@ -94,7 +94,7 @@ namespace Dapper.LiteTest
             SysUser user = m_SysUserDal.Get(userId);
             if (user != null)
             {
-                var session = LiteSqlFactory.GetSession();
+                var session = DapperLiteFactory.GetSession();
                 session.OnExecuting = (s, p) =>
                 {
                     Console.WriteLine(s); //打印SQL
@@ -134,7 +134,7 @@ namespace Dapper.LiteTest
                 await m_SysUserDal.UpdateAsync(user);
                 Console.WriteLine("用户 ID=" + user.Id + " 已修改");
 
-                var session = LiteSqlFactory.GetSession();
+                var session = DapperLiteFactory.GetSession();
                 SysUser userInfo = session.Sql(
                     "select * from sys_user where Id like @Id", new { Id = userId })
                     .Query<SysUser>();

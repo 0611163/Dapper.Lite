@@ -43,7 +43,7 @@ namespace Dapper.LiteTest
         {
             ThreadPool.SetMaxThreads(1000, 1000);
             ThreadPool.SetMinThreads(200, 200);
-            LiteSqlFactory.GetSession(); //预热
+            DapperLiteFactory.GetSession(); //预热
         }
         #endregion
 
@@ -104,13 +104,13 @@ namespace Dapper.LiteTest
             {
                 var task = RunTask(user =>
                 {
-                    LiteSqlFactory.GetSession().Insert(user);
+                    DapperLiteFactory.GetSession().Insert(user);
                 }, item);
                 tasks.Add(task);
             }
             Task.WaitAll(tasks.ToArray());
 
-            List<SysUser> list = LiteSqlFactory.GetSession()
+            List<SysUser> list = DapperLiteFactory.GetSession()
                 .Queryable<SysUser>().Where(t => t.Id > 20).ToList();
             Assert.IsTrue(list.Count >= _count);
         }
@@ -132,7 +132,7 @@ namespace Dapper.LiteTest
                 userList.Add(user);
             }
 
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             try
             {
@@ -158,7 +158,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void Test12Update()
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
             List<SysUser> list = session.Queryable<SysUser>().Where(t => t.Id > 20).ToList();
             Random rnd = new Random();
 
@@ -175,7 +175,7 @@ namespace Dapper.LiteTest
             {
                 var task = RunTask(user =>
                 {
-                    LiteSqlFactory.GetSession().Update(user);
+                    DapperLiteFactory.GetSession().Update(user);
                 }, item);
                 tasks.Add(task);
             }
@@ -190,7 +190,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void Test12Update_Tran()
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
             List<SysUser> list = session.Queryable<SysUser>().Where(t => t.Id > 20).ToList();
             Random rnd = new Random();
 
@@ -226,7 +226,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void Test19Delete()
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
             List<SysUser> list = session.Queryable<SysUser>().Where(t => t.Id > 20).ToList();
             Random rnd = new Random();
 
@@ -235,7 +235,7 @@ namespace Dapper.LiteTest
             {
                 var task = RunTask(user =>
                 {
-                    LiteSqlFactory.GetSession().DeleteById<SysUser>(user.Id);
+                    DapperLiteFactory.GetSession().DeleteById<SysUser>(user.Id);
                 }, item);
                 tasks.Add(task);
             }
@@ -250,7 +250,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void Test29Delete_Tran()
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
             List<SysUser> list = session.Queryable<SysUser>().Where(t => t.Id > 20).ToList();
             Random rnd = new Random();
 
@@ -283,7 +283,7 @@ namespace Dapper.LiteTest
             {
                 var task = RunTask(obj =>
                 {
-                    var session = LiteSqlFactory.GetSession();
+                    var session = DapperLiteFactory.GetSession();
                     List<SysUser> list = session.Queryable<SysUser>().Where(t => t.Id <= 20).ToList();
                     Assert.IsTrue(list.Count > 0);
                     if (obj == 0)
@@ -298,7 +298,7 @@ namespace Dapper.LiteTest
             }
             Task.WaitAll(tasks.ToArray());
 
-            List<SysUser> list2 = LiteSqlFactory.GetSession().Queryable<SysUser>().Where(t => t.Id > 20).ToList();
+            List<SysUser> list2 = DapperLiteFactory.GetSession().Queryable<SysUser>().Where(t => t.Id > 20).ToList();
             Assert.IsTrue(list2.Count >= _count);
         }
         #endregion

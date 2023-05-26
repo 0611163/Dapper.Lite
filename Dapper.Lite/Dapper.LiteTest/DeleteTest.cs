@@ -38,7 +38,7 @@ namespace Dapper.LiteTest
 
             m_SysUserDal.Delete(id);
 
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             SysUser userInfo = session.QueryById<SysUser>(id);
             Assert.IsTrue(userInfo == null);
@@ -49,7 +49,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void TestDeleteUserByCondition()
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
@@ -65,7 +65,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void TestDeleteOrderByCondition()
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             session.OnExecuting = (sql, param) => Console.WriteLine(sql); //打印SQL
 
@@ -85,7 +85,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void TestLambdaDelete()
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
             session.OnExecuting = (s, p) => Console.WriteLine(s);
 
             SysUser user = new SysUser();

@@ -86,7 +86,7 @@
   <ItemGroup>
     <Compile Include="BsOrderDal.cs" />
     <Compile Include="BsOrderDetailDal.cs" />
-    <Compile Include="LiteSqlFactory.cs" />
+    <Compile Include="DapperLiteFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Provider\MySQLProvider.cs" />
     <Compile Include="SysUserDal.cs" />

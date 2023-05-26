@@ -22,7 +22,7 @@ using Dapper;
 namespace Dapper.Lite
 {
     /// <summary>
-    /// DbSession
+    /// DbSession实例表示与数据库的会话
     /// 一个DbSession实例对应一个数据库连接，一个DbSession实例只有一个数据库连接
     /// DbSession不是线程安全的，不能跨线程使用
     /// </summary>

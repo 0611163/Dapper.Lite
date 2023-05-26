@@ -44,7 +44,7 @@ namespace Dapper.LiteTest
 
             SplitTableMapping splitTableMapping = new SplitTableMapping(typeof(SysUser), "sys_user_202208");
 
-            var session = LiteSqlFactory.GetSession(splitTableMapping);
+            var session = DapperLiteFactory.GetSession(splitTableMapping);
 
             session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
@@ -65,7 +65,7 @@ namespace Dapper.LiteTest
         public void Test1Insert()
         {
             long start;
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             start = session.QuerySingle<long>("select max(id) from sys_user_202208");
 
@@ -77,7 +77,7 @@ namespace Dapper.LiteTest
         {
             ConcurrentDictionary<long, long> dict = new ConcurrentDictionary<long, long>();
             long start;
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             start = session.QuerySingle<long>("select max(id)+1 from sys_user_202208");
 
@@ -109,7 +109,7 @@ namespace Dapper.LiteTest
 
             SplitTableMapping splitTableMapping = new SplitTableMapping(typeof(SysUser), "sys_user_202208");
 
-            var session = LiteSqlFactory.GetSession(splitTableMapping);
+            var session = DapperLiteFactory.GetSession(splitTableMapping);
 
             user = session.QueryById<SysUser>(userId);
 
@@ -144,7 +144,7 @@ namespace Dapper.LiteTest
         public void Test4Delete()
         {
             SplitTableMapping splitTableMapping = new SplitTableMapping(typeof(SysUser), "sys_user_202208");
-            var session = LiteSqlFactory.GetSession(splitTableMapping);
+            var session = DapperLiteFactory.GetSession(splitTableMapping);
 
             session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
@@ -162,7 +162,7 @@ namespace Dapper.LiteTest
             SplitTableMapping splitTableMapping = new SplitTableMapping(typeof(SysUser), "sys_user_202208");
 
             List<SysUser> list = new List<SysUser>();
-            var session = LiteSqlFactory.GetSession(splitTableMapping);
+            var session = DapperLiteFactory.GetSession(splitTableMapping);
 
             session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 

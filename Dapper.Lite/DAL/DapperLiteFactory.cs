@@ -6,18 +6,12 @@ using System.Threading.Tasks;
 
 namespace DAL
 {
-    public class LiteSqlFactory
+    public class DapperLiteFactory
     {
         #region 变量
         private static IDapperLiteClient _dapperLiteClient = new DapperLiteClient(ConfigurationManager.ConnectionStrings["DefaultConnection"].ToString(), DBType.MySQL, new MySQLProvider());
 
-        public static IDapperLiteClient Client
-        {
-            get
-            {
-                return _dapperLiteClient;
-            }
-        }
+        public static IDapperLiteClient Client => _dapperLiteClient;
         #endregion
 
         #region 获取 IDbSession

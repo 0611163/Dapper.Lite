@@ -9,7 +9,7 @@
 ```C#
 DateTime? startTime = null;
 
-var session = LiteSqlFactory.GetSession();
+var session = DapperLiteFactory.GetSession();
 
 session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
@@ -99,10 +99,10 @@ Assert.IsTrue(list.Count > 0);
 
 ## 使用步骤
 
-1. 安装LiteSql
+1. 安装Dapper.Lite
 
 ```text
-Install-Package Dapper.LiteSql -Version 1.6.20
+Install-Package Dapper.Lite -Version 1.8.28
 ```
 
 2. 安装对应的数据库引擎
@@ -116,13 +116,13 @@ Install-Package MySql.Data -Version 6.9.12
 注意：各实现方法一定要加上override关键字以重写基类的方法
 
 ```C#
-using LiteSql;
+using Dapper.Lite;
 using MySql.Data.MySqlClient;
 using System.Data.Common;
 
 namespace DAL
 {
-    public class MySQLProvider : MySQLProviderBase, IDBProvider
+    public class MySQLProvider : MySQLProviderBase, IDbProvider
     {
         #region 创建 DbConnection
         public override DbConnection CreateConnection(string connectionString)
@@ -143,40 +143,42 @@ namespace DAL
 
 ```
 
-4. 定义LiteSqlFactory类
+4. 定义DapperLiteFactory类
 
 ```C#
-using LiteSql;
+using Dapper.Lite;
 using System.Configuration;
 using System.Threading.Tasks;
 
 namespace DAL
 {
-    public class LiteSqlFactory
+    public class DapperLiteFactory
     {
         #region 变量
-        private static ILiteSqlClient _liteSqlClient = new LiteSqlClient(ConfigurationManager.ConnectionStrings["DefaultConnection"].ToString(), DBType.MySQL, new MySQLProvider());
+        private static IDapperLiteClient _dapperLiteClient = new DapperLiteClient(ConfigurationManager.ConnectionStrings["DefaultConnection"].ToString(), DBType.MySQL, new MySQLProvider());
+
+        public static IDapperLiteClient Client => _dapperLiteClient;
         #endregion
 
-        #region 获取 ISession
+        #region 获取 IDbSession
         /// <summary>
-        /// 获取 ISession
+        /// 获取 IDbSession
         /// </summary>
         /// <param name="splitTableMapping">分表映射</param>
-        public static ISession GetSession(SplitTableMapping splitTableMapping = null)
+        public static IDbSession GetSession(SplitTableMapping splitTableMapping = null)
         {
-            return _liteSqlClient.GetSession(splitTableMapping);
+            return _dapperLiteClient.GetSession(splitTableMapping);
         }
         #endregion
 
-        #region 获取 ISession (异步)
+        #region 获取 IDbSession (异步)
         /// <summary>
-        /// 获取 ISession (异步)
+        /// 获取 IDbSession (异步)
         /// </summary>
         /// <param name="splitTableMapping">分表映射</param>
-        public static async Task<ISession> GetSessionAsync(SplitTableMapping splitTableMapping = null)
+        public static async Task<IDbSession> GetSessionAsync(SplitTableMapping splitTableMapping = null)
         {
-            return await _liteSqlClient.GetSessionAsync(splitTableMapping);
+            return await _dapperLiteClient.GetSessionAsync(splitTableMapping);
         }
         #endregion
 
@@ -196,6 +198,10 @@ namespace DAL
 #### 实体类示例
 
 ```C#
+using System;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+
 /// <summary>
 /// 订单表
 /// </summary>
@@ -306,7 +312,7 @@ public partial class BsOrder
 ```C#
 public void Insert(SysUser info)
 {
-    var session = LiteSqlFactory.GetSession();
+    var session = DapperLiteFactory.GetSession();
     session.Insert(info);  
 }
 ```
@@ -316,7 +322,7 @@ public void Insert(SysUser info)
 ```C#
 public void Insert(SysUser info)
 {
-    var session = LiteSqlFactory.GetSession();
+    var session = DapperLiteFactory.GetSession();
     long id = session.InsertReturnId(info, "select @@IDENTITY");   
 }
 ```
@@ -326,7 +332,7 @@ public void Insert(SysUser info)
 ```C#
 public void Insert(List<SysUser> list)
 {
-    var session = LiteSqlFactory.GetSession();
+    var session = DapperLiteFactory.GetSession();
     session.Insert(list);   
 }
 ```
@@ -336,7 +342,7 @@ public void Insert(List<SysUser> list)
 ```C#
 public void Update(SysUser info)
 {
-    var session = LiteSqlFactory.GetSession();
+    var session = DapperLiteFactory.GetSession();
     session.Update(info);
 }
 ```
@@ -346,7 +352,7 @@ public void Update(SysUser info)
 ```C#
 public void Update(List<SysUser> list)
 {
-    var session = LiteSqlFactory.GetSession();
+    var session = DapperLiteFactory.GetSession();
     session.Update(list);
 }
 ```
@@ -354,7 +360,7 @@ public void Update(List<SysUser> list)
 ### 修改时只更新数据有变化的字段
 
 ```C#
-var session = LiteSqlFactory.GetSession();
+var session = DapperLiteFactory.GetSession();
 
 session.AttachOld(user); //附加更新前的旧数据，只更新数据发生变化的字段，提升更新性能
 
@@ -366,7 +372,7 @@ session.Update(user);
 ```
 
 ```C#
-var session = LiteSqlFactory.GetSession();
+var session = DapperLiteFactory.GetSession();
 
 session.AttachOld(userList); //附加更新前的旧数据，只更新数据发生变化的字段，提升更新性能
 
@@ -386,7 +392,7 @@ session.Update(userList);
 ```C#
 public void Delete(string id)
 {
-    var session = LiteSqlFactory.GetSession();
+    var session = DapperLiteFactory.GetSession();
     session.DeleteById<SysUser>(id);
 }
 ```
@@ -394,12 +400,12 @@ public void Delete(string id)
 ### 条件删除
 
 ```C#
-var session = LiteSqlFactory.GetSession();
+var session = DapperLiteFactory.GetSession();
 session.CreateSql("id>@Id", 20).Delete<SysUser>();
 ```
 
 ```C#
-var session = LiteSqlFactory.GetSession();
+var session = DapperLiteFactory.GetSession();
 session.Queryable<SysUser>().Where(t => t.Id > 20).Delete();
 ```
 
@@ -408,20 +414,20 @@ session.Queryable<SysUser>().Where(t => t.Id > 20).Delete();
 ```C#
 public SysUser Get(string id)
 {
-    var session = LiteSqlFactory.GetSession();
+    var session = DapperLiteFactory.GetSession();
     return session.QueryById<SysUser>(id);
 }
 ```
 
 ```C#
-var session = LiteSqlFactory.GetSession();
+var session = DapperLiteFactory.GetSession();
 SysUser user = session.Query<SysUser>("select * from sys_user");
 ```
 
 ### 简单查询
 
 ```C#
-var session = LiteSqlFactory.GetSession();
+var session = DapperLiteFactory.GetSession();
 string sql = "select * from CARINFO_MERGE";
 List<CarinfoMerge> result = session.QueryList<CarinfoMerge>(sql);
 ```
@@ -431,7 +437,7 @@ List<CarinfoMerge> result = session.QueryList<CarinfoMerge>(sql);
 ```C#
 public List<BsOrder> GetList(int? status, string remark, DateTime? startTime, DateTime? endTime)
 {
-    var session = LiteSqlFactory.GetSession();
+    var session = DapperLiteFactory.GetSession();
 
     ISqlString sql = session.CreateSql(@"
         select t.*, u.real_name as OrderUserRealName
@@ -459,7 +465,7 @@ public List<BsOrder> GetList(int? status, string remark, DateTime? startTime, Da
 ```C#
 public List<BsOrder> GetList(int? status, string remark, DateTime? startTime, DateTime? endTime)
 {
-    var session = LiteSqlFactory.GetSession();
+    var session = DapperLiteFactory.GetSession();
 
     ISqlString sql = session.CreateSql(@"
         select t.*, u.real_name as OrderUserRealName
@@ -487,7 +493,7 @@ public List<BsOrder> GetList(int? status, string remark, DateTime? startTime, Da
 ```C#
 public List<BsOrder> GetListPage(ref PageModel pageModel, int? status, string remark, DateTime? startTime, DateTime? endTime)
 {
-    var session = LiteSqlFactory.GetSession();
+    var session = DapperLiteFactory.GetSession();
 
     ISqlString sql = session.CreateSql(@"
         select t.*, u.real_name as OrderUserRealName
@@ -516,7 +522,7 @@ public List<BsOrder> GetListPage(ref PageModel pageModel, int? status, string re
 ```C#
 public string Insert(BsOrder order, List<BsOrderDetail> detailList)
 {
-    var session = LiteSqlFactory.GetSession();
+    var session = DapperLiteFactory.GetSession();
 
     try
     {
@@ -556,7 +562,7 @@ public string Insert(BsOrder order, List<BsOrderDetail> detailList)
 ```C#
 public async Task<List<BsOrder>> GetListPageAsync(PageModel pageModel, int? status, string remark, DateTime? startTime, DateTime? endTime)
 {
-    var session = LiteSqlFactory.GetSession();
+    var session = DapperLiteFactory.GetSession();
 
     ISqlString sql = session.CreateSql(@"
         select t.*, u.real_name as OrderUserRealName
@@ -585,7 +591,7 @@ public async Task<List<BsOrder>> GetListPageAsync(PageModel pageModel, int? stat
 ```C#
 public List<BsOrder> GetListExt(int? status, string remark, DateTime? startTime, DateTime? endTime, string ids)
 {
-    var session = LiteSqlFactory.GetSession();
+    var session = DapperLiteFactory.GetSession();
 
     ISqlString sql = session.CreateSql(@"
         select t.*, u.real_name as OrderUserRealName
@@ -617,7 +623,7 @@ public List<BsOrder> GetListExt(int? status, string remark, DateTime? startTime,
 ```C#
 public void TestQueryByLambda6()
 {
-    var session = LiteSqlFactory.GetSession();
+    var session = DapperLiteFactory.GetSession();
 
     ISqlQueryable<BsOrder> sql = session.Queryable<BsOrder>();
 
@@ -643,7 +649,7 @@ public void TestQueryByLambda6()
 ```C#
 public void TestQueryByLambda7()
 {
-    var session = LiteSqlFactory.GetSession();
+    var session = DapperLiteFactory.GetSession();
 
     ISqlQueryable<BsOrder> sql = session.Queryable<BsOrder>();
 
@@ -674,7 +680,7 @@ public void TestQueryByLambda7()
 ```C#
 public void TestQueryByLambda9()
 {
-    var session = LiteSqlFactory.GetSession();
+    var session = DapperLiteFactory.GetSession();
 
     ISqlQueryable<BsOrder> sql = session.CreateSql<BsOrder>(@"
         select t.*, u.real_name as OrderUserRealName
@@ -687,7 +693,7 @@ public void TestQueryByLambda9()
         && t.Remark != null
         && t.OrderTime >= new DateTime(2010, 1, 1)
         && t.OrderTime <= DateTime.Now.AddDays(1))
-        .WhereIf<SysUser>(true, u => u.CreateTime < DateTime.Now)
+        .WhereIf(true, u => u.CreateTime < DateTime.Now)
         .OrderByDescending(t => t.OrderTime).OrderBy(t => t.Id)
         .ToList();
 
@@ -701,14 +707,14 @@ public void TestQueryByLambda9()
 ```C#
 DateTime? startTime = null;
 
-var session = LiteSqlFactory.GetSession();
+var session = DapperLiteFactory.GetSession();
 
 session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
 List<SysUser> list = session.Queryable<SysUser>() //Lambda写法
 
     //拼SQL写法
-    .Append<SysUser>(@" where t.create_userid = @CreateUserId 
+    .Append(@" where t.create_userid = @CreateUserId 
         and t.password like @Password
         and t.id in @Ids",
         new
@@ -720,16 +726,15 @@ List<SysUser> list = session.Queryable<SysUser>() //Lambda写法
 
     .Where(t => !t.RealName.Contains("管理员")) //Lambda写法
 
-    .Append<SysUser>(@" and t.create_time >= @StartTime", new { StartTime = new DateTime(2020, 1, 1) }) //拼SQL写法
+    .Append(@" and t.create_time >= @StartTime", new { StartTime = new DateTime(2020, 1, 1) }) //拼SQL写法
 
-    .Where<SysUser>(t => t.Id <= 20) //Lambda写法
+    .Where(t => t.Id <= 20) //Lambda写法
 
     .AppendIf(startTime.HasValue, " and t.create_time >= @StartTime ", new { StartTime = startTime }) //拼SQL写法
 
     .Append(" and t.create_time <= @EndTime ", new { EndTime = new DateTime(2022, 8, 1) }) //拼SQL写法
 
-    .QueryList<SysUser>(); //如果上一句是拼SQL写法，就用QueryList
-    //.ToList(); //如果上一句是Lambda写法，就用ToList
+    .ToList();
 
 long id = session.Queryable<SysUser>().Where(t => t.Id == 1).First().Id;
 Assert.IsTrue(id == 1);
@@ -744,7 +749,7 @@ Assert.IsTrue(list.Count > 0);
 ### 拼接子SQL
 
 ```C#
-var session = LiteSqlFactory.GetSession();
+var session = DapperLiteFactory.GetSession();
 
 session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
@@ -756,11 +761,11 @@ var sql = session.Queryable<SysUser>()
 
     .Where(t => t.Password.Contains("345"))
 
-    .Append(" and id in ", subSql)
+    .AppendSubSql(" and id in ", subSql)
 
-    .Append<SysUser>(@" and t.create_time >= @StartTime", new { StartTime = new DateTime(2020, 1, 1) })
+    .Append(@" and t.create_time >= @StartTime", new { StartTime = new DateTime(2020, 1, 1) })
 
-    .Append<SysUser>(" and id in ", subSql2)
+    .AppendSubSql(" and id in ", subSql2)
 
     .Where(t => t.Password.Contains("234"));
 
@@ -782,7 +787,7 @@ Assert.IsTrue(list.Count(t => t.Id > 20) == 0);
 ### 拼接子查询
 
 ```C#
-var session = LiteSqlFactory.GetSession();
+var session = DapperLiteFactory.GetSession();
 
 session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
@@ -794,8 +799,8 @@ List<SysUser> list = session.Queryable<SysUser>(
     })
     .Select("count(id) as Count")
     .Where(t => t.Id >= 0)
-    .GroupBy<SysUser>("t.real_name, t.create_userid")
-    .Having<SysUser>("real_name like @Name1 or real_name like @Name2", new
+    .GroupBy("t.real_name, t.create_userid")
+    .Having("real_name like @Name1 or real_name like @Name2", new
     {
         Name1 = "%管理员%",
         Name2 = "%测试%"
@@ -810,7 +815,7 @@ Assert.IsTrue(list.Count > 0);
 ```
 
 ```C#
-var session = LiteSqlFactory.GetSession();
+var session = DapperLiteFactory.GetSession();
 
 session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
@@ -842,7 +847,7 @@ Assert.IsTrue(list.Count > 0);
 使用Dapper时，可以直接new数据库连接对象，也可以从连接池获取连接对象
 
 ```C#
-var session = LiteSqlFactory.GetSession();
+var session = DapperLiteFactory.GetSession();
 
 session.SetTypeMap<SysUser>(); //设置数据库字段名与实体类属性名映射
 
@@ -867,40 +872,42 @@ using (var conn = session.GetConnection()) //此处从连接池获取连接，�
 
 ## 手动分表
 
-### 定义LiteSqlFactory类
+### 定义DapperLiteFactory类
 
 ```C#
-using LiteSql;
+using Dapper.Lite;
 using System.Configuration;
 using System.Threading.Tasks;
 
 namespace DAL
 {
-    public class LiteSqlFactory
+    public class DapperLiteFactory
     {
         #region 变量
-        private static ILiteSqlClient _liteSqlClient = new LiteSqlClient(ConfigurationManager.ConnectionStrings["DefaultConnection"].ToString(), DBType.MySQL, new MySQLProvider());
+        private static IDapperLiteClient _dapperLiteClient = new DapperLiteClient(ConfigurationManager.ConnectionStrings["DefaultConnection"].ToString(), DBType.MySQL, new MySQLProvider());
+
+        public static IDapperLiteClient Client => _dapperLiteClient;
         #endregion
 
-        #region 获取 ISession
+        #region 获取 IDbSession
         /// <summary>
-        /// 获取 ISession
+        /// 获取 IDbSession
         /// </summary>
         /// <param name="splitTableMapping">分表映射</param>
-        public static ISession GetSession(SplitTableMapping splitTableMapping = null)
+        public static IDbSession GetSession(SplitTableMapping splitTableMapping = null)
         {
-            return _liteSqlClient.GetSession(splitTableMapping);
+            return _dapperLiteClient.GetSession(splitTableMapping);
         }
         #endregion
 
-        #region 获取 ISession (异步)
+        #region 获取 IDbSession (异步)
         /// <summary>
-        /// 获取 ISession (异步)
+        /// 获取 IDbSession (异步)
         /// </summary>
         /// <param name="splitTableMapping">分表映射</param>
-        public static async Task<ISession> GetSessionAsync(SplitTableMapping splitTableMapping = null)
+        public static async Task<IDbSession> GetSessionAsync(SplitTableMapping splitTableMapping = null)
         {
-            return await _liteSqlClient.GetSessionAsync(splitTableMapping);
+            return await _dapperLiteClient.GetSessionAsync(splitTableMapping);
         }
         #endregion
 
@@ -913,7 +920,7 @@ namespace DAL
 ```C#
 SplitTableMapping splitTableMapping = new SplitTableMapping(typeof(SysUser), "sys_user_202208");
 
-var session = LiteSqlFactory.GetSession(splitTableMapping);
+var session = DapperLiteFactory.GetSession(splitTableMapping);
 
 session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
@@ -928,7 +935,7 @@ Console.WriteLine("插入成功, user.Id=" + user.Id);
 ```C#
 SplitTableMapping splitTableMapping = new SplitTableMapping(typeof(SysUser), "sys_user_202208");
 
-var session = LiteSqlFactory.GetSession(splitTableMapping);
+var session = DapperLiteFactory.GetSession(splitTableMapping);
 
 session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
@@ -946,7 +953,7 @@ session.Update(user);
 ```C#
 SplitTableMapping splitTableMapping = new SplitTableMapping(typeof(SysUser), "sys_user_202208");
 
-var session = LiteSqlFactory.GetSession(splitTableMapping);
+var session = DapperLiteFactory.GetSession(splitTableMapping);
 
 session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
@@ -959,7 +966,7 @@ Console.WriteLine(deleteCount2 + "条数据已删除");
 ### 数据查询
 
 ```C#
-var session = LiteSqlFactory.GetSession(splitTableMapping);
+var session = DapperLiteFactory.GetSession(splitTableMapping);
 
 session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
@@ -981,7 +988,7 @@ List<SysUser> list = sql.Where(t => t.Id < 10)
 #### 定义一个数据库提供者类，实现IProvider接口
 
 ```C#
-using LiteSql;
+using Dapper.Lite;
 using Npgsql;
 using System;
 using System.Collections;
@@ -1109,30 +1116,30 @@ namespace PostgreSQLTest
 }
 ```
 
-#### 定义LiteSqlFactory类
+#### 定义DapperLiteFactory类
 
     下面代码是.NET 5下的代码
 
 ```C#
-using LiteSql;
+using Dapper.Lite;
 using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
 
 namespace PostgreSQLTest
 {
-    public class LiteSqlFactory
+    public class DapperLiteFactory
     {
         #region 变量
-        private static ILiteSqlClient _liteSqlClient;
+        private static IDapperLiteClient _dapperLiteClient;
         #endregion
 
         #region 静态构造函数
-        static LiteSqlFactory()
+        static DapperLiteFactory()
         {
             var configurationBuilder = new ConfigurationBuilder().AddJsonFile("config.json");
             var configuration = configurationBuilder.Build();
             string connectionString = configuration.GetConnectionString("DefaultConnection");
-            _liteSqlClient = new LiteSqlClient(connectionString, typeof(PostgreSQLProvider), new PostgreSQLProvider());
+            _dapperLiteClient = new DapperLiteClient(connectionString, typeof(PostgreSQLProvider), new PostgreSQLProvider());
         }
         #endregion
 
@@ -1143,7 +1150,7 @@ namespace PostgreSQLTest
         /// <param name="splitTableMapping">分表映射</param>
         public static ISession GetSession(SplitTableMapping splitTableMapping = null)
         {
-            return _liteSqlClient.GetSession(splitTableMapping);
+            return _dapperLiteClient.GetSession(splitTableMapping);
         }
         #endregion
 
@@ -1154,7 +1161,7 @@ namespace PostgreSQLTest
         /// <param name="splitTableMapping">分表映射</param>
         public static async Task<ISession> GetSessionAsync(SplitTableMapping splitTableMapping = null)
         {
-            return await _liteSqlClient.GetSessionAsync(splitTableMapping);
+            return await _dapperLiteClient.GetSessionAsync(splitTableMapping);
         }
         #endregion
 
@@ -1171,7 +1178,7 @@ namespace PostgreSQLTest
 ```C#
 using ClickHouse.Client.ADO;
 using ClickHouse.Client.ADO.Parameters;
-using Dapper.LiteSql;
+using Dapper.Lite;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -1342,10 +1349,10 @@ namespace LiteSql.Provider
 }
 ```
 
-#### 定义LiteSqlFactory
+#### 定义DapperLiteFactory
 
 ```C#
-using LiteSql;
+using Dapper.Lite;
 using LiteSql.Provider;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -1357,20 +1364,20 @@ using System.Threading.Tasks;
 
 namespace ClickHouseTest
 {
-    public class LiteSqlFactory
+    public class DapperLiteFactory
     {
         #region 变量
-        private static ILiteSqlClient _liteSqlClient;
+        private static IDapperLiteClient _dapperLiteClient;
         #endregion
 
         #region 静态构造函数
-        static LiteSqlFactory()
+        static DapperLiteFactory()
         {
             var configurationBuilder = new ConfigurationBuilder().AddJsonFile("config.json");
             var configuration = configurationBuilder.Build();
             string connectionString = configuration.GetConnectionString("DefaultConnection");
 
-            _liteSqlClient = new LiteSqlClient(connectionString, typeof(ClickHouseProvider), new ClickHouseProvider());
+            _dapperLiteClient = new DapperLiteClient(connectionString, typeof(ClickHouseProvider), new ClickHouseProvider());
         }
         #endregion
 
@@ -1381,7 +1388,7 @@ namespace ClickHouseTest
         /// <param name="splitTableMapping">分表映射</param>
         public static ISession GetSession(SplitTableMapping splitTableMapping = null)
         {
-            return _liteSqlClient.GetSession(splitTableMapping);
+            return _dapperLiteClient.GetSession(splitTableMapping);
         }
         #endregion
 
@@ -1392,7 +1399,7 @@ namespace ClickHouseTest
         /// <param name="splitTableMapping">分表映射</param>
         public static async Task<ISession> GetSessionAsync(SplitTableMapping splitTableMapping = null)
         {
-            return await _liteSqlClient.GetSessionAsync(splitTableMapping);
+            return await _dapperLiteClient.GetSessionAsync(splitTableMapping);
         }
         #endregion
 
@@ -1403,12 +1410,9 @@ namespace ClickHouseTest
 #### 实体类
 
 ```C#
-using LiteSql;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 
 namespace Models
 {
@@ -1461,7 +1465,7 @@ namespace Models
 #### 单元测试代码
 
 ```C#
-using Dapper.LiteSql;
+using Dapper.Lite;
 using Models;
 using Utils;
 using ClickHouse.Client.ADO;
@@ -1478,7 +1482,7 @@ namespace ClickHouseTest
         [TestMethod]
         public void Test1Count()
         {
-            ISession session = LiteSqlFactory.GetSession();
+            ISession session = DapperLiteFactory.GetSession();
             session.OnExecuting = (s, p) => Console.WriteLine(s);
 
             long count = session.Queryable<PeopleFace>().Count();
@@ -1511,7 +1515,7 @@ namespace ClickHouseTest
             command.Parameters.Add(new ClickHouseDbParameter() { ParameterName = "data_source3", Value = "" });
             command.ExecuteNonQuery();
 
-            using ISession session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
             session.OnExecuting = (s, p) => Console.WriteLine(s);
             long count = session.Queryable<PeopleFace>().Where(t => t.CapturedTime >= new DateTime(2022, 1, 1)).Count();
             Console.WriteLine("count=" + count);
@@ -1527,7 +1531,7 @@ namespace ClickHouseTest
             var configuration = configurationBuilder.Build();
             string connectionString = configuration.GetConnectionString("DefaultConnection");
 
-            ISession session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
             session.OnExecuting = (s, p) => Console.WriteLine(s);
 
             PeopleFace peopleFace = new PeopleFace();
@@ -1554,7 +1558,7 @@ namespace ClickHouseTest
             var configuration = configurationBuilder.Build();
             string connectionString = configuration.GetConnectionString("DefaultConnection");
 
-            ISession session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
             session.OnExecuting = (s, p) => Console.WriteLine(s);
 
             Random rnd = new Random();
@@ -1591,7 +1595,7 @@ namespace ClickHouseTest
             var configuration = configurationBuilder.Build();
             string connectionString = configuration.GetConnectionString("DefaultConnection");
 
-            ISession session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
             session.OnExecuting = (s, p) => Console.WriteLine(s);
 
             PeopleFace old = session.Queryable<PeopleFace>().Where(t => t.CameraId == "34010400000000000000").First();
@@ -1619,7 +1623,7 @@ namespace ClickHouseTest
             var configuration = configurationBuilder.Build();
             string connectionString = configuration.GetConnectionString("DefaultConnection");
 
-            ISession session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
             session.OnExecuting = (s, p) => Console.WriteLine(s);
 
             List<PeopleFace> oldList = session.Queryable<PeopleFace>().Where(t => t.CapturedTime > DateTime.Now.AddMinutes(-1)).QueryList<PeopleFace>();
@@ -1650,7 +1654,7 @@ namespace ClickHouseTest
             var configuration = configurationBuilder.Build();
             string connectionString = configuration.GetConnectionString("DefaultConnection");
 
-            ISession session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
             session.OnExecuting = (s, p) => Console.WriteLine(s);
 
             string newExtraInfo = DateTime.Now.AddYears(-1).ToString("yyyyMMddHHmmss");
@@ -1675,7 +1679,7 @@ namespace ClickHouseTest
             var configuration = configurationBuilder.Build();
             string connectionString = configuration.GetConnectionString("DefaultConnection");
 
-            ISession session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
             session.OnExecuting = (s, p) => Console.WriteLine(s);
             long count = session.Queryable<PeopleFace>().Where(t => t.CapturedTime > DateTime.Now.AddMinutes(-1)).Count();
             Console.WriteLine("删除前数量=" + count);
@@ -1696,7 +1700,7 @@ namespace ClickHouseTest
         public void Test5Query()
         {
             int queryCount = 10;
-            ISession session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
             session.OnExecuting = (s, p) => Console.WriteLine(s);
 
             List<PeopleFace> list = session.CreateSql("select * from people_face_replica t")
@@ -1724,7 +1728,7 @@ namespace ClickHouseTest
         public void Test5Query2()
         {
             int queryCount = 10;
-            ISession session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
             session.OnExecuting = (s, p) => Console.WriteLine(s);
 
             List<PeopleFace> list = session.CreateSql("select * from people_face_replica t")
@@ -1752,7 +1756,7 @@ namespace ClickHouseTest
         public void Test6QueryByLambda()
         {
             int queryCount = 10;
-            ISession session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
             session.OnExecuting = (s, p) => Console.WriteLine(s);
 
             List<PeopleFace> list = session.Queryable<PeopleFace>()
@@ -1778,7 +1782,7 @@ namespace ClickHouseTest
         [TestMethod]
         public void Test6QueryByLambda2()
         {
-            ISession session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
             session.OnExecuting = (s, p) => Console.WriteLine(s);
 
             var sql = session.Queryable<PeopleFace>()

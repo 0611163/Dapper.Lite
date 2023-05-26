@@ -22,7 +22,7 @@ namespace DAL
         {
             BsOrderDal m_BsOrderDetailDal = ServiceHelper.Get<BsOrderDal>(); //该行代码用于测试DAL相互引用，运行不报错即为通过测试
 
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             ISqlString sql = session.Sql("select * from bs_order_detail where order_id=@orderId order by order_num", orderId);
 

@@ -69,7 +69,7 @@ namespace Dapper.LiteTest
 
         private List<BsOrder> GetListForTestAppendIf(int? status, string remark, DateTime? startTime, DateTime? endTime, string ids)
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
             session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
             ISqlString sql = session.Sql(@"
@@ -115,7 +115,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void TestAppendWithAnonymous()
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
             session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
             ISqlString sql = session.Sql(@"
@@ -142,7 +142,7 @@ namespace Dapper.LiteTest
         {
             DateTime? startTime = null;
 
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
             session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
             List<SysUser> list = session.Sql(@"
@@ -182,11 +182,12 @@ namespace Dapper.LiteTest
         {
             DateTime? startTime = null;
 
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
             session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
             List<SysUser> list = session.Queryable<SysUser>()
 
+                //拼SQL写法
                 .Append(@" where t.create_userid = @CreateUserId 
                     and t.password like @Password
                     and t.id in @Ids",
@@ -197,15 +198,15 @@ namespace Dapper.LiteTest
                         Ids = session.ForList(new List<int> { 1, 2, 9, 10, 11 })
                     })
 
-                .Where(t => !t.RealName.Contains("管理员"))
+                .Where(t => !t.RealName.Contains("管理员")) //Lambda写法
 
-                .Append(@" and t.create_time >= @StartTime", new { StartTime = new DateTime(2020, 1, 1) })
+                .Append(@" and t.create_time >= @StartTime", new { StartTime = new DateTime(2020, 1, 1) }) //拼SQL写法
 
-                .Where(t => t.Id <= 20)
+                .Where(t => t.Id <= 20) //Lambda写法
 
-                .AppendIf(startTime.HasValue, " and t.create_time >= @StartTime ", new { StartTime = startTime })
+                .AppendIf(startTime.HasValue, " and t.create_time >= @StartTime ", new { StartTime = startTime }) //拼SQL写法
 
-                .Append(" and t.create_time <= @EndTime ", new { EndTime = new DateTime(2022, 8, 1) })
+                .Append(" and t.create_time <= @EndTime ", new { EndTime = new DateTime(2022, 8, 1) }) //拼SQL写法
 
                 .ToList();
 
@@ -225,7 +226,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void TestSameParam()
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
             session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
             var subSql = session.Sql<SysUser>("select t.Id from sys_user t")
@@ -266,7 +267,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void TestSubQuery() //拼接子查询
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
             session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
             var subSql = session.Sql<SysUser>().Select(t => new { t.Id }).Where(t => !t.RealName.Contains("管理员"));
@@ -301,7 +302,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void TestSubQuery2() //拼接子查询 union all
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
             session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
             var subSql = session.Sql<SysUser>().Select(t => new { t.Id }).Where(t => !t.RealName.Contains("管理员"));
@@ -340,7 +341,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void TestGroupBy()
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
             session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
             List<BsOrder> list = session.Queryable<BsOrder>(o => new { o.Id, o.Remark, o.OrderTime })
@@ -359,7 +360,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void TestGroupBy2()
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
             session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
             List<BsOrder> list = session.Sql(@"
@@ -379,7 +380,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void TestGroupBy3()
         {
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
             session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
             List<BsOrder> list = session.Queryable<BsOrder>(o => new { o.Id, o.Remark, o.OrderTime })
@@ -407,7 +408,7 @@ namespace Dapper.LiteTest
             DateTime? startTime = new DateTime(2020, 1, 1);
             DateTime? endTime = DateTime.Now.AddDays(1);
 
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
@@ -450,7 +451,7 @@ namespace Dapper.LiteTest
             DateTime? startTime = null;
             DateTime? endTime = DateTime.Now.AddDays(1);
 
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
@@ -487,7 +488,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void TestIDapperLiteClient()
         {
-            var db = LiteSqlFactory.Client;
+            var db = DapperLiteFactory.Client;
 
             db.OnExecuting = (s, p) =>
             {
@@ -518,7 +519,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void TestIDapperLiteClient2()
         {
-            var db = LiteSqlFactory.Client;
+            var db = DapperLiteFactory.Client;
             db.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
             ISqlString sql = db.Sql(@"

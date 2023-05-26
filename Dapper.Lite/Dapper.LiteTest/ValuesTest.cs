@@ -19,7 +19,7 @@ namespace Dapper.LiteTest
     {
         #region 变量
         private Random _rnd = new Random();
-        private IDbSession session = LiteSqlFactory.GetSession();
+        private IDbSession session = DapperLiteFactory.GetSession();
         #endregion
 
         #region 构造函数

@@ -39,6 +39,17 @@ namespace Dapper.Lite
             _session = session;
             _dbSession = session as DbSession;
         }
+
+        /// <summary>
+        /// SQL字符串类
+        /// </summary>
+        public SqlQueryable(IProvider provider, IDbSession session, string sql, DbParameter[] args)
+        {
+            _sqlString = new SqlString(provider, session, sql, args);
+            _provider = provider;
+            _session = session;
+            _dbSession = session as DbSession;
+        }
         #endregion
 
         #region Queryable

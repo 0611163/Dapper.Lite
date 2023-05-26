@@ -67,7 +67,7 @@ namespace Dapper.LiteTest
 
             string id = m_BsOrderDal.Insert(order, detailList);
 
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             bool bl = session.Sql("select * from bs_order where id=@Id", new { Id = id }).Exists();
             Assert.IsTrue(bl);
@@ -103,7 +103,7 @@ namespace Dapper.LiteTest
             Console.WriteLine("user.Id=" + user.Id);
             Assert.IsTrue(user.Id > 0);
 
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             bool bl = session.Sql("select * from sys_user where id=@Id", new { Id = user.Id }).Exists();
             Assert.IsTrue(bl);
@@ -123,7 +123,7 @@ namespace Dapper.LiteTest
             long id = await m_SysUserDal.InsertAsync(user);
             Console.WriteLine("user.Id=" + id);
             Assert.IsTrue(id > 0);
-            var session = LiteSqlFactory.GetSession();
+            var session = DapperLiteFactory.GetSession();
 
             bool bl = session.Sql("select * from sys_user where id=@Id", new { Id = id }).Exists();
             Assert.IsTrue(bl);

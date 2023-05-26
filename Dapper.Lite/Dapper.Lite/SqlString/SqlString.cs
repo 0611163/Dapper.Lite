@@ -101,9 +101,41 @@ namespace Dapper.Lite
                 Append(sql, args);
             }
         }
+
+        public SqlString(IProvider provider, IDbSession session, string sql, DbParameter[] args)
+        {
+            _provider = provider;
+            _session = session;
+            _dbSession = session as DbSession;
+
+            if (sql != null)
+            {
+                Append(sql, args);
+            }
+        }
         #endregion
 
         #region Append
+        /// <summary>
+        /// 追加参数化SQL
+        /// </summary>
+        /// <param name="sql">SQL</param>
+        /// <param name="args">参数</param>
+        public ISqlString Append(string sql, DbParameter[] args)
+        {
+            if (args != null)
+            {
+                foreach (var param in args)
+                {
+                    _params.Add(param.ParameterName, param);
+                }
+            }
+
+            _sql.Append(string.Format(" {0} ", sql.Trim()));
+
+            return this;
+        }
+
         /// <summary>
         /// 追加参数化SQL
         /// </summary>
@@ -209,11 +241,6 @@ namespace Dapper.Lite
                             _params.Add(param.ParameterName, param);
                         }
                     }
-                }
-                else if (value is DbParameter)
-                {
-                    DbParameter param = (DbParameter)value;
-                    _params.Add(param.ParameterName, param);
                 }
                 else
                 {
