@@ -76,10 +76,6 @@
       <Project>{01644bcc-53e1-4cbc-8024-b861378e5b7b}</Project>
       <Name>DAL</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Dapper.LiteSql\Dapper.LiteSql.csproj">
-      <Project>{14b4ab3b-60ce-48c3-8912-14a54a9b20fd}</Project>
-      <Name>Dapper.LiteSql</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Dapper.Lite\Dapper.Lite.csproj">
       <Project>{cdf617df-2216-4375-a99a-fc2e60c70ce9}</Project>
       <Name>Dapper.Lite</Name>
