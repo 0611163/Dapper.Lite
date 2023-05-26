@@ -1,0 +1,38 @@
+-- Table: public.sys_user
+
+-- DROP TABLE IF EXISTS public.sys_user;
+
+CREATE TABLE IF NOT EXISTS public.sys_user
+(
+    "Id" bigint NOT NULL,
+    "UserName" character varying(100) COLLATE pg_catalog."default",
+    "RealName" character varying(100) COLLATE pg_catalog."default",
+    "Password" character varying COLLATE pg_catalog."default",
+    "Remark" character varying COLLATE pg_catalog."default",
+    "CreateUserid" character varying COLLATE pg_catalog."default",
+    "CreateTime" date,
+    "UpdateUserid" character varying COLLATE pg_catalog."default",
+    "UpdateTime" date,
+    "Height" numeric(10,2),
+    CONSTRAINT sys_user_pkey PRIMARY KEY ("Id")
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.sys_user
+    OWNER to postgres;
+
+COMMENT ON TABLE public.sys_user
+    IS '用户表';
+
+COMMENT ON COLUMN public.sys_user."Id"
+    IS '主键';
+
+COMMENT ON COLUMN public.sys_user."UserName"
+    IS '用户名';
+
+COMMENT ON COLUMN public.sys_user."RealName"
+    IS '姓名';
+
+COMMENT ON COLUMN public.sys_user."Height"
+    IS '身高';
