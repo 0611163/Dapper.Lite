@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net461;netstandard2.0;net5.0</TargetFrameworks>
+        <TargetFrameworks>net461;netstandard2.0;net6.0</TargetFrameworks>
         <ImplicitUsings>disable</ImplicitUsings>
         <Nullable>disable</Nullable>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
@@ -24,12 +24,6 @@
             4. 移除自定义实体类特性，引用System.ComponentModel.Annotations库，以便兼容Entity Framework的实体类
         </PackageReleaseNotes>
     </PropertyGroup>
-
-    <ItemGroup>
-        <Compile Remove="lib\**" />
-        <EmbeddedResource Remove="lib\**" />
-        <None Remove="lib\**" />
-    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="AutoMapper" Version="10.1.1" />

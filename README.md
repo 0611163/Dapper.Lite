@@ -843,7 +843,7 @@ Assert.IsTrue(list.Count > 0);
 
 ## 直接使用Dapper
 
-有的功能Dapper.LiteSql不支持，例如调用存储过程，可以直接使用Dapper
+有的功能Dapper.Lite不支持，例如调用存储过程，可以直接使用Dapper
 使用Dapper时，可以直接new数据库连接对象，也可以从连接池获取连接对象
 
 ```C#
@@ -1188,7 +1188,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LiteSql.Provider
+namespace Dapper.Lite.Provider
 {
     public class ClickHouseProvider : IProvider
     {
@@ -1328,7 +1328,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LiteSql.Provider
+namespace Dapper.Lite.Provider
 {
     public class ColumnTypeUtil
     {
@@ -1353,7 +1353,7 @@ namespace LiteSql.Provider
 
 ```C#
 using Dapper.Lite;
-using LiteSql.Provider;
+using Dapper.Lite.Provider;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
