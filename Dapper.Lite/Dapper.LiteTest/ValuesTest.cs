@@ -41,7 +41,7 @@ namespace Dapper.LiteTest
             ValuesInfo info = new ValuesInfo();
             info.BytesValue = ASCIIEncoding.UTF8.GetBytes("字段类型测试");
             info.ByteValue = (byte)123;
-            //info.GuidValue = Guid.NewGuid();
+            info.GuidValue = Guid.NewGuid();
             info.CharValue = 'A';
             info.CharsValue = "ABC";
             info.BoolValue = true;
@@ -60,7 +60,7 @@ namespace Dapper.LiteTest
             session.AttachOld(info);
             info.BytesValue = ASCIIEncoding.UTF8.GetBytes("字段类型测试修改");
             info.ByteValue = (byte)123;
-            //info.GuidValue = Guid.NewGuid();
+            info.GuidValue = Guid.NewGuid();
             info.CharValue = 'B';
             info.CharsValue = "DEF";
             info.BoolValue = true;
@@ -85,7 +85,8 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void Test2QuerySingle()
         {
-            ValuesInfo2 info = session.Queryable<ValuesInfo2>().First();
+            var guidValue = new Guid("181d4961-2b35-4a18-96a7-9334740160ba");
+            ValuesInfo2 info = session.Queryable<ValuesInfo2>().Where(t => t.GuidValue == new Guid("181d4961-2b35-4a18-96a7-9334740160ba")).First();
             Assert.IsTrue(info != null);
 
             Console.WriteLine(ModelToStringUtil.ToString(info));

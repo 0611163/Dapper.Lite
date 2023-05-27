@@ -50,7 +50,7 @@ namespace Dapper.Lite
         /// <param name="provider">数据库Provider</param>
         /// <param name="maxPoolSize">数据库最大连接池大小</param>
         /// <param name="autoIncrement">主键自增全局配置(如果实体类或实体类的主键添加了AutoIncrementAttribute特性则不使用全局配置)</param>
-        public DapperLiteClient(string connectionString, DBType dbType, IProvider provider, int maxPoolSize = 50, bool autoIncrement = false)
+        public DapperLiteClient(string connectionString, DBType dbType, IProvider provider, int maxPoolSize = 100, bool autoIncrement = false)
         {
             _connectionString = connectionString;
             _dbType = dbType;
@@ -58,6 +58,8 @@ namespace Dapper.Lite
 
             ProviderFactory.RegisterDBProvider(dbType, provider);
             _connFactory = new DbConnectionFactory(provider, connectionString, maxPoolSize);
+
+            SqlMapper.AddTypeHandler(typeof(Guid), new GuidTypeHanlder());
         }
 
         /// <summary>
@@ -68,7 +70,7 @@ namespace Dapper.Lite
         /// <param name="provider">数据库Provider</param>
         /// <param name="maxPoolSize">数据库最大连接池大小</param>
         /// <param name="autoIncrement">主键自增全局配置(如果实体类或实体类的主键添加了AutoIncrementAttribute特性则不使用全局配置)</param>
-        public DapperLiteClient(string connectionString, Type providerType, IProvider provider, int maxPoolSize = 50, bool autoIncrement = false)
+        public DapperLiteClient(string connectionString, Type providerType, IProvider provider, int maxPoolSize = 100, bool autoIncrement = false)
         {
             _connectionString = connectionString;
             _providerType = providerType;
@@ -76,6 +78,8 @@ namespace Dapper.Lite
 
             ProviderFactory.RegisterDBProvider(providerType, provider);
             _connFactory = new DbConnectionFactory(provider, connectionString, maxPoolSize);
+
+            SqlMapper.AddTypeHandler(typeof(Guid), new GuidTypeHanlder());
         }
         #endregion
 

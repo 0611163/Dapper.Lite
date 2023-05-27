@@ -507,6 +507,10 @@ namespace Dapper.Lite
                 result.Value = VisitConstant(operandExp);
                 result.Type = ExpValueType.OnlyValue;
             }
+            else if (operandExp is NewExpression)
+            {
+                result = VisitNew(operandExp as NewExpression);
+            }
             else
             {
                 throw new Exception("不支持");

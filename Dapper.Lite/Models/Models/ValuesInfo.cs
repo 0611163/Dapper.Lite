@@ -29,8 +29,8 @@ namespace Models
         [Column("byte_value")]
         public byte? ByteValue { get; set; }
 
-        //[Column("guid_value")]
-        //public Guid? GuidValue { get; set; }
+        [Column("guid_value")]
+        public Guid? GuidValue { get; set; }
 
         [Column("char_value")]
         public char? CharValue { get; set; }
