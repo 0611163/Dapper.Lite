@@ -13,7 +13,7 @@ var session = DapperLiteFactory.GetSession();
 
 session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
-List<SysUser> list = session.CreateSql(@"
+List<SysUser> list = session.Sql(@"
     select * from sys_user t where t.id <= @Id", new { Id = 20 })
 
     .Append(@" and t.create_userid = @CreateUserId 
@@ -32,7 +32,7 @@ List<SysUser> list = session.CreateSql(@"
 
     .QueryList<SysUser>();
 
-long id = session.CreateSql("select id from sys_user where id=@Id", new { Id = 1 })
+long id = session.Sql("select id from sys_user where id=@Id", new { Id = 1 })
     .QuerySingle<long>();
 Assert.IsTrue(id == 1);
 
@@ -401,7 +401,7 @@ public void Delete(string id)
 
 ```C#
 var session = DapperLiteFactory.GetSession();
-session.CreateSql("id>@Id", 20).Delete<SysUser>();
+session.Sql("id>@Id", 20).Delete<SysUser>();
 ```
 
 ```C#
@@ -439,7 +439,7 @@ public List<BsOrder> GetList(int? status, string remark, DateTime? startTime, Da
 {
     var session = DapperLiteFactory.GetSession();
 
-    ISqlString sql = session.CreateSql(@"
+    ISqlString sql = session.Sql(@"
         select t.*, u.real_name as OrderUserRealName
         from bs_order t
         left join sys_user u on t.order_userid=u.id
@@ -467,7 +467,7 @@ public List<BsOrder> GetList(int? status, string remark, DateTime? startTime, Da
 {
     var session = DapperLiteFactory.GetSession();
 
-    ISqlString sql = session.CreateSql(@"
+    ISqlString sql = session.Sql(@"
         select t.*, u.real_name as OrderUserRealName
         from bs_order t
         left join sys_user u on t.order_userid=u.id
@@ -495,7 +495,7 @@ public List<BsOrder> GetListPage(ref PageModel pageModel, int? status, string re
 {
     var session = DapperLiteFactory.GetSession();
 
-    ISqlString sql = session.CreateSql(@"
+    ISqlString sql = session.Sql(@"
         select t.*, u.real_name as OrderUserRealName
         from bs_order t
         left join sys_user u on t.order_userid=u.id
@@ -564,7 +564,7 @@ public async Task<List<BsOrder>> GetListPageAsync(PageModel pageModel, int? stat
 {
     var session = DapperLiteFactory.GetSession();
 
-    ISqlString sql = session.CreateSql(@"
+    ISqlString sql = session.Sql(@"
         select t.*, u.real_name as OrderUserRealName
         from bs_order t
         left join sys_user u on t.order_userid=u.id
@@ -593,7 +593,7 @@ public List<BsOrder> GetListExt(int? status, string remark, DateTime? startTime,
 {
     var session = DapperLiteFactory.GetSession();
 
-    ISqlString sql = session.CreateSql(@"
+    ISqlString sql = session.Sql(@"
         select t.*, u.real_name as OrderUserRealName
         from bs_order t
         left join sys_user u on t.order_userid=u.id
@@ -682,7 +682,7 @@ public void TestQueryByLambda9()
 {
     var session = DapperLiteFactory.GetSession();
 
-    ISqlQueryable<BsOrder> sql = session.CreateSql<BsOrder>(@"
+    ISqlQueryable<BsOrder> sql = session.Sql<BsOrder>(@"
         select t.*, u.real_name as OrderUserRealName
         from bs_order t
         left join sys_user u on t.order_userid=u.id");
@@ -753,9 +753,9 @@ var session = DapperLiteFactory.GetSession();
 
 session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
-var subSql = session.CreateSql<SysUser>().Select(t => new { t.Id }).Where(t => !t.RealName.Contains("管理员"));
+var subSql = session.Sql<SysUser>().Select(t => new { t.Id }).Where(t => !t.RealName.Contains("管理员"));
 
-var subSql2 = session.CreateSql<SysUser>().Select(t => new { t.Id }).Where(t => t.Id <= 20);
+var subSql2 = session.Sql<SysUser>().Select(t => new { t.Id }).Where(t => t.Id <= 20);
 
 var sql = session.Queryable<SysUser>()
 
@@ -819,13 +819,13 @@ var session = DapperLiteFactory.GetSession();
 
 session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
-List<SysUser> list = session.CreateSql<SysUser>()
+List<SysUser> list = session.Sql<SysUser>()
     .Select(t => new
     {
         t.RealName,
         t.CreateUserid
     })
-    .Select(session.CreateSql(@"(
+    .Select(session.Sql(@"(
             select count(1) 
             from bs_order o 
             where o.order_userid = t.id
@@ -1660,7 +1660,7 @@ namespace ClickHouseTest
             string newExtraInfo = DateTime.Now.AddYears(-1).ToString("yyyyMMddHHmmss");
 
             //可以这样批量更新
-            session.CreateSql<PeopleFace>("alter table people_face_replica update extra_info=@ExtraInfo where captured_time <= @Time", new { ExtraInfo = newExtraInfo, Time = DateTime.Now }).Execute();
+            session.Sql<PeopleFace>("alter table people_face_replica update extra_info=@ExtraInfo where captured_time <= @Time", new { ExtraInfo = newExtraInfo, Time = DateTime.Now }).Execute();
 
             Thread.Sleep(100);
 
@@ -1684,7 +1684,7 @@ namespace ClickHouseTest
             long count = session.Queryable<PeopleFace>().Where(t => t.CapturedTime > DateTime.Now.AddMinutes(-1)).Count();
             Console.WriteLine("删除前数量=" + count);
 
-            session.CreateSql("captured_time>@Time", new { Time = DateTime.Now.AddDays(-10) }).DeleteByCondition<PeopleFace>();
+            session.Sql("captured_time>@Time", new { Time = DateTime.Now.AddDays(-10) }).DeleteByCondition<PeopleFace>();
 
             Thread.Sleep(100);
 
@@ -1703,7 +1703,7 @@ namespace ClickHouseTest
             var session = DapperLiteFactory.GetSession();
             session.OnExecuting = (s, p) => Console.WriteLine(s);
 
-            List<PeopleFace> list = session.CreateSql("select * from people_face_replica t")
+            List<PeopleFace> list = session.Sql("select * from people_face_replica t")
                 .Append("where t.captured_time <= @EndTime", DateTime.Now)
                 .Append("order by captured_time desc")
                 .Append("limit " + queryCount)
@@ -1731,7 +1731,7 @@ namespace ClickHouseTest
             var session = DapperLiteFactory.GetSession();
             session.OnExecuting = (s, p) => Console.WriteLine(s);
 
-            List<PeopleFace> list = session.CreateSql("select * from people_face_replica t")
+            List<PeopleFace> list = session.Sql("select * from people_face_replica t")
                 .Append("where t.captured_time <= @EndTime", new { EndTime = DateTime.Now })
                 .Append("order by captured_time desc")
                 .AppendFormat("limit {0}", queryCount)
