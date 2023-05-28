@@ -17,12 +17,12 @@ namespace Dapper.Lite
         /// <summary>
         /// 数据库提供者
         /// </summary>
-        public IProvider Provider { get; set; }
+        internal IProvider Provider { get; set; }
 
         /// <summary>
         /// 数据库连接字符串
         /// </summary>
-        public string ConnectionString { get; set; }
+        internal string ConnectionString { get; set; }
 
         /// <summary>
         /// 数据库事务
@@ -35,14 +35,9 @@ namespace Dapper.Lite
         public DbConnection Conn { get; set; }
 
         /// <summary>
-        /// 更新时间
-        /// </summary>
-        public DateTime UpdateTime { get; set; }
-
-        /// <summary>
         /// 数据库连接工厂
         /// </summary>
-        public DbConnectionFactory ConnFactory { get; set; }
+        internal DbConnectionFactory ConnFactory { get; set; }
 
         /// <summary>
         /// 数据库连接扩展
@@ -53,7 +48,6 @@ namespace Dapper.Lite
             Provider = provider;
             ConnectionString = connectionString;
             ConnFactory = connFactory;
-            UpdateTime = DateTime.Now;
         }
 
         /// <summary>

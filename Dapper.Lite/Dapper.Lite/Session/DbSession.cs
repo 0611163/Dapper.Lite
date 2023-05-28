@@ -210,17 +210,17 @@ namespace Dapper.Lite
         /// <summary>
         /// 从连接池池获取连接
         /// </summary>
-        public DbConnectionExt GetConnection(DbTransactionExt _tran = null)
+        public DbConnectionExt GetConnection(DbTransactionExt tran = null)
         {
-            return _connFactory.GetConnection(_tran);
+            return _connFactory.GetConnection(tran);
         }
 
         /// <summary>
         /// 从连接池池获取连接
         /// </summary>
-        public Task<DbConnectionExt> GetConnectionAsync(DbTransactionExt _tran = null)
+        public Task<DbConnectionExt> GetConnectionAsync(DbTransactionExt tran = null)
         {
-            return _connFactory.GetConnectionAsync(_tran);
+            return _connFactory.GetConnectionAsync(tran);
         }
         #endregion
 

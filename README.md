@@ -870,6 +870,31 @@ using (var conn = session.GetConnection()) //此处从连接池获取连接，�
 }
 ```
 
+也可以这样写：
+
+```C#
+var session = DapperLiteFactory.GetSession();
+
+session.SetTypeMap<SysUser>(); //设置数据库字段名与实体类属性名映射
+
+using (var conn = session.GetConnection()) //此处从连接池获取连接，用完一定要释放，也可以不使用连接池，直接new MySqlConnection
+{
+    var sql = session.Sql<SysUser>(@"
+        select *
+        from sys_user 
+        where id < @id", 20);
+
+    var list = conn.Conn.Query<SysUser>(sql.SQL, sql.DynamicParameters).ToList();
+
+    foreach (SysUser item in list)
+    {
+        Console.WriteLine(ModelToStringUtil.ToString(item));
+
+        Assert.IsTrue(!string.IsNullOrWhiteSpace(item.UserName));
+    }
+}
+```
+
 ## 手动分表
 
 ### 定义DapperLiteFactory类

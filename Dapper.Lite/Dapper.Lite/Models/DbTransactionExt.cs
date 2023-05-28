@@ -16,6 +16,14 @@ namespace Dapper.Lite
 
         public DbConnectionExt ConnEx { get; set; }
 
+        public DbConnection Conn
+        {
+            get
+            {
+                return ConnEx?.Conn;
+            }
+        }
+
         public DbTransactionExt(DbTransaction tran, DbConnectionExt connEx)
         {
             Tran = tran;

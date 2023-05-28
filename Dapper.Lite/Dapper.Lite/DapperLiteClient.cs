@@ -209,7 +209,8 @@ namespace Dapper.Lite
         /// </summary>
         public DbConnectionExt GetConnection()
         {
-            return _connFactory.GetConnection(null);
+            var session = GetSession();
+            return session.GetConnection(null);
         }
 
         /// <summary>
@@ -218,7 +219,8 @@ namespace Dapper.Lite
         /// </summary>
         public Task<DbConnectionExt> GetConnectionAsync()
         {
-            return _connFactory.GetConnectionAsync(null);
+            var session = GetSession();
+            return session.GetConnectionAsync(null);
         }
         #endregion
 

@@ -174,5 +174,48 @@ namespace Dapper.LiteTest
         }
         #endregion
 
+        #region 测试直接使用Dapper5
+        [TestMethod]
+        public void TestUseDapper5()
+        {
+            Random rnd = new Random();
+            var remark1 = $"测试修改用户{rnd.Next(1, 10000)}";
+            var remark2 = $"测试修改用户{rnd.Next(1, 10000)}";
+
+            var session = DapperLiteFactory.GetSession();
+
+            session.SetTypeMap<SysUser>(); //设置数据库字段名与实体类属性名映射
+
+            using (var conn = session.GetConnection()) //此处从连接池获取连接，用完一定要释放，也可以不使用连接池，直接new MySqlConnection
+            {
+                try
+                {
+                    var trans = session.BeginTransaction();
+
+                    var sql1 = session.Sql<SysUser>(@"update sys_user set remark=@Remark where id=@Id", new { Remark = remark1, Id = 1 });
+                    var sql2 = session.Sql<SysUser>(@"update sys_user set remark=@Remark where id=@Id", new { Remark = remark2, Id = 2 });
+                    trans.Conn.Execute(sql1.SQL, sql1.DynamicParameters);
+                    trans.Conn.Execute(sql2.SQL, sql2.DynamicParameters);
+
+                    session.CommitTransaction();
+                }
+                catch
+                {
+                    session.RollbackTransaction();
+                    throw;
+                }
+
+                var sql3 = session.Queryable<SysUser>().Where(t => t.Id == 1);
+                var user1 = conn.Conn.QuerySingleOrDefault<SysUser>(sql3.SQL, sql3.DynamicParameters);
+                var sql4 = session.Queryable<SysUser>().Where(t => t.Id == 2);
+                var user2 = conn.Conn.QuerySingleOrDefault<SysUser>(sql4.SQL, sql4.DynamicParameters);
+
+                Assert.IsTrue(user1.Remark == remark1);
+                Assert.IsTrue(user2.Remark == remark2);
+            }
+
+        }
+        #endregion
+
     }
 }
