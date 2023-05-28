@@ -879,10 +879,7 @@ session.SetTypeMap<SysUser>(); //设置数据库字段名与实体类属性名�
 
 using (var conn = session.GetConnection()) //此处从连接池获取连接，用完一定要释放，也可以不使用连接池，直接new MySqlConnection
 {
-    var sql = session.Sql<SysUser>(@"
-        select *
-        from sys_user 
-        where id < @id", 20);
+    var sql = session.Where(t => t.Id < 20 && t.RealName.Contains("管理员"));
 
     var list = conn.Conn.Query<SysUser>(sql.SQL, sql.DynamicParameters).ToList();
 

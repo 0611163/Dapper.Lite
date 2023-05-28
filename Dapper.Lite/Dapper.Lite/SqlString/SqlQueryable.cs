@@ -70,7 +70,7 @@ namespace Dapper.Lite
                 PropertyInfo propertyInfo = propertyInfoEx.PropertyInfo;
                 if (propertyInfo.GetCustomAttribute<ColumnAttribute>() != null)
                 {
-                    _sqlString.Sql.AppendFormat("{0}.{1}{2}{3},", alias, _provider.OpenQuote, propertyInfoEx.FieldName, _provider.CloseQuote);
+                    _sqlString.Sql.AppendFormat(" {0}.{1}{2}{3},", alias, _provider.OpenQuote, propertyInfoEx.FieldName, _provider.CloseQuote);
                 }
             }
 
@@ -128,7 +128,7 @@ namespace Dapper.Lite
                 ExpressionHelper<T> condition = new ExpressionHelper<T>(_provider, _sqlString.DbParameterNames, SqlStringMethod.Where);
 
                 DbParameter[] dbParameters;
-                string result = " (" + condition.VisitLambda(expression, out dbParameters) + ")";
+                string result = condition.VisitLambda(expression, out dbParameters);
 
                 if (dbParameters != null)
                 {
@@ -165,7 +165,7 @@ namespace Dapper.Lite
                 ExpressionHelper<T> condition = new ExpressionHelper<T>(_provider, _sqlString.DbParameterNames, SqlStringMethod.Where);
 
                 DbParameter[] dbParameters;
-                string result = " (" + condition.VisitLambda(expression, out dbParameters) + ")";
+                string result = condition.VisitLambda(expression, out dbParameters);
 
                 if (dbParameters != null)
                 {
@@ -202,7 +202,7 @@ namespace Dapper.Lite
                 ExpressionHelper<T> condition = new ExpressionHelper<T>(_provider, _sqlString.DbParameterNames, SqlStringMethod.Where);
 
                 DbParameter[] dbParameters;
-                string result = " (" + condition.VisitLambda(expression, out dbParameters) + ")";
+                string result = condition.VisitLambda(expression, out dbParameters);
 
                 if (dbParameters != null)
                 {
@@ -239,7 +239,7 @@ namespace Dapper.Lite
                 ExpressionHelper<T> condition = new ExpressionHelper<T>(_provider, _sqlString.DbParameterNames, SqlStringMethod.Where);
 
                 DbParameter[] dbParameters;
-                string result = " (" + condition.VisitLambda(expression, out dbParameters) + ")";
+                string result = condition.VisitLambda(expression, out dbParameters);
 
                 if (dbParameters != null)
                 {

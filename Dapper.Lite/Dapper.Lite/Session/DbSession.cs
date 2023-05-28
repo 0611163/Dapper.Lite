@@ -222,6 +222,26 @@ namespace Dapper.Lite
         {
             return _connFactory.GetConnectionAsync(tran);
         }
+
+        /// <summary>
+        /// 从连接池池获取连接，已经Open
+        /// </summary>
+        public DbConnectionExt GetOpenedConnection(DbTransactionExt tran = null)
+        {
+            var connEx = _connFactory.GetConnection(tran);
+            if (connEx.Conn.State == ConnectionState.Closed) connEx.Conn.Open();
+            return connEx;
+        }
+
+        /// <summary>
+        /// 从连接池池获取连接，已经Open
+        /// </summary>
+        public async Task<DbConnectionExt> GetOpenedConnectionAsync(DbTransactionExt tran = null)
+        {
+            var connEx = _connFactory.GetConnection(tran);
+            if (connEx.Conn.State == ConnectionState.Closed) await connEx.Conn.OpenAsync();
+            return connEx;
+        }
         #endregion
 
     }

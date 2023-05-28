@@ -70,6 +70,16 @@ namespace Dapper.Lite
         /// 从连接池池获取连接
         /// </summary>
         Task<DbConnectionExt> GetConnectionAsync(DbTransactionExt tran = null);
+
+        /// <summary>
+        /// 从连接池池获取连接，已经Open
+        /// </summary>
+        DbConnectionExt GetOpenedConnection(DbTransactionExt tran = null);
+
+        /// <summary>
+        /// 从连接池池获取连接，已经Open
+        /// </summary>
+        Task<DbConnectionExt> GetOpenedConnectionAsync(DbTransactionExt tran = null);
         #endregion
 
         #region 设置 数据库字段名与实体类属性名映射

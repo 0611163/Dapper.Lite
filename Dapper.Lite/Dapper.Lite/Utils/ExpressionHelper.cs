@@ -118,7 +118,14 @@ namespace Dapper.Lite
             else if (exp.NodeType == ExpressionType.Not) //支持 not in
             {
                 UnaryExpression unaryExp = exp as UnaryExpression;
-                result = VisitMethodCall(unaryExp.Operand as MethodCallExpression, exp);
+                if (unaryExp.Operand is MethodCallExpression)
+                {
+                    result = VisitMethodCall(unaryExp.Operand as MethodCallExpression, exp);
+                }
+                else
+                {
+                    throw new Exception("不支持");
+                }
             }
             else
             {
@@ -140,7 +147,15 @@ namespace Dapper.Lite
             ExpValue left = VisitConditions(exp.Left);
             ExpValue right = VisitConditions(exp.Right);
 
-            result.Sql = string.Format(" ({0} {1} {2}) ", left.Sql, ToSqlOperator(exp.NodeType), right.Sql);
+            var sqlOperator = ToSqlOperator(exp.NodeType);
+            if (sqlOperator == "AND")
+            {
+                result.Sql = string.Format(" {0} {1} {2} ", left.Sql, ToSqlOperator(exp.NodeType), right.Sql);
+            }
+            else
+            {
+                result.Sql = string.Format(" ({0} {1} {2}) ", left.Sql, ToSqlOperator(exp.NodeType), right.Sql);
+            }
             result.Type = ExpValueType.SqlAndDbParameter;
 
             result.DbParameters.AddRange(left.DbParameters);
@@ -207,13 +222,13 @@ namespace Dapper.Lite
                             string markKey = _provider.GetParameterName(left.MemberAliasName, parameterType);
 
                             result.DbParameters.Add(_provider.GetDbParameter(left.MemberAliasName, right.Value));
-                            result.Sql = string.Format(" ({0}.{1} {2} {3}) ", left.MemberParentName, left.MemberDBField, ToSqlOperator(exp.NodeType), sqlValue.Sql.Replace("{0}", markKey));
+                            result.Sql = string.Format(" {0}.{1} {2} {3} ", left.MemberParentName, left.MemberDBField, ToSqlOperator(exp.NodeType), sqlValue.Sql.Replace("{0}", markKey));
                         }
                         else
                         {
                             string markKey = _provider.GetParameterName(left.MemberAliasName, right.Value.GetType());
                             result.DbParameters.Add(_provider.GetDbParameter(left.MemberAliasName, right.Value));
-                            result.Sql = string.Format(" ({0}.{1} {2} {3}) ", left.MemberParentName, left.MemberDBField, ToSqlOperator(exp.NodeType), markKey);
+                            result.Sql = string.Format(" {0}.{1} {2} {3} ", left.MemberParentName, left.MemberDBField, ToSqlOperator(exp.NodeType), markKey);
                         }
                     }
                 }

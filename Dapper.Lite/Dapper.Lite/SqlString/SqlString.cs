@@ -706,7 +706,7 @@ namespace Dapper.Lite
                     }
                     else
                     {
-                        sql = regex3.Replace(sql, newParamName + " ", 1);
+                        sql = regex3.Replace(sql, newParamName + ",", 1);
                     }
                 }
             }

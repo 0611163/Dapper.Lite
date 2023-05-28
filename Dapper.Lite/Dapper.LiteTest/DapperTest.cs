@@ -5,12 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DAL;
 using Models;
 using Utils;
-using Dapper;
-using static Dapper.SqlMapper;
-using System.Data.Common;
 using System.Threading;
 
 namespace Dapper.LiteTest
@@ -58,7 +54,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void TestUseDapper2()
         {
-            ThreadPool.SetMinThreads(50, 50);
+            ThreadPool.SetMinThreads(200, 200);
 
             Console.WriteLine("开始");
             List<Task> tasks = new List<Task>();
@@ -156,10 +152,7 @@ namespace Dapper.LiteTest
 
             using (var conn = db.GetConnection()) //此处从连接池获取连接，用完一定要释放，也可以不使用连接池，直接new MySqlConnection
             {
-                var sql = db.Sql<SysUser>(@"
-                    select *
-                    from sys_user 
-                    where id < @id", 20);
+                var sql = db.Queryable<SysUser>().Where(t => t.Id < 20 && t.RealName.Contains("管理员"));
 
                 var list = conn.Conn.Query<SysUser>(sql.SQL, sql.DynamicParameters).ToList();
 
@@ -213,6 +206,62 @@ namespace Dapper.LiteTest
                 Assert.IsTrue(user1.Remark == remark1);
                 Assert.IsTrue(user2.Remark == remark2);
             }
+
+        }
+        #endregion
+
+        #region 测试直接使用Dapper6
+        [TestMethod]
+        public void TestUseDapper6()
+        {
+            ThreadPool.SetMinThreads(50, 50);
+            List<Task> tasks = new List<Task>();
+            for (int i = 0; i < 50; i++)
+            {
+                int index = i;
+                var task = Task.Run(() =>
+                {
+                    Random rnd = new Random();
+                    var remark1 = $"测试修改用户{rnd.Next(1, 10000)}";
+                    var remark2 = $"测试修改用户{rnd.Next(1, 10000)}";
+
+                    var session = DapperLiteFactory.GetSession();
+
+                    session.SetTypeMap<SysUser>(); //设置数据库字段名与实体类属性名映射
+
+                    using (var connEx = session.GetOpenedConnection()) //此处从连接池获取连接，用完一定要释放，也可以不使用连接池，直接new MySqlConnection
+                    {
+                        var conn = connEx.Conn;
+                        var trans = conn.BeginTransaction();
+
+                        try
+                        {
+                            var sql1 = session.Sql<SysUser>(@"update sys_user set remark=@Remark where id=@Id", new { Remark = remark1, Id = 1 });
+                            var sql2 = session.Sql<SysUser>(@"update sys_user set remark=@Remark where id=@Id", new { Remark = remark2, Id = 2 });
+                            conn.Execute(sql1.SQL, sql1.DynamicParameters, trans);
+                            conn.Execute(sql2.SQL, sql2.DynamicParameters, trans);
+
+                            trans.Commit();
+                        }
+                        catch
+                        {
+                            trans.Rollback();
+                            throw;
+                        }
+
+                        var sql3 = session.Queryable<SysUser>().Where(t => t.Id == 1);
+                        var user1 = conn.QuerySingleOrDefault<SysUser>(sql3.SQL, sql3.DynamicParameters);
+                        var sql4 = session.Queryable<SysUser>().Where(t => t.Id == 2);
+                        var user2 = conn.QuerySingleOrDefault<SysUser>(sql4.SQL, sql4.DynamicParameters);
+
+                        Assert.IsTrue(user1 != null);
+                        Assert.IsTrue(user2 != null);
+                        Console.WriteLine("完成" + index);
+                    }
+                });
+                tasks.Add(task);
+            }
+            Task.WaitAll(tasks.ToArray());
 
         }
         #endregion
