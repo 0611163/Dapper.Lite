@@ -719,14 +719,19 @@ namespace Dapper.Lite
         }
 
         /// <summary>
+        /// 参数化查询的SQL
+        /// </summary>
+        public string SQL => _sqlString.SQL;
+
+        /// <summary>
         /// 参数化查询的参数
         /// </summary>
         public DbParameter[] Params => _sqlString.Params;
 
         /// <summary>
-        /// 参数化查询的SQL
+        /// 参数化查询的参数
         /// </summary>
-        public string SQL => _sqlString.SQL;
+        public DynamicParameters DynamicParameters => _sqlString.DynamicParameters;
 
         /// <summary>
         /// 追加参数化SQL

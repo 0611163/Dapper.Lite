@@ -32,6 +32,17 @@ namespace Dapper.Lite
         public DbParameter[] Params { get { return _params.Values.ToArray(); } }
 
         /// <summary>
+        /// 参数化查询的参数
+        /// </summary>
+        public DynamicParameters DynamicParameters
+        {
+            get
+            {
+                return _dbSession.ToDynamicParameters(Params);
+            }
+        }
+
+        /// <summary>
         /// 参数化查询的SQL
         /// </summary>
         public string SQL { get { return _sql.ToString(); } }

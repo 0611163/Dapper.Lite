@@ -21,19 +21,9 @@ namespace Dapper.Lite
         private readonly DbConnectionPool _connectionPool;
 
         /// <summary>
-        /// 数据库连接超时释放时间
+        /// 连接池最大数量
         /// </summary>
-        private readonly int _timeout = 10;
-
-        /// <summary>
-        /// 连接池最小数量
-        /// </summary>
-        private readonly int _minPoolSize = 10;
-
-        /// <summary>
-        /// 定时器
-        /// </summary>
-        private readonly Timer _timer;
+        private readonly int? _maxPoolSize = null;
 
         /// <summary>
         /// 数据库提供者
@@ -49,52 +39,34 @@ namespace Dapper.Lite
         /// <summary>
         /// 数据库连接工厂构造函数
         /// </summary>
-        public DbConnectionFactory(IProvider provider, string connectionString, int maxPoolSize)
+        public DbConnectionFactory(IProvider provider, string connectionString, int? maxPoolSize)
         {
             _provider = provider;
             _connectionString = connectionString;
+            _maxPoolSize = maxPoolSize;
             _connectionPool = new DbConnectionPool(provider, connectionString);
 
             //初始化数据库连接对象池
-            for (int i = 0; i < maxPoolSize; i++)
+            if (maxPoolSize != null)
             {
-                DbConnection conn = _provider.CreateConnection(_connectionString);
-                DbConnectionExt connExt = new DbConnectionExt(conn, provider, connectionString, this);
-                if (i < _minPoolSize)
+                for (int i = 0; i < maxPoolSize; i++)
                 {
-                    conn.Open();
+                    DbConnection conn = _provider.CreateConnection(_connectionString);
+                    DbConnectionExt connExt = new DbConnectionExt(conn, provider, connectionString, this);
+                    _connectionPool.Connections.Enqueue(connExt);
+                    if (i < 5) conn.Open();
                 }
-                _connectionPool.Connections.Enqueue(connExt);
             }
-
-            #region 定时释放数据库连接
-            _timer = new Timer(obj =>
+            else
             {
-                try
+                for (int i = 0; i < 100; i++)
                 {
-                    for (int i = 0; i < 10; i++)
-                    {
-                        if (_connectionPool.Connections.TryDequeue(out DbConnectionExt connExt))
-                        {
-                            //数据库连接过期重新创建
-                            if (DateTime.Now.Subtract(connExt.UpdateTime).TotalSeconds > _timeout)
-                            {
-                                connExt.Conn.Close();
-                                DbConnection conn = _provider.CreateConnection(_connectionString);
-                                connExt = new DbConnectionExt(conn, _provider, _connectionString, this);
-                            }
-
-                            _connectionPool.Connections.Enqueue(connExt);
-                        }
-                    }
+                    DbConnection conn = _provider.CreateConnection(_connectionString);
+                    DbConnectionExt connExt = new DbConnectionExt(conn, provider, connectionString, this);
+                    _connectionPool.Connections.Enqueue(connExt);
+                    if (i < 5) conn.Open();
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                }
-            }, null, 1000, 1000);
-            #endregion
-
+            }
         }
         #endregion
 
@@ -109,16 +81,24 @@ namespace Dapper.Lite
                 return _tran.ConnEx;
             }
 
-            SpinWait spinWait = new SpinWait();
             DbConnectionExt connExt;
-            while (!_connectionPool.Connections.TryDequeue(out connExt))
+            if (_maxPoolSize != null)
             {
-                spinWait.SpinOnce();
+                SpinWait spinWait = new SpinWait();
+                while (!_connectionPool.Connections.TryDequeue(out connExt))
+                {
+                    spinWait.SpinOnce();
+                }
             }
-            if (connExt.Conn.State != ConnectionState.Open)
+            else
             {
-                connExt.Conn.Open();
+                if (!_connectionPool.Connections.TryDequeue(out connExt))
+                {
+                    DbConnection conn = _provider.CreateConnection(_connectionString);
+                    connExt = new DbConnectionExt(conn, _provider, _connectionString, this);
+                }
             }
+
             return connExt;
         }
         #endregion
@@ -134,16 +114,26 @@ namespace Dapper.Lite
                 return _tran.ConnEx;
             }
 
-            SpinWait spinWait = new SpinWait();
             DbConnectionExt connExt;
-            while (!_connectionPool.Connections.TryDequeue(out connExt))
+            if (_maxPoolSize != null)
             {
-                spinWait.SpinOnce();
+                SpinWait spinWait = new SpinWait();
+                while (!_connectionPool.Connections.TryDequeue(out connExt))
+                {
+                    spinWait.SpinOnce();
+                }
             }
-            if (connExt.Conn.State != ConnectionState.Open)
+            else
             {
-                await connExt.Conn.OpenAsync();
+                if (!_connectionPool.Connections.TryDequeue(out connExt))
+                {
+                    DbConnection conn = _provider.CreateConnection(_connectionString);
+                    connExt = new DbConnectionExt(conn, _provider, _connectionString, this);
+                }
             }
+
+            await Task.CompletedTask;
+
             return connExt;
         }
         #endregion
@@ -154,14 +144,6 @@ namespace Dapper.Lite
         /// </summary>
         public void Release(DbConnectionExt connExt)
         {
-            //数据库连接过期重新创建
-            if (DateTime.Now.Subtract(connExt.UpdateTime).TotalSeconds > _timeout)
-            {
-                connExt.Conn.Close();
-                DbConnection conn = _provider.CreateConnection(_connectionString);
-                connExt = new DbConnectionExt(conn, _provider, _connectionString, this);
-            }
-
             _connectionPool.Connections.Enqueue(connExt);
         }
         #endregion

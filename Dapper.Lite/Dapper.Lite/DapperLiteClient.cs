@@ -48,9 +48,9 @@ namespace Dapper.Lite
         /// <param name="connectionString">数据库连接字符串</param>
         /// <param name="dbType">数据库类型</param>
         /// <param name="provider">数据库Provider</param>
-        /// <param name="maxPoolSize">数据库最大连接池大小</param>
+        /// <param name="maxPoolSize">数据库最大连接池大小，null值表示不设置上限</param>
         /// <param name="autoIncrement">主键自增全局配置(如果实体类或实体类的主键添加了AutoIncrementAttribute特性则不使用全局配置)</param>
-        public DapperLiteClient(string connectionString, DBType dbType, IProvider provider, int maxPoolSize = 100, bool autoIncrement = false)
+        public DapperLiteClient(string connectionString, DBType dbType, IProvider provider, int? maxPoolSize = 100, bool autoIncrement = false)
         {
             _connectionString = connectionString;
             _dbType = dbType;
@@ -68,9 +68,9 @@ namespace Dapper.Lite
         /// <param name="connectionString">数据库连接字符串</param>
         /// <param name="providerType">数据库提供者类型</param>
         /// <param name="provider">数据库Provider</param>
-        /// <param name="maxPoolSize">数据库最大连接池大小</param>
+        /// <param name="maxPoolSize">数据库最大连接池大小，null值表示不设置上限</param>
         /// <param name="autoIncrement">主键自增全局配置(如果实体类或实体类的主键添加了AutoIncrementAttribute特性则不使用全局配置)</param>
-        public DapperLiteClient(string connectionString, Type providerType, IProvider provider, int maxPoolSize = 100, bool autoIncrement = false)
+        public DapperLiteClient(string connectionString, Type providerType, IProvider provider, int? maxPoolSize = 100, bool autoIncrement = false)
         {
             _connectionString = connectionString;
             _providerType = providerType;

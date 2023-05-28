@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Data;
 
 namespace Dapper.Lite
 {
@@ -15,6 +11,7 @@ namespace Dapper.Lite
         public DbTransactionExt BeginTransaction()
         {
             _conn = _connFactory.GetConnection(null);
+            if (_conn.Conn.State == ConnectionState.Closed) _conn.Conn.Open();
             _tran = new DbTransactionExt(_conn.Conn.BeginTransaction(), _conn);
             return _tran;
         }

@@ -191,14 +191,19 @@ namespace Dapper.Lite
         ISqlString AsSqlString();
 
         /// <summary>
+        /// 参数化查询的SQL
+        /// </summary>
+        string SQL { get; }
+
+        /// <summary>
         /// 参数化查询的参数
         /// </summary>
         DbParameter[] Params { get; }
 
         /// <summary>
-        /// 参数化查询的SQL
+        /// 参数化查询的参数
         /// </summary>
-        string SQL { get; }
+        DynamicParameters DynamicParameters { get; }
 
         /// <summary>
         /// 追加参数化SQL

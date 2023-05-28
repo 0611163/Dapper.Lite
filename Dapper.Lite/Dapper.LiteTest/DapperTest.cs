@@ -146,5 +146,33 @@ namespace Dapper.LiteTest
         }
         #endregion
 
+        #region 测试直接使用Dapper4
+        [TestMethod]
+        public void TestUseDapper4()
+        {
+            var db = DapperLiteFactory.Client;
+
+            db.SetTypeMap<SysUser>(); //设置数据库字段名与实体类属性名映射
+
+            using (var conn = db.GetConnection()) //此处从连接池获取连接，用完一定要释放，也可以不使用连接池，直接new MySqlConnection
+            {
+                var sql = db.Sql<SysUser>(@"
+                    select *
+                    from sys_user 
+                    where id < @id", 20);
+
+                var list = conn.Conn.Query<SysUser>(sql.SQL, sql.DynamicParameters).ToList();
+
+                foreach (var item in list)
+                {
+                    Console.WriteLine(ModelToStringUtil.ToString(item));
+
+                    Assert.IsTrue(!string.IsNullOrWhiteSpace(item.UserName));
+                }
+            }
+
+        }
+        #endregion
+
     }
 }

@@ -207,7 +207,7 @@ namespace Dapper.Lite
         /// <summary>
         /// DbParameter集合转DynamicParameters
         /// </summary>
-        private static DynamicParameters ToDynamicParameters(DbParameter[] parameters)
+        internal DynamicParameters ToDynamicParameters(DbParameter[] parameters)
         {
             if (parameters != null)
             {
