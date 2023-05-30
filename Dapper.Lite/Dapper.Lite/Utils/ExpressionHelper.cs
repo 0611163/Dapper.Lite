@@ -456,13 +456,9 @@ namespace Dapper.Lite
                 {
                     result = memberExp.Member.GetMemberValue(null);
                 }
-                if (memberExp is MemberExpression)
-                {
-                    return ReflectionValue(memberExp.Expression, memberExp);
-                }
                 else
                 {
-                    result = Expression.Lambda(exp).Compile().DynamicInvoke();
+                    result = ReflectionValue(memberExp.Expression, memberExp);
                 }
             }
             else if (exp is MethodCallExpression methodCallExp)
@@ -496,7 +492,7 @@ namespace Dapper.Lite
                         var methodCallExpression = expressions[i] as MethodCallExpression;
                         foreach (var item in methodCallExpression.Arguments)
                         {
-                            var val = InvokeValue(methodCallExpression.Arguments[0]);
+                            var val = InvokeValue(item);
                             arr.Add(val);
                         }
                     }
@@ -530,7 +526,24 @@ namespace Dapper.Lite
                 }
                 else
                 {
-                    result = null;
+                    result = Expression.Lambda(parent).Compile().DynamicInvoke();
+                }
+            }
+            else if (parent != null && parent.NodeType == ExpressionType.MemberAccess)
+            {
+                if (parent.Expression is MemberExpression)
+                {
+                    var target = ReflectionValue(parent.Expression, null);
+                    result = parent.Member.GetMemberValue(target);
+                }
+                else if (parent.Expression is ConstantExpression)
+                {
+                    var target = VisitConstant(parent.Expression);
+                    result = parent.Member.GetMemberValue(target);
+                }
+                else
+                {
+                    result = Expression.Lambda(member).Compile().DynamicInvoke();
                 }
             }
             else if (parent == null && member.NodeType == ExpressionType.MemberAccess)
@@ -555,28 +568,11 @@ namespace Dapper.Lite
                     result = Expression.Lambda(member).Compile().DynamicInvoke();
                 }
             }
-            else if (parent != null && parent.NodeType == ExpressionType.MemberAccess)
-            {
-                if (parent.Expression is MemberExpression)
-                {
-                    var target = ReflectionValue(parent.Expression, null);
-                    result = parent.Member.GetMemberValue(target);
-                }
-                else if (parent.Expression is ConstantExpression)
-                {
-                    var target = VisitConstant(parent.Expression);
-                    result = parent.Member.GetMemberValue(target);
-                }
-                else
-                {
-                    result = Expression.Lambda(member).Compile().DynamicInvoke();
-                }
-            }
-            else if (member.NodeType == ExpressionType.Call && parent == null)
+            else if (parent == null && member.NodeType == ExpressionType.Call)
             {
                 result = InvokeCall(member as MethodCallExpression);
             }
-            else if (member.NodeType == ExpressionType.Convert && parent == null)
+            else if (parent == null && member.NodeType == ExpressionType.Convert)
             {
                 var expValue = VisitConvert(member);
                 result = expValue.Value;
