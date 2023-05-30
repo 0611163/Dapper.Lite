@@ -6,9 +6,9 @@
         <Nullable>disable</Nullable>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <Title>Dapper.Lite</Title>
-        <AssemblyVersion>1.8.30</AssemblyVersion>
-        <FileVersion>1.8.30</FileVersion>
-        <Version>1.8.30</Version>
+        <AssemblyVersion>1.8.31</AssemblyVersion>
+        <FileVersion>1.8.31</FileVersion>
+        <Version>1.8.31</Version>
         <PackageId>Dapper.Lite</PackageId>
         <PackageProjectUrl>https://github.com/0611163/Dapper.Lite</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -17,9 +17,7 @@
         <Copyright>Copyright @ 2022</Copyright>
         <Description>一款同时支持原生SQL和Lambda表达式的轻量级ORM，支持Oracle、MSSQL、MySQL、PostgreSQL、SQLite、Access数据库，以及任意ADO.NET支持的数据库。</Description>
         <PackageReleaseNotes>
-            1. 数据库连接池优化
-            2. 修改SqlString以方便和Dapper结合使用
-            3. 优化where条件拼接，去除多余的括号
+            优化表达式树解析，尽可能不使用Expression.Lambda(exp).Compile().DynamicInvoke()，以提升性能。
         </PackageReleaseNotes>
     </PropertyGroup>
 
