@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations.Schema;
+using AutoMapper.Internal;
 
 namespace Dapper.Lite
 {
@@ -432,11 +433,80 @@ namespace Dapper.Lite
         #region InvokeValue
         public object InvokeValue(Expression exp)
         {
-            object result = string.Empty;
+            object result;
 
             if (exp.NodeType == ExpressionType.Constant)  //常量
             {
                 result = VisitConstant(exp);
+            }
+            else if (exp.NodeType == ExpressionType.MemberAccess)
+            {
+                var memberExp = exp as MemberExpression;
+                if (memberExp.Expression is ConstantExpression)
+                {
+                    var target = VisitConstant(memberExp.Expression);
+                    result = memberExp.Member.GetMemberValue(target);
+                }
+                else if (memberExp.Expression is NewExpression newExp)
+                {
+                    var target = VisitNew(newExp).Value;
+                    result = memberExp.Member.GetMemberValue(target);
+                }
+                else if (memberExp.Type == typeof(DateTime))
+                {
+                    result = memberExp.Member.GetMemberValue(null);
+                }
+                if (memberExp is MemberExpression)
+                {
+                    return ReflectionValue(memberExp.Expression, memberExp);
+                }
+                else
+                {
+                    result = Expression.Lambda(exp).Compile().DynamicInvoke();
+                }
+            }
+            else if (exp is MethodCallExpression methodCallExp)
+            {
+                result = InvokeCall(methodCallExp);
+            }
+            else if (exp.NodeType == ExpressionType.Convert)
+            {
+                var expValue = VisitConvert(exp);
+                result = expValue.Value;
+            }
+            else if (exp is NewArrayExpression newArrayExp)
+            {
+                ArrayList arr = new ArrayList();
+                foreach (var item in newArrayExp.Expressions)
+                {
+                    var val = InvokeValue(item);
+                    arr.Add(val);
+                }
+                result = arr;
+            }
+            else if (exp is ListInitExpression)
+            {
+                ArrayList arr = new ArrayList();
+                if (exp.CanReduce)
+                {
+                    var blockExpression = exp.Reduce() as BlockExpression;
+                    var expressions = blockExpression.Expressions.Skip(1).Take(blockExpression.Expressions.Count - 2).ToList();
+                    for (int i = 0; i < expressions.Count; i++)
+                    {
+                        var methodCallExpression = expressions[i] as MethodCallExpression;
+                        foreach (var item in methodCallExpression.Arguments)
+                        {
+                            var val = InvokeValue(methodCallExpression.Arguments[0]);
+                            arr.Add(val);
+                        }
+                    }
+                }
+                result = arr;
+            }
+            else if (exp is NewExpression newExp)
+            {
+                var expValue = VisitNew(newExp);
+                result = expValue.Value;
             }
             else
             {
@@ -450,14 +520,100 @@ namespace Dapper.Lite
         #region ReflectionValue
         private object ReflectionValue(Expression member, MemberExpression parent)
         {
-            object result = Expression.Lambda(member).Compile().DynamicInvoke();
+            object result;
 
-            if (result != null && result.GetType().IsClass && result.GetType() != typeof(string) && parent != null)
+            if (member == null)
             {
-                result = Expression.Lambda(parent).Compile().DynamicInvoke();
+                if (parent.Type == typeof(DateTime))
+                {
+                    result = parent.Member.GetMemberValue(null);
+                }
+                else
+                {
+                    result = null;
+                }
+            }
+            else if (parent == null && member.NodeType == ExpressionType.MemberAccess)
+            {
+                var memberExp = member as MemberExpression;
+                if (memberExp.Expression is ConstantExpression)
+                {
+                    var target = VisitConstant(memberExp.Expression);
+                    result = memberExp.Member.GetMemberValue(target);
+                }
+                else if (memberExp.Expression is NewExpression newExp)
+                {
+                    var expValue = VisitNew(newExp);
+                    result = memberExp.Member.GetMemberValue(expValue.Value);
+                }
+                else if (memberExp.Type == typeof(DateTime))
+                {
+                    result = memberExp.Member.GetMemberValue(null);
+                }
+                else
+                {
+                    result = Expression.Lambda(member).Compile().DynamicInvoke();
+                }
+            }
+            else if (parent != null && parent.NodeType == ExpressionType.MemberAccess)
+            {
+                if (parent.Expression is MemberExpression)
+                {
+                    var target = ReflectionValue(parent.Expression, null);
+                    result = parent.Member.GetMemberValue(target);
+                }
+                else if (parent.Expression is ConstantExpression)
+                {
+                    var target = VisitConstant(parent.Expression);
+                    result = parent.Member.GetMemberValue(target);
+                }
+                else
+                {
+                    result = Expression.Lambda(member).Compile().DynamicInvoke();
+                }
+            }
+            else if (member.NodeType == ExpressionType.Call && parent == null)
+            {
+                result = InvokeCall(member as MethodCallExpression);
+            }
+            else if (member.NodeType == ExpressionType.Convert && parent == null)
+            {
+                var expValue = VisitConvert(member);
+                result = expValue.Value;
+            }
+            else
+            {
+                result = Expression.Lambda(member).Compile().DynamicInvoke();
+
+                if (result != null && result.GetType().IsClass && result.GetType() != typeof(string) && parent != null)
+                {
+                    result = Expression.Lambda(parent).Compile().DynamicInvoke();
+                }
             }
 
             return result;
+        }
+        #endregion
+
+        #region InvokeCall
+        private object InvokeCall(MethodCallExpression exp)
+        {
+            var arguments = new List<object>();
+
+            foreach (var item in exp.Arguments)
+            {
+                arguments.Add(InvokeValue(item));
+            }
+
+            if (exp.Object == null)
+            {
+                return exp.Method.Invoke(this, arguments.ToArray());
+            }
+            else
+            {
+                var obj = InvokeValue(exp.Object);
+                return exp.Method.Invoke(obj, arguments.ToArray());
+            }
         }
         #endregion
 
