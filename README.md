@@ -186,6 +186,49 @@ namespace DAL
 }
 ```
 
+5. 依赖注入
+```C#
+var builder = WebApplication.CreateBuilder(args);
+
+var db = new DapperLiteClient(builder.Configuration.GetConnectionString("DefaultConnection"), DBType.MySQL, new MySQLProvider());
+var secondDB = new DapperLiteClient(builder.Configuration.GetConnectionString("SecondConnection"), DBType.MySQL, new MySQLProvider());
+
+// Add services to the container.
+// 注册数据库IDapperLiteClient
+builder.Services.AddSingleton<IDapperLiteClient>(serviceProvider =>
+{
+    return db;
+});
+// 注册第二个数据库IDapperLiteClient
+builder.Services.AddSingleton<IDapperLiteClient>(serviceProvider =>
+{
+    return secondDB;
+});
+// 注册数据库DBSession
+builder.Services.AddScoped<IDbSession>(serviceProvider =>
+{
+    return db.GetSession();
+});
+// 注册第二个数据库DBSession
+builder.Services.AddScoped<SecondDBSession>(serviceProvider =>
+{
+    return new SecondDBSession(secondDB.GetSession());
+});
+
+/// <summary>
+/// 第二个数据库DBSession
+/// </summary>
+public class SecondDBSession
+{
+    public IDbSession DBSession { get; set; }
+
+    public SecondDBSession(IDbSession dBSession)
+    {
+        DBSession = dBSession;
+    }
+}
+```
+
 ## 配套Model生成器
 
 ### 使用Model生成器生成实体类

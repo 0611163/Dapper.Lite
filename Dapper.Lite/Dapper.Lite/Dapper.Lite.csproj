@@ -15,7 +15,7 @@
         <PackageOutputPath>..\Dapper.Lite</PackageOutputPath>
         <Authors>suxiang</Authors>
         <Copyright>Copyright @ 2022</Copyright>
-        <Description>一款同时支持原生SQL和Lambda表达式的轻量级ORM，支持Oracle、MSSQL、MySQL、PostgreSQL、SQLite、Access数据库，以及任意ADO.NET支持的数据库。</Description>
+        <Description>为了更好的拼SQL，为了更好的使用Dapper。支持原生SQL和Lambda表达式混写。支持Oracle、MSSQL、MySQL、PostgreSQL、SQLite、Access数据库，以及任意ADO.NET支持的数据库。</Description>
         <PackageReleaseNotes>
             优化表达式树解析，尽可能不使用Expression.Lambda(exp).Compile().DynamicInvoke()，以提升性能。
         </PackageReleaseNotes>
