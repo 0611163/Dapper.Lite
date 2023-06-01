@@ -181,7 +181,7 @@ namespace Dapper.Lite
 
                 if (IsAutoIncrementPk(type, propertyInfoEx, autoIncrement)) continue;
 
-                if (propertyInfo.GetCustomAttributes(typeof(ColumnAttribute), false).Length > 0)
+                if (propertyInfoEx.IsDBField)
                 {
                     propertyNameList.Add(new Tuple<string, Type>(propertyInfoEx.FieldName, propertyInfoEx.PropertyInfo.PropertyType));
                     savedCount++;
@@ -199,7 +199,7 @@ namespace Dapper.Lite
 
                 if (IsAutoIncrementPk(type, propertyInfoEx, autoIncrement)) continue;
 
-                if (propertyInfo.GetCustomAttributes(typeof(ColumnAttribute), false).Length > 0)
+                if (propertyInfoEx.IsDBField)
                 {
                     object val = propertyInfo.GetValue(obj, null);
                     Type parameterType = val == null ? typeof(object) : val.GetType();
@@ -227,7 +227,7 @@ namespace Dapper.Lite
 
                 if (IsAutoIncrementPk(type, propertyInfoEx, autoIncrement)) continue;
 
-                if (propertyInfo.GetCustomAttributes(typeof(ColumnAttribute), false).Length > 0)
+                if (propertyInfoEx.IsDBField)
                 {
                     propertyNameList.Add(new Tuple<string, Type>(propertyInfoEx.FieldName, propertyInfoEx.PropertyInfo.PropertyType));
                     savedCount++;
@@ -256,7 +256,7 @@ namespace Dapper.Lite
 
                     if (IsAutoIncrementPk(type, propertyInfoEx, autoIncrement)) continue;
 
-                    if (propertyInfo.GetCustomAttributes(typeof(ColumnAttribute), false).Length > 0)
+                    if (propertyInfoEx.IsDBField)
                     {
                         object val = propertyInfo.GetValue(obj, null);
                         Type parameterType = val == null ? typeof(object) : val.GetType();
