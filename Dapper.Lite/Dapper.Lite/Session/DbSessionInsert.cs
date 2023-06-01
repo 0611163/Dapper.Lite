@@ -188,8 +188,8 @@ namespace Dapper.Lite
                 }
             }
 
-            strSql.Append(string.Format("{0})", string.Join(",", propertyNameList.ConvertAll(a => string.Format("{0}{1}{2}", _provider.OpenQuote, a.Item1, _provider.CloseQuote)).ToArray())));
-            strSql.Append(string.Format(" values ({0})", string.Join(",", propertyNameList.ConvertAll<string>(a => _provider.GetParameterName(a.Item1, a.Item2)).ToArray())));
+            strSql.Append(string.Format("{0})", string.Join(",", propertyNameList.Select(a => string.Format("{0}{1}{2}", _provider.OpenQuote, a.Item1, _provider.CloseQuote)))));
+            strSql.Append(string.Format(" values ({0})", string.Join(",", propertyNameList.Select(a => _provider.GetParameterName(a.Item1, a.Item2)))));
             parameters = new DbParameter[savedCount];
             int k = 0;
             for (int i = 0; i < propertyInfoList.Length && savedCount > 0; i++)
@@ -234,10 +234,10 @@ namespace Dapper.Lite
                 }
             }
 
-            strSql.Append(string.Format("{0}) values ", string.Join(",", propertyNameList.ConvertAll<string>(a => _provider.OpenQuote + a.Item1 + _provider.CloseQuote).ToArray())));
+            strSql.Append(string.Format("{0}) values ", string.Join(",", propertyNameList.Select(a => _provider.OpenQuote + a.Item1 + _provider.CloseQuote))));
             for (int i = 0; i < list.Count; i++)
             {
-                strSql.Append(string.Format(" ({0})", string.Join(",", propertyNameList.ConvertAll<string>(a => _provider.GetParameterName(a.Item1 + i, a.Item2)).ToArray())));
+                strSql.Append(string.Format(" ({0})", string.Join(",", propertyNameList.Select(a => _provider.GetParameterName(a.Item1 + i, a.Item2)))));
                 if (i != list.Count - 1)
                 {
                     strSql.Append(", ");
