@@ -16,14 +16,26 @@ namespace Dapper.Lite
     {
         public static ConcurrentDictionary<Type, object> _dict = new ConcurrentDictionary<Type, object>();
 
+        private static object _lock = new object();
+
         /// <summary>
         /// 获取对象
         /// </summary>
         public static T TryGet<T>(Type type, Func<Type, T> func)
         {
-            object obj = _dict.GetOrAdd(type, key => func(key));
-
-            return (T)obj;
+            lock (_lock)
+            {
+                if (_dict.TryGetValue(type, out object obj))
+                {
+                    return (T)obj;
+                }
+                else
+                {
+                    var instance = func(type);
+                    _dict.TryAdd(type, instance);
+                    return instance;
+                }
+            }
         }
 
     }

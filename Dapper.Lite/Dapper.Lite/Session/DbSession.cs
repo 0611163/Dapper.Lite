@@ -38,6 +38,8 @@ namespace Dapper.Lite
         /// 数据库字段名与实体类属性名映射
         /// </summary>
         private static ConcurrentDictionary<Type, bool> _dictForTypeMap = new ConcurrentDictionary<Type, bool>();
+
+        private static object _lockSetTypeMap = new object();
         #endregion
 
         #region 变量

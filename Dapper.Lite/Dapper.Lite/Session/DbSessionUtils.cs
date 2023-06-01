@@ -231,39 +231,42 @@ namespace Dapper.Lite
         /// </summary>
         public void SetTypeMap(Type type)
         {
-            _dictForTypeMap.GetOrAdd(type, key =>
+            lock (_lockSetTypeMap)
             {
-                var map = new CustomPropertyTypeMap(key, (modelType, columnName) =>
+                if (!_dictForTypeMap.ContainsKey(type))
                 {
-                    PropertyInfoEx[] props = DbSession.GetEntityProperties(modelType);
-
-                    PropertyInfoEx propEx = props.FirstOrDefault(prop =>
+                    var map = new CustomPropertyTypeMap(type, (modelType, columnName) =>
                     {
-                        if (prop.FieldNameUpper == columnName.ToUpper())
-                        {
-                            return true;
-                        }
+                        PropertyInfoEx[] props = DbSession.GetEntityProperties(modelType);
 
-                        return false;
+                        PropertyInfoEx propEx = props.FirstOrDefault(prop =>
+                        {
+                            if (prop.FieldNameUpper == columnName.ToUpper())
+                            {
+                                return true;
+                            }
+
+                            return false;
+                        });
+
+                        if (propEx != null)
+                        {
+                            return propEx.PropertyInfo;
+                        }
+                        else
+                        {
+                            return null;
+                        }
                     });
 
-                    if (propEx != null)
+                    if (map != null)
                     {
-                        return propEx.PropertyInfo;
+                        SqlMapper.SetTypeMap(type, map);
                     }
-                    else
-                    {
-                        return null;
-                    }
-                });
 
-                if (map != null)
-                {
-                    SqlMapper.SetTypeMap(key, map);
+                    _dictForTypeMap.TryAdd(type, true);
                 }
-
-                return true;
-            });
+            }
         }
 
         /// <summary>

@@ -18,6 +18,8 @@ namespace Utils
         /// 接口的对象集合
         /// </summary>
         private static ConcurrentDictionary<Type, object> _dict = new ConcurrentDictionary<Type, object>();
+
+        private static object _lock = new object();
         #endregion
 
         #region Get 获取实例
@@ -27,9 +29,20 @@ namespace Utils
         public static T Get<T>()
         {
             Type type = typeof(T);
-            object obj = _dict.GetOrAdd(type, key => Activator.CreateInstance(type));
 
-            return (T)obj;
+            lock (_lock)
+            {
+                if (_dict.TryGetValue(type, out object obj))
+                {
+                    return (T)obj;
+                }
+                else
+                {
+                    var instance = Activator.CreateInstance(type);
+                    _dict.TryAdd(type, instance);
+                    return (T)instance;
+                }
+            }
         }
         #endregion
 
@@ -40,9 +53,20 @@ namespace Utils
         public static T Get<T>(Func<T> func)
         {
             Type type = typeof(T);
-            object obj = _dict.GetOrAdd(type, (key) => func());
 
-            return (T)obj;
+            lock (_lock)
+            {
+                if (_dict.TryGetValue(type, out object obj))
+                {
+                    return (T)obj;
+                }
+                else
+                {
+                    var instance = func();
+                    _dict.TryAdd(type, instance);
+                    return instance;
+                }
+            }
         }
         #endregion
 
