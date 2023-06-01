@@ -15,7 +15,7 @@
         <PackageOutputPath>..\Dapper.Lite</PackageOutputPath>
         <Authors>suxiang</Authors>
         <Copyright>Copyright @ 2022</Copyright>
-        <Description>为了更好的拼SQL，为了更好的使用Dapper。支持原生SQL和Lambda表达式混写。支持Oracle、MSSQL、MySQL、PostgreSQL、SQLite、Access数据库，以及任意ADO.NET支持的数据库。</Description>
+        <Description>为了更方便地拼接SQL，支持原生SQL和Lambda表达式混写。支持Oracle、MSSQL、MySQL、PostgreSQL、SQLite、Access数据库，以及任意ADO.NET支持的数据库。</Description>
         <PackageReleaseNotes>
             1. 优化：不使用ConcurrentDictionary的GetOrAdd方法，因为它不是线程安全的，多线程并发时，valueFactory可能会被多次调用。
             2. 优化内部方法PrepareInsertSql、PrepareUpdateSql和GetEntityProperties
