@@ -6,9 +6,9 @@
         <Nullable>disable</Nullable>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <Title>Dapper.Lite</Title>
-        <AssemblyVersion>1.8.32</AssemblyVersion>
-        <FileVersion>1.8.32</FileVersion>
-        <Version>1.8.32</Version>
+        <AssemblyVersion>1.8.33</AssemblyVersion>
+        <FileVersion>1.8.33</FileVersion>
+        <Version>1.8.33</Version>
         <PackageId>Dapper.Lite</PackageId>
         <PackageProjectUrl>https://github.com/0611163/Dapper.Lite</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -17,14 +17,14 @@
         <Copyright>Copyright @ 2022</Copyright>
         <Description>为了更方便地拼接SQL，支持原生SQL和Lambda表达式混写。支持Oracle、MSSQL、MySQL、PostgreSQL、SQLite、Access数据库，以及任意ADO.NET支持的数据库。</Description>
         <PackageReleaseNotes>
-            1. 优化：不使用ConcurrentDictionary的GetOrAdd方法，因为它不是线程安全的，多线程并发时，valueFactory可能会被多次调用。
-            2. 优化内部方法PrepareInsertSql、PrepareUpdateSql和GetEntityProperties
+            使用Microsoft.Extensions.ObjectPool优化数据库连接池
         </PackageReleaseNotes>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="AutoMapper" Version="10.1.1" />
         <PackageReference Include="Dapper" Version="2.0.123" />
+        <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="6.0.16" />
         <PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />
     </ItemGroup>
 
