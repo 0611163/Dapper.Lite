@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
-using Microsoft.Extensions.ObjectPool;
 
 namespace Dapper.Lite
 {
@@ -19,9 +18,7 @@ namespace Dapper.Lite
         /// <summary>
         /// 数据库连接池
         /// </summary>
-        private readonly DefaultObjectPool<DbConnectionExt> _connectionPool;
-
-        private readonly DbConnectionPool _connPool;
+        private readonly DbConnectionPool _connectionPool;
 
         /// <summary>
         /// 连接池最大数量
@@ -47,22 +44,15 @@ namespace Dapper.Lite
             _provider = provider;
             _connectionString = connectionString;
             _maxPoolSize = maxPoolSize;
-            _connPool = new DbConnectionPool(provider, connectionString);
+            _connectionPool = new DbConnectionPool(provider, connectionString);
 
             //初始化数据库连接对象池
-            var policy = new DbConnectionPooledObjectPolicy(provider, connectionString, this);
-            _connectionPool = new DefaultObjectPool<DbConnectionExt>(policy, maxPoolSize);
-
-            List<DbConnectionExt> list = new List<DbConnectionExt>();
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < maxPoolSize; i++)
             {
-                var connExt = _connectionPool.Get();
-                connExt.Conn.Open();
-                list.Add(connExt);
-            }
-            foreach (var item in list)
-            {
-                _connectionPool.Return(item);
+                DbConnection conn = _provider.CreateConnection(_connectionString);
+                DbConnectionExt connExt = new DbConnectionExt(conn, provider, connectionString, this);
+                _connectionPool.Connections.Enqueue(connExt);
+                if (i < 5 && conn.State == ConnectionState.Closed) conn.Open();
             }
         }
         #endregion
@@ -78,7 +68,14 @@ namespace Dapper.Lite
                 return _tran.ConnEx;
             }
 
-            return _connectionPool.Get();
+            DbConnectionExt connExt;
+            SpinWait spinWait = new SpinWait();
+            while (!_connectionPool.Connections.TryDequeue(out connExt))
+            {
+                spinWait.SpinOnce();
+            }
+
+            return connExt;
         }
         #endregion
 
@@ -93,9 +90,16 @@ namespace Dapper.Lite
                 return _tran.ConnEx;
             }
 
+            DbConnectionExt connExt;
+            SpinWait spinWait = new SpinWait();
+            while (!_connectionPool.Connections.TryDequeue(out connExt))
+            {
+                spinWait.SpinOnce();
+            }
+
             await Task.CompletedTask;
 
-            return _connectionPool.Get();
+            return connExt;
         }
         #endregion
 
@@ -105,7 +109,7 @@ namespace Dapper.Lite
         /// </summary>
         public void Release(DbConnectionExt connExt)
         {
-            _connectionPool.Return(connExt);
+            _connectionPool.Connections.Enqueue(connExt);
         }
         #endregion
 
