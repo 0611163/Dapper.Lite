@@ -23,7 +23,7 @@ namespace Dapper.Lite
         /// <summary>
         /// 连接池最大数量
         /// </summary>
-        private readonly int _maxPoolSize;
+        private readonly int? _maxPoolSize;
 
         /// <summary>
         /// 数据库提供者
@@ -39,7 +39,7 @@ namespace Dapper.Lite
         /// <summary>
         /// 数据库连接工厂构造函数
         /// </summary>
-        public DbConnectionFactory(IProvider provider, string connectionString, int maxPoolSize)
+        public DbConnectionFactory(IProvider provider, string connectionString, int? maxPoolSize)
         {
             _provider = provider;
             _connectionString = connectionString;
@@ -47,12 +47,25 @@ namespace Dapper.Lite
             _connectionPool = new DbConnectionPool(provider, connectionString);
 
             //初始化数据库连接对象池
-            for (int i = 0; i < maxPoolSize; i++)
+            if (maxPoolSize != null)
             {
-                DbConnection conn = _provider.CreateConnection(_connectionString);
-                DbConnectionExt connExt = new DbConnectionExt(conn, provider, connectionString, this);
-                _connectionPool.Connections.Enqueue(connExt);
-                if (i < 5 && conn.State == ConnectionState.Closed) conn.Open();
+                for (int i = 0; i < maxPoolSize; i++)
+                {
+                    DbConnection conn = _provider.CreateConnection(_connectionString);
+                    DbConnectionExt connExt = new DbConnectionExt(conn, provider, connectionString, this);
+                    _connectionPool.Connections.Enqueue(connExt);
+                    if (i < 5 && conn.State == ConnectionState.Closed) conn.Open();
+                }
+            }
+            else
+            {
+                for (int i = 0; i < 100; i++)
+                {
+                    DbConnection conn = _provider.CreateConnection(_connectionString);
+                    DbConnectionExt connExt = new DbConnectionExt(conn, provider, connectionString, this);
+                    _connectionPool.Connections.Enqueue(connExt);
+                    if (i < 5 && conn.State == ConnectionState.Closed) conn.Open();
+                }
             }
         }
         #endregion
@@ -69,10 +82,21 @@ namespace Dapper.Lite
             }
 
             DbConnectionExt connExt;
-            SpinWait spinWait = new SpinWait();
-            while (!_connectionPool.Connections.TryDequeue(out connExt))
+            if (_maxPoolSize != null)
             {
-                spinWait.SpinOnce();
+                SpinWait spinWait = new SpinWait();
+                while (!_connectionPool.Connections.TryDequeue(out connExt))
+                {
+                    spinWait.SpinOnce();
+                }
+            }
+            else
+            {
+                if (!_connectionPool.Connections.TryDequeue(out connExt))
+                {
+                    DbConnection conn = _provider.CreateConnection(_connectionString);
+                    connExt = new DbConnectionExt(conn, _provider, _connectionString, this);
+                }
             }
 
             return connExt;
@@ -91,10 +115,21 @@ namespace Dapper.Lite
             }
 
             DbConnectionExt connExt;
-            SpinWait spinWait = new SpinWait();
-            while (!_connectionPool.Connections.TryDequeue(out connExt))
+            if (_maxPoolSize != null)
             {
-                spinWait.SpinOnce();
+                SpinWait spinWait = new SpinWait();
+                while (!_connectionPool.Connections.TryDequeue(out connExt))
+                {
+                    spinWait.SpinOnce();
+                }
+            }
+            else
+            {
+                if (!_connectionPool.Connections.TryDequeue(out connExt))
+                {
+                    DbConnection conn = _provider.CreateConnection(_connectionString);
+                    connExt = new DbConnectionExt(conn, _provider, _connectionString, this);
+                }
             }
 
             await Task.CompletedTask;
