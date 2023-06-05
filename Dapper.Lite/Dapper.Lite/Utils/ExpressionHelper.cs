@@ -454,7 +454,15 @@ namespace Dapper.Lite
                 }
                 else if (memberExp.Type == typeof(DateTime))
                 {
-                    result = memberExp.Member.GetMemberValue(null);
+                    if (memberExp.Expression == null)
+                    {
+                        result = memberExp.Member.GetMemberValue(null);
+                    }
+                    else
+                    {
+                        var target = InvokeValue(memberExp.Expression);
+                        result = memberExp.Member.GetMemberValue(target);
+                    }
                 }
                 else
                 {
