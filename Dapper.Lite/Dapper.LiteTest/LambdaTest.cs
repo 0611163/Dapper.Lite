@@ -596,5 +596,26 @@ namespace Dapper.LiteTest
         }
         #endregion
 
+        #region 测试查询订单集合(使用 Lambda 表达式)(测试DateTime)
+        [TestMethod]
+        public void TestQueryByLambda16()
+        {
+            DateTime? endTime = new DateTime(2023, 1, 1);
+
+            var session = DapperLiteFactory.GetSession();
+
+            session.OnExecuting = (s, p) => Console.WriteLine(s);
+
+            List<SysUser> list = session.Queryable<SysUser>()
+                .Where(t => t.CreateTime < endTime.Value.Date.AddDays(1).AddSeconds(-1)).ToList();
+
+            foreach (SysUser item in list)
+            {
+                Console.WriteLine(ModelToStringUtil.ToString(item));
+            }
+            Assert.IsTrue(list.Count > 0);
+        }
+        #endregion
+
     }
 }
