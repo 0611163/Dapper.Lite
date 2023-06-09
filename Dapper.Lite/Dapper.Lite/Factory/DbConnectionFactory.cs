@@ -35,6 +35,16 @@ namespace Dapper.Lite
         /// </summary>
         private readonly string _connectionString;
 
+        /// <summary>
+        /// 数据库连接超时释放时间(单位:秒)
+        /// </summary>
+        private readonly int _timeout = 10;
+
+        /// <summary>
+        /// 定时器
+        /// </summary>
+        private readonly Timer _timer;
+
         #region 构造函数
         /// <summary>
         /// 数据库连接工厂构造函数
@@ -67,6 +77,35 @@ namespace Dapper.Lite
                     if (i < 5 && conn.State == ConnectionState.Closed) conn.Open();
                 }
             }
+
+            #region 定时释放数据库连接
+            _timer = new Timer(obj =>
+            {
+                try
+                {
+                    for (int i = 0; i < 10; i++)
+                    {
+                        if (_connectionPool.Connections.TryDequeue(out DbConnectionExt connExt))
+                        {
+                            //数据库连接过期重新创建
+                            if (DateTime.Now.Subtract(connExt.UpdateTime).TotalSeconds > _timeout)
+                            {
+                                connExt.Conn.Close();
+                                DbConnection conn = _provider.CreateConnection(_connectionString);
+                                connExt = new DbConnectionExt(conn, _provider, _connectionString, this);
+                            }
+
+                            _connectionPool.Connections.Enqueue(connExt);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+            }, null, 1000, 1000);
+            #endregion
+
         }
         #endregion
 
@@ -144,6 +183,14 @@ namespace Dapper.Lite
         /// </summary>
         public void Release(DbConnectionExt connExt)
         {
+            //数据库连接过期重新创建
+            if (DateTime.Now.Subtract(connExt.UpdateTime).TotalSeconds > _timeout)
+            {
+                connExt.Conn.Close();
+                DbConnection conn = _provider.CreateConnection(_connectionString);
+                connExt = new DbConnectionExt(conn, _provider, _connectionString, this);
+            }
+
             _connectionPool.Connections.Enqueue(connExt);
         }
         #endregion

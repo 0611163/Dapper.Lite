@@ -35,6 +35,11 @@ namespace Dapper.Lite
         public DbConnection Conn { get; set; }
 
         /// <summary>
+        /// 更新时间
+        /// </summary>
+        public DateTime UpdateTime { get; set; }
+
+        /// <summary>
         /// 数据库连接工厂
         /// </summary>
         internal DbConnectionFactory ConnFactory { get; set; }
@@ -48,6 +53,7 @@ namespace Dapper.Lite
             Provider = provider;
             ConnectionString = connectionString;
             ConnFactory = connFactory;
+            UpdateTime = DateTime.Now;
         }
 
         /// <summary>

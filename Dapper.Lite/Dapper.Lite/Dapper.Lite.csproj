@@ -6,9 +6,9 @@
         <Nullable>disable</Nullable>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <Title>Dapper.Lite</Title>
-        <AssemblyVersion>1.8.35</AssemblyVersion>
-        <FileVersion>1.8.35</FileVersion>
-        <Version>1.8.35</Version>
+        <AssemblyVersion>1.8.36</AssemblyVersion>
+        <FileVersion>1.8.36</FileVersion>
+        <Version>1.8.36</Version>
         <PackageId>Dapper.Lite</PackageId>
         <PackageProjectUrl>https://github.com/0611163/Dapper.Lite</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -17,7 +17,7 @@
         <Copyright>Copyright @ 2022</Copyright>
         <Description>为了更方便地拼接SQL，支持原生SQL和Lambda表达式混写。支持Oracle、MSSQL、MySQL、PostgreSQL、SQLite、Access数据库，以及任意ADO.NET支持的数据库。</Description>
         <PackageReleaseNotes>
-            修复BUG：无法解析lambda表达式 t.PassTime 〈 startTime.AddDays(7).AddSeconds(-1)
+            修复BUG：程序长时间运行时，数据库连接超时问题
         </PackageReleaseNotes>
     </PropertyGroup>
 
