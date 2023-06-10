@@ -39,6 +39,7 @@ namespace Dapper.Lite
             {
                 _tran.Connection.Close();
                 _tran.Dispose();
+                _tran = null;
             }
         }
         #endregion
