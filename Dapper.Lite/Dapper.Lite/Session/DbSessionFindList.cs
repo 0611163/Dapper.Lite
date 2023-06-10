@@ -22,9 +22,18 @@ namespace Dapper.Lite
             SetTypeMap<T>();
             OnExecuting?.Invoke(sql, null);
 
-            using (_conn = _connFactory.GetConnection(_tran))
+            var conn = GetConnection(_tran);
+
+            try
             {
-                return _conn.Conn.Query<T>(sql).ToList();
+                return conn.Query<T>(sql).ToList();
+            }
+            finally
+            {
+                if (_tran == null)
+                {
+                    conn.Close();
+                }
             }
         }
         #endregion
@@ -39,9 +48,18 @@ namespace Dapper.Lite
             SetTypeMap<T>();
             OnExecuting?.Invoke(sql, null);
 
-            using (_conn = await _connFactory.GetConnectionAsync(_tran))
+            var conn = GetConnection(_tran);
+
+            try
             {
-                return (await _conn.Conn.QueryAsync<T>(sql)).ToList();
+                return (await conn.QueryAsync<T>(sql)).ToList();
+            }
+            finally
+            {
+                if (_tran == null)
+                {
+                    conn.Close();
+                }
             }
         }
         #endregion
@@ -56,9 +74,18 @@ namespace Dapper.Lite
             SetTypeMap<T>();
             OnExecuting?.Invoke(sql, cmdParms);
 
-            using (_conn = _connFactory.GetConnection(_tran))
+            var conn = GetConnection(_tran);
+
+            try
             {
-                return _conn.Conn.Query<T>(sql, ToDynamicParameters(cmdParms)).ToList();
+                return conn.Query<T>(sql, ToDynamicParameters(cmdParms)).ToList();
+            }
+            finally
+            {
+                if (_tran == null)
+                {
+                    conn.Close();
+                }
             }
         }
         #endregion
@@ -72,9 +99,18 @@ namespace Dapper.Lite
             SetTypeMap<T>();
             OnExecuting?.Invoke(sql, cmdParms);
 
-            using (_conn = await _connFactory.GetConnectionAsync(_tran))
+            var conn = GetConnection(_tran);
+
+            try
             {
-                return (await _conn.Conn.QueryAsync<T>(sql, ToDynamicParameters(cmdParms))).ToList();
+                return (await conn.QueryAsync<T>(sql, ToDynamicParameters(cmdParms))).ToList();
+            }
+            finally
+            {
+                if (_tran == null)
+                {
+                    conn.Close();
+                }
             }
         }
         #endregion
@@ -96,5 +132,6 @@ namespace Dapper.Lite
             return QueryListAsync<T>(sql.SQL, sql.Params);
         }
         #endregion
+
     }
 }

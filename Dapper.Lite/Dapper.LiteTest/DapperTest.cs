@@ -29,28 +29,27 @@ namespace Dapper.LiteTest
 
             session.SetTypeMap<SysUser>(); //设置数据库字段名与实体类属性名映射
 
-            using (var conn = session.GetConnection()) //此处从连接池获取连接，用完一定要释放，也可以不使用连接池，直接new MySqlConnection
+            var conn = session.GetConnection(); // 获取数据库连接，也可以直接new MySqlConnection
+
+            DynamicParameters dynamicParameters = new DynamicParameters();
+            dynamicParameters.Add("id", 20);
+
+            List<SysUser> list = conn.Query<SysUser>(@"
+                select *
+                from sys_user 
+                where id < @id", dynamicParameters).ToList();
+
+            foreach (SysUser item in list)
             {
-                DynamicParameters dynamicParameters = new DynamicParameters();
-                dynamicParameters.Add("id", 20);
+                Console.WriteLine(ModelToStringUtil.ToString(item));
 
-                List<SysUser> list = conn.Conn.Query<SysUser>(@"
-                    select *
-                    from sys_user 
-                    where id < @id", dynamicParameters).ToList();
-
-                foreach (SysUser item in list)
-                {
-                    Console.WriteLine(ModelToStringUtil.ToString(item));
-
-                    Assert.IsTrue(!string.IsNullOrWhiteSpace(item.UserName));
-                }
+                Assert.IsTrue(!string.IsNullOrWhiteSpace(item.UserName));
             }
 
         }
         #endregion
 
-        #region 测试混合并发使用Dapper和LiteSql
+        #region 测试混合并发使用Dapper和Dapper.Lite
         [TestMethod]
         public void TestUseDapper2()
         {
@@ -83,22 +82,21 @@ namespace Dapper.LiteTest
 
                         session.SetTypeMap<SysUser>(); //设置数据库字段名与实体类属性名映射
 
-                        using (var conn = session.GetConnection())
+                        var conn = session.GetConnection();
+
+                        DynamicParameters dynamicParameters = new DynamicParameters();
+                        dynamicParameters.Add("id", 20);
+
+                        List<SysUser> list = conn.Query<SysUser>(@"
+                            select *
+                            from sys_user 
+                            where id < @id", dynamicParameters).ToList();
+
+                        Console.WriteLine("Dapper查询成功, count=" + list.Count);
+
+                        foreach (SysUser item in list)
                         {
-                            DynamicParameters dynamicParameters = new DynamicParameters();
-                            dynamicParameters.Add("id", 20);
-
-                            List<SysUser> list = conn.Conn.Query<SysUser>(@"
-                                select *
-                                from sys_user 
-                                where id < @id", dynamicParameters).ToList();
-
-                            Console.WriteLine("Dapper查询成功, count=" + list.Count);
-
-                            foreach (SysUser item in list)
-                            {
-                                Assert.IsTrue(!string.IsNullOrWhiteSpace(item.UserName));
-                            }
+                            Assert.IsTrue(!string.IsNullOrWhiteSpace(item.UserName));
                         }
                     }
                     catch (Exception ex)
@@ -117,26 +115,25 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void TestUseDapper3()
         {
-            var db = DapperLiteFactory.Client;
+            var db = DapperLiteFactory.Db;
 
             db.SetTypeMap<SysUser>(); //设置数据库字段名与实体类属性名映射
 
-            using (var conn = db.GetConnection()) //此处从连接池获取连接，用完一定要释放，也可以不使用连接池，直接new MySqlConnection
+            var conn = db.GetConnection(); // 获取数据库连接，也可以直接new MySqlConnection
+
+            DynamicParameters dynamicParameters = new DynamicParameters();
+            dynamicParameters.Add("id", 20);
+
+            List<SysUser> list = conn.Query<SysUser>(@"
+                select *
+                from sys_user 
+                where id < @id", dynamicParameters).ToList();
+
+            foreach (SysUser item in list)
             {
-                DynamicParameters dynamicParameters = new DynamicParameters();
-                dynamicParameters.Add("id", 20);
+                Console.WriteLine(ModelToStringUtil.ToString(item));
 
-                List<SysUser> list = conn.Conn.Query<SysUser>(@"
-                    select *
-                    from sys_user 
-                    where id < @id", dynamicParameters).ToList();
-
-                foreach (SysUser item in list)
-                {
-                    Console.WriteLine(ModelToStringUtil.ToString(item));
-
-                    Assert.IsTrue(!string.IsNullOrWhiteSpace(item.UserName));
-                }
+                Assert.IsTrue(!string.IsNullOrWhiteSpace(item.UserName));
             }
 
         }
@@ -146,22 +143,21 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void TestUseDapper4()
         {
-            var db = DapperLiteFactory.Client;
+            var db = DapperLiteFactory.Db;
 
             db.SetTypeMap<SysUser>(); //设置数据库字段名与实体类属性名映射
 
-            using (var conn = db.GetConnection()) //此处从连接池获取连接，用完一定要释放，也可以不使用连接池，直接new MySqlConnection
+            var conn = db.GetConnection(); // 获取数据库连接，也可以直接new MySqlConnection
+
+            var sql = db.Queryable<SysUser>().Where(t => t.Id < 20 && t.RealName.Contains("管理员"));
+
+            var list = conn.Query<SysUser>(sql.SQL, sql.DynamicParameters).ToList();
+
+            foreach (var item in list)
             {
-                var sql = db.Queryable<SysUser>().Where(t => t.Id < 20 && t.RealName.Contains("管理员"));
+                Console.WriteLine(ModelToStringUtil.ToString(item));
 
-                var list = conn.Conn.Query<SysUser>(sql.SQL, sql.DynamicParameters).ToList();
-
-                foreach (var item in list)
-                {
-                    Console.WriteLine(ModelToStringUtil.ToString(item));
-
-                    Assert.IsTrue(!string.IsNullOrWhiteSpace(item.UserName));
-                }
+                Assert.IsTrue(!string.IsNullOrWhiteSpace(item.UserName));
             }
 
         }
@@ -179,33 +175,32 @@ namespace Dapper.LiteTest
 
             session.SetTypeMap<SysUser>(); //设置数据库字段名与实体类属性名映射
 
-            using (var conn = session.GetConnection()) //此处从连接池获取连接，用完一定要释放，也可以不使用连接池，直接new MySqlConnection
+            try
             {
-                try
-                {
-                    var trans = session.BeginTransaction();
+                var tran = session.BeginTransaction();
 
-                    var sql1 = session.Sql<SysUser>(@"update sys_user set remark=@Remark where id=@Id", new { Remark = remark1, Id = 1 });
-                    var sql2 = session.Sql<SysUser>(@"update sys_user set remark=@Remark where id=@Id", new { Remark = remark2, Id = 2 });
-                    trans.Conn.Execute(sql1.SQL, sql1.DynamicParameters);
-                    trans.Conn.Execute(sql2.SQL, sql2.DynamicParameters);
+                var sql1 = session.Sql<SysUser>(@"update sys_user set remark=@Remark where id=@Id", new { Remark = remark1, Id = 1 });
+                var sql2 = session.Sql<SysUser>(@"update sys_user set remark=@Remark where id=@Id", new { Remark = remark2, Id = 2 });
+                tran.Connection.Execute(sql1.SQL, sql1.DynamicParameters);
+                tran.Connection.Execute(sql2.SQL, sql2.DynamicParameters);
 
-                    session.CommitTransaction();
-                }
-                catch
-                {
-                    session.RollbackTransaction();
-                    throw;
-                }
-
-                var sql3 = session.Queryable<SysUser>().Where(t => t.Id == 1);
-                var user1 = conn.Conn.QuerySingleOrDefault<SysUser>(sql3.SQL, sql3.DynamicParameters);
-                var sql4 = session.Queryable<SysUser>().Where(t => t.Id == 2);
-                var user2 = conn.Conn.QuerySingleOrDefault<SysUser>(sql4.SQL, sql4.DynamicParameters);
-
-                Assert.IsTrue(user1.Remark == remark1);
-                Assert.IsTrue(user2.Remark == remark2);
+                session.CommitTransaction();
             }
+            catch
+            {
+                session.RollbackTransaction();
+                throw;
+            }
+
+            var conn = session.GetConnection(); // 获取数据库连接，也可以直接new MySqlConnection
+
+            var sql3 = session.Queryable<SysUser>().Where(t => t.Id == 1);
+            var user1 = conn.QuerySingleOrDefault<SysUser>(sql3.SQL, sql3.DynamicParameters);
+            var sql4 = session.Queryable<SysUser>().Where(t => t.Id == 2);
+            var user2 = conn.QuerySingleOrDefault<SysUser>(sql4.SQL, sql4.DynamicParameters);
+
+            Assert.IsTrue(user1.Remark == remark1);
+            Assert.IsTrue(user2.Remark == remark2);
 
         }
         #endregion
@@ -229,35 +224,33 @@ namespace Dapper.LiteTest
 
                     session.SetTypeMap<SysUser>(); //设置数据库字段名与实体类属性名映射
 
-                    using (var connEx = session.GetOpenedConnection()) //此处从连接池获取连接，用完一定要释放，也可以不使用连接池，直接new MySqlConnection
+                    var tran = session.BeginTransaction();
+
+                    try
                     {
-                        var conn = connEx.Conn;
-                        var trans = conn.BeginTransaction();
+                        var sql1 = session.Sql<SysUser>(@"update sys_user set remark=@Remark where id=@Id", new { Remark = remark1, Id = 1 });
+                        var sql2 = session.Sql<SysUser>(@"update sys_user set remark=@Remark where id=@Id", new { Remark = remark2, Id = 2 });
+                        tran.Connection.Execute(sql1.SQL, sql1.DynamicParameters, tran);
+                        tran.Connection.Execute(sql2.SQL, sql2.DynamicParameters, tran);
 
-                        try
-                        {
-                            var sql1 = session.Sql<SysUser>(@"update sys_user set remark=@Remark where id=@Id", new { Remark = remark1, Id = 1 });
-                            var sql2 = session.Sql<SysUser>(@"update sys_user set remark=@Remark where id=@Id", new { Remark = remark2, Id = 2 });
-                            conn.Execute(sql1.SQL, sql1.DynamicParameters, trans);
-                            conn.Execute(sql2.SQL, sql2.DynamicParameters, trans);
-
-                            trans.Commit();
-                        }
-                        catch
-                        {
-                            trans.Rollback();
-                            throw;
-                        }
-
-                        var sql3 = session.Queryable<SysUser>().Where(t => t.Id == 1);
-                        var user1 = conn.QuerySingleOrDefault<SysUser>(sql3.SQL, sql3.DynamicParameters);
-                        var sql4 = session.Queryable<SysUser>().Where(t => t.Id == 2);
-                        var user2 = conn.QuerySingleOrDefault<SysUser>(sql4.SQL, sql4.DynamicParameters);
-
-                        Assert.IsTrue(user1 != null);
-                        Assert.IsTrue(user2 != null);
-                        Console.WriteLine("完成" + index);
+                        tran.Commit();
                     }
+                    catch
+                    {
+                        tran.Rollback();
+                        throw;
+                    }
+
+                    var conn = session.GetConnection(); // 获取数据库连接，也可以直接new MySqlConnection
+
+                    var sql3 = session.Queryable<SysUser>().Where(t => t.Id == 1);
+                    var user1 = conn.QuerySingleOrDefault<SysUser>(sql3.SQL, sql3.DynamicParameters);
+                    var sql4 = session.Queryable<SysUser>().Where(t => t.Id == 2);
+                    var user2 = conn.QuerySingleOrDefault<SysUser>(sql4.SQL, sql4.DynamicParameters);
+
+                    Assert.IsTrue(user1 != null);
+                    Assert.IsTrue(user2 != null);
+                    Console.WriteLine("完成" + index);
                 });
                 tasks.Add(task);
             }

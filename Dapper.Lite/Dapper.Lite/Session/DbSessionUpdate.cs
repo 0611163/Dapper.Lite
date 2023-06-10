@@ -88,9 +88,18 @@ namespace Dapper.Lite
             {
                 OnExecuting?.Invoke(strSql.ToString(), parameters);
 
-                using (_conn = _connFactory.GetConnection(_tran))
+                var conn = GetConnection(_tran);
+
+                try
                 {
-                    _conn.Conn.Execute(strSql.ToString(), ToDynamicParameters(parameters), _tran?.Tran);
+                    conn.Execute(strSql.ToString(), ToDynamicParameters(parameters), _tran);
+                }
+                finally
+                {
+                    if (_tran == null)
+                    {
+                        conn.Close();
+                    }
                 }
             }
         }
@@ -115,9 +124,18 @@ namespace Dapper.Lite
             {
                 OnExecuting?.Invoke(strSql.ToString(), parameters);
 
-                using (_conn = _connFactory.GetConnection(_tran))
+                var conn = GetConnection(_tran);
+
+                try
                 {
-                    await _conn.Conn.ExecuteAsync(strSql.ToString(), ToDynamicParameters(parameters), _tran?.Tran);
+                    await conn.ExecuteAsync(strSql.ToString(), ToDynamicParameters(parameters), _tran);
+                }
+                finally
+                {
+                    if (_tran == null)
+                    {
+                        conn.Close();
+                    }
                 }
             }
         }
@@ -164,9 +182,18 @@ namespace Dapper.Lite
                 {
                     OnExecuting?.Invoke(strSql.ToString(), parameters);
 
-                    using (_conn = _connFactory.GetConnection(_tran))
+                    var conn = GetConnection(_tran);
+
+                    try
                     {
-                        _conn.Conn.Execute(strSql.ToString(), ToDynamicParameters(parameters), _tran?.Tran);
+                        conn.Execute(strSql.ToString(), ToDynamicParameters(parameters), _tran);
+                    }
+                    finally
+                    {
+                        if (_tran == null)
+                        {
+                            conn.Close();
+                        }
                     }
                 }
             }
@@ -214,9 +241,18 @@ namespace Dapper.Lite
                 {
                     OnExecuting?.Invoke(strSql.ToString(), parameters);
 
-                    using (_conn = _connFactory.GetConnection(_tran))
+                    var conn = GetConnection(_tran);
+
+                    try
                     {
-                        await _conn.Conn.ExecuteAsync(strSql.ToString(), ToDynamicParameters(parameters), _tran?.Tran);
+                        await conn.ExecuteAsync(strSql.ToString(), ToDynamicParameters(parameters), _tran);
+                    }
+                    finally
+                    {
+                        if (_tran == null)
+                        {
+                            conn.Close();
+                        }
                     }
                 }
             }

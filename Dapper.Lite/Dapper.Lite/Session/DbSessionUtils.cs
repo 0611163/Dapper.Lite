@@ -131,20 +131,16 @@ namespace Dapper.Lite
         /// <summary>
         /// 判断是否是自增的主键
         /// </summary>
-        private static bool IsAutoIncrementPk(Type modelType, PropertyInfoEx propertyInfoEx, bool autoIncrement)
+        private static bool IsAutoIncrementPk(PropertyInfoEx propertyInfoEx)
         {
-            if (propertyInfoEx.IsDBKey)
+            if (propertyInfoEx.IsAutoIncrement != null)
             {
-                if (propertyInfoEx.IsAutoIncrement != null)
-                {
-                    return propertyInfoEx.IsAutoIncrement.Value;
-                }
-                else
-                {
-                    return autoIncrement;
-                }
+                return propertyInfoEx.IsAutoIncrement.Value;
             }
-            return false;
+            else
+            {
+                return false;
+            }
         }
         #endregion
 

@@ -208,9 +208,18 @@ namespace Dapper.Lite
             SetTypeMap(type);
             OnExecuting?.Invoke(sql, parameters);
 
-            using (_conn = _connFactory.GetConnection(_tran))
+            var conn = GetConnection(_tran);
+
+            try
             {
-                return _conn.Conn.QueryFirstOrDefault(type, sql, ToDynamicParameters(parameters));
+                return conn.QueryFirstOrDefault(type, sql, ToDynamicParameters(parameters));
+            }
+            finally
+            {
+                if (_tran == null)
+                {
+                    conn.Close();
+                }
             }
         }
         #endregion
@@ -224,9 +233,18 @@ namespace Dapper.Lite
             SetTypeMap(type);
             OnExecuting?.Invoke(sql, parameters);
 
-            using (_conn = await _connFactory.GetConnectionAsync(_tran))
+            var conn = GetConnection(_tran);
+
+            try
             {
-                return await _conn.Conn.QueryFirstOrDefaultAsync(type, sql, ToDynamicParameters(parameters));
+                return await conn.QueryFirstOrDefaultAsync(type, sql, ToDynamicParameters(parameters));
+            }
+            finally
+            {
+                if (_tran == null)
+                {
+                    conn.Close();
+                }
             }
         }
         #endregion

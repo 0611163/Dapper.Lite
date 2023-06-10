@@ -22,7 +22,7 @@ namespace Dapper.LiteTest
         #region 构造函数
         public SqlStringTest()
         {
-            _db = DapperLiteFactory.Client;
+            _db = DapperLiteFactory.Db;
         }
         #endregion
 

@@ -32,7 +32,7 @@ namespace Dapper.Lite
         /// <summary>
         /// SQL过滤正则
         /// </summary>
-        private static Dictionary<string, Regex> _sqlFilteRegexDict = new Dictionary<string, Regex>();
+        private static ConcurrentDictionary<string, Regex> _sqlFilteRegexDict = new ConcurrentDictionary<string, Regex>();
 
         /// <summary>
         /// 数据库字段名与实体类属性名映射
@@ -51,12 +51,7 @@ namespace Dapper.Lite
         /// <summary>
         /// 事务
         /// </summary>
-        private DbTransactionExt _tran;
-
-        /// <summary>
-        /// 数据库连接
-        /// </summary>
-        private DbConnectionExt _conn;
+        private DbTransaction _tran;
 
         /// <summary>
         /// 数据库实现
@@ -64,19 +59,10 @@ namespace Dapper.Lite
         private IProvider _provider;
 
         /// <summary>
-        /// 数据库自增(全局设置)
-        /// </summary>
-        private bool _autoIncrement;
-
-        /// <summary>
         /// 分表映射
         /// </summary>
         private SplitTableMapping _splitTableMapping;
 
-        /// <summary>
-        /// 数据库连接池
-        /// </summary>
-        private DbConnectionFactory _connFactory;
         #endregion
 
         #region 静态构造函数
@@ -85,21 +71,21 @@ namespace Dapper.Lite
         /// </summary>
         static DbSession()
         {
-            _sqlFilteRegexDict.Add("net localgroup ", new Regex("net[\\s]+localgroup[\\s]+", RegexOptions.IgnoreCase));
-            _sqlFilteRegexDict.Add("net user ", new Regex("net[\\s]+user[\\s]+", RegexOptions.IgnoreCase));
-            _sqlFilteRegexDict.Add("xp_cmdshell ", new Regex("xp_cmdshell[\\s]+", RegexOptions.IgnoreCase));
-            _sqlFilteRegexDict.Add("exec ", new Regex("exec[\\s]+", RegexOptions.IgnoreCase));
-            _sqlFilteRegexDict.Add("execute ", new Regex("execute[\\s]+", RegexOptions.IgnoreCase));
-            _sqlFilteRegexDict.Add("truncate ", new Regex("truncate[\\s]+", RegexOptions.IgnoreCase));
-            _sqlFilteRegexDict.Add("drop ", new Regex("drop[\\s]+", RegexOptions.IgnoreCase));
-            _sqlFilteRegexDict.Add("restore ", new Regex("restore[\\s]+", RegexOptions.IgnoreCase));
-            _sqlFilteRegexDict.Add("create ", new Regex("create[\\s]+", RegexOptions.IgnoreCase));
-            _sqlFilteRegexDict.Add("alter ", new Regex("alter[\\s]+", RegexOptions.IgnoreCase));
-            _sqlFilteRegexDict.Add("rename ", new Regex("rename[\\s]+", RegexOptions.IgnoreCase));
-            _sqlFilteRegexDict.Add("insert ", new Regex("insert[\\s]+", RegexOptions.IgnoreCase));
-            _sqlFilteRegexDict.Add("update ", new Regex("update[\\s]+", RegexOptions.IgnoreCase));
-            _sqlFilteRegexDict.Add("delete ", new Regex("delete[\\s]+", RegexOptions.IgnoreCase));
-            _sqlFilteRegexDict.Add("select ", new Regex("select[\\s]+", RegexOptions.IgnoreCase));
+            _sqlFilteRegexDict.TryAdd("net localgroup ", new Regex("net[\\s]+localgroup[\\s]+", RegexOptions.IgnoreCase));
+            _sqlFilteRegexDict.TryAdd("net user ", new Regex("net[\\s]+user[\\s]+", RegexOptions.IgnoreCase));
+            _sqlFilteRegexDict.TryAdd("xp_cmdshell ", new Regex("xp_cmdshell[\\s]+", RegexOptions.IgnoreCase));
+            _sqlFilteRegexDict.TryAdd("exec ", new Regex("exec[\\s]+", RegexOptions.IgnoreCase));
+            _sqlFilteRegexDict.TryAdd("execute ", new Regex("execute[\\s]+", RegexOptions.IgnoreCase));
+            _sqlFilteRegexDict.TryAdd("truncate ", new Regex("truncate[\\s]+", RegexOptions.IgnoreCase));
+            _sqlFilteRegexDict.TryAdd("drop ", new Regex("drop[\\s]+", RegexOptions.IgnoreCase));
+            _sqlFilteRegexDict.TryAdd("restore ", new Regex("restore[\\s]+", RegexOptions.IgnoreCase));
+            _sqlFilteRegexDict.TryAdd("create ", new Regex("create[\\s]+", RegexOptions.IgnoreCase));
+            _sqlFilteRegexDict.TryAdd("alter ", new Regex("alter[\\s]+", RegexOptions.IgnoreCase));
+            _sqlFilteRegexDict.TryAdd("rename ", new Regex("rename[\\s]+", RegexOptions.IgnoreCase));
+            _sqlFilteRegexDict.TryAdd("insert ", new Regex("insert[\\s]+", RegexOptions.IgnoreCase));
+            _sqlFilteRegexDict.TryAdd("update ", new Regex("update[\\s]+", RegexOptions.IgnoreCase));
+            _sqlFilteRegexDict.TryAdd("delete ", new Regex("delete[\\s]+", RegexOptions.IgnoreCase));
+            _sqlFilteRegexDict.TryAdd("select ", new Regex("select[\\s]+", RegexOptions.IgnoreCase));
         }
         #endregion
 
@@ -107,25 +93,11 @@ namespace Dapper.Lite
         /// <summary>
         /// 构造函数
         /// </summary>
-        public DbSession(string connectionString, DBType dbType, SplitTableMapping splitTableMapping, DbConnectionFactory connFactory, bool autoIncrement = false)
+        public DbSession(string connectionString, IProvider provider, SplitTableMapping splitTableMapping)
         {
             _connectionString = connectionString;
-            _provider = ProviderFactory.CreateProvider(dbType);
+            _provider = provider;
             _splitTableMapping = splitTableMapping;
-            _connFactory = connFactory;
-            _autoIncrement = autoIncrement;
-        }
-
-        /// <summary>
-        /// 构造函数
-        /// </summary>
-        public DbSession(string connectionString, Type providerType, SplitTableMapping splitTableMapping, DbConnectionFactory connFactory, bool autoIncrement = false)
-        {
-            _connectionString = connectionString;
-            _provider = ProviderFactory.CreateProvider(providerType);
-            _splitTableMapping = splitTableMapping;
-            _connFactory = connFactory;
-            _autoIncrement = autoIncrement;
         }
         #endregion
 
@@ -183,9 +155,11 @@ namespace Dapper.Lite
             string idName = GetIdName(type, out _);
             string sql = _provider.CreateGetMaxIdSql(GetTableName(_provider, type), _provider.OpenQuote + idName + _provider.CloseQuote);
 
-            using (_conn = _connFactory.GetConnection(_tran))
+            var conn = GetConnection(_tran);
+
+            try
             {
-                object obj = _conn.Conn.ExecuteScalar(sql);
+                object obj = conn.ExecuteScalar(sql);
                 if (object.Equals(obj, null) || object.Equals(obj, DBNull.Value))
                 {
                     return 1;
@@ -193,6 +167,13 @@ namespace Dapper.Lite
                 else
                 {
                     return int.Parse(obj.ToString()) + 1;
+                }
+            }
+            finally
+            {
+                if (_tran == null)
+                {
+                    conn.Close();
                 }
             }
         }
@@ -208,41 +189,69 @@ namespace Dapper.Lite
         }
         #endregion
 
-        #region 从连接池池获取连接
+        #region 获取数据库连接
         /// <summary>
-        /// 从连接池池获取连接
+        /// 获取数据库连接
         /// </summary>
-        public DbConnectionExt GetConnection(DbTransactionExt tran = null)
+        public DbConnection GetConnection(DbTransaction tran = null)
         {
-            return _connFactory.GetConnection(tran);
+            if (tran != null)
+            {
+                return tran.Connection;
+            }
+            else
+            {
+                return _provider.CreateConnection(_connectionString);
+            }
         }
 
         /// <summary>
-        /// 从连接池池获取连接
+        /// 获取数据库连接
         /// </summary>
-        public Task<DbConnectionExt> GetConnectionAsync(DbTransactionExt tran = null)
+        public Task<DbConnection> GetConnectionAsync(DbTransaction tran = null)
         {
-            return _connFactory.GetConnectionAsync(tran);
+            if (tran != null)
+            {
+                return Task.FromResult(tran.Connection);
+            }
+            else
+            {
+                return Task.FromResult(_provider.CreateConnection(_connectionString));
+            }
         }
 
         /// <summary>
-        /// 从连接池池获取连接，已经Open
+        /// 获取数据库连接，已经Open
         /// </summary>
-        public DbConnectionExt GetOpenedConnection(DbTransactionExt tran = null)
+        public DbConnection GetOpenedConnection(DbTransaction tran = null)
         {
-            var connEx = _connFactory.GetConnection(tran);
-            if (connEx.Conn.State == ConnectionState.Closed) connEx.Conn.Open();
-            return connEx;
+            if (tran != null)
+            {
+                return tran.Connection;
+            }
+            else
+            {
+                var conn = _provider.CreateConnection(_connectionString);
+                if (conn.State == ConnectionState.Closed) conn.Open();
+                return conn;
+            }
         }
 
         /// <summary>
-        /// 从连接池池获取连接，已经Open
+        /// 获取数据库连接，已经Open
         /// </summary>
-        public async Task<DbConnectionExt> GetOpenedConnectionAsync(DbTransactionExt tran = null)
+        public async Task<DbConnection> GetOpenedConnectionAsync(DbTransaction tran = null)
         {
-            var connEx = _connFactory.GetConnection(tran);
-            if (connEx.Conn.State == ConnectionState.Closed) await connEx.Conn.OpenAsync();
-            return connEx;
+            if (tran != null)
+            {
+                return tran.Connection;
+            }
+            else
+            {
+                var conn = _provider.CreateConnection(_connectionString);
+                if (conn.State == ConnectionState.Closed) await conn.OpenAsync();
+                return conn;
+            }
         }
         #endregion
 

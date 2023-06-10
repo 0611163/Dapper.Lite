@@ -488,7 +488,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void TestIDapperLiteClient()
         {
-            var db = DapperLiteFactory.Client;
+            var db = DapperLiteFactory.Db;
 
             db.OnExecuting = (s, p) =>
             {
@@ -519,7 +519,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void TestIDapperLiteClient2()
         {
-            var db = DapperLiteFactory.Client;
+            var db = DapperLiteFactory.Db;
             db.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
             ISqlString sql = db.Sql(@"

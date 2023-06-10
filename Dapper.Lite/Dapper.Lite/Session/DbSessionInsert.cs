@@ -19,16 +19,24 @@ namespace Dapper.Lite
         public void Insert(object obj)
         {
             StringBuilder strSql = new StringBuilder();
-            int savedCount = 0;
             DbParameter[] parameters = null;
 
-            PrepareInsertSql(obj, _autoIncrement, ref strSql, ref parameters, ref savedCount);
+            PrepareInsertSql(obj, ref strSql, ref parameters);
 
             OnExecuting?.Invoke(strSql.ToString(), parameters);
 
-            using (_conn = _connFactory.GetConnection(_tran))
+            var conn = GetConnection(_tran);
+
+            try
             {
-                _conn.Conn.Execute(strSql.ToString(), ToDynamicParameters(parameters), _tran?.Tran);
+                conn.Execute(strSql.ToString(), ToDynamicParameters(parameters), _tran);
+            }
+            finally
+            {
+                if (_tran == null)
+                {
+                    conn.Close();
+                }
             }
         }
 
@@ -38,18 +46,26 @@ namespace Dapper.Lite
         public long InsertReturnId(object obj, string selectIdSql)
         {
             StringBuilder strSql = new StringBuilder();
-            int savedCount = 0;
             DbParameter[] parameters = null;
 
-            PrepareInsertSql(obj, _autoIncrement, ref strSql, ref parameters, ref savedCount);
+            PrepareInsertSql(obj, ref strSql, ref parameters);
             strSql.Append(";" + selectIdSql + ";");
 
             OnExecuting?.Invoke(strSql.ToString(), parameters);
 
-            using (_conn = _connFactory.GetConnection(_tran))
+            var conn = GetConnection(_tran);
+
+            try
             {
-                object id = _conn.Conn.ExecuteScalar(strSql.ToString(), ToDynamicParameters(parameters), _tran?.Tran);
+                object id = conn.ExecuteScalar(strSql.ToString(), ToDynamicParameters(parameters), _tran);
                 return Convert.ToInt64(id);
+            }
+            finally
+            {
+                if (_tran == null)
+                {
+                    conn.Close();
+                }
             }
         }
         #endregion
@@ -61,16 +77,24 @@ namespace Dapper.Lite
         public async Task InsertAsync(object obj)
         {
             StringBuilder strSql = new StringBuilder();
-            int savedCount = 0;
             DbParameter[] parameters = null;
 
-            PrepareInsertSql(obj, _autoIncrement, ref strSql, ref parameters, ref savedCount);
+            PrepareInsertSql(obj, ref strSql, ref parameters);
 
             OnExecuting?.Invoke(strSql.ToString(), parameters);
 
-            using (_conn = await _connFactory.GetConnectionAsync(_tran))
+            var conn = GetConnection(_tran);
+
+            try
             {
-                await _conn.Conn.ExecuteAsync(strSql.ToString(), ToDynamicParameters(parameters), _tran?.Tran);
+                await conn.ExecuteAsync(strSql.ToString(), ToDynamicParameters(parameters), _tran);
+            }
+            finally
+            {
+                if (_tran == null)
+                {
+                    conn.Close();
+                }
             }
         }
 
@@ -80,18 +104,26 @@ namespace Dapper.Lite
         public async Task<long> InsertReturnIdAsync(object obj, string selectIdSql)
         {
             StringBuilder strSql = new StringBuilder();
-            int savedCount = 0;
             DbParameter[] parameters = null;
 
-            PrepareInsertSql(obj, _autoIncrement, ref strSql, ref parameters, ref savedCount);
+            PrepareInsertSql(obj, ref strSql, ref parameters);
             strSql.Append(";" + selectIdSql + ";");
 
             OnExecuting?.Invoke(strSql.ToString(), parameters);
 
-            using (_conn = await _connFactory.GetConnectionAsync(_tran))
+            var conn = GetConnection(_tran);
+
+            try
             {
-                object id = await _conn.Conn.ExecuteScalarAsync(strSql.ToString(), ToDynamicParameters(parameters), _tran?.Tran);
+                object id = await conn.ExecuteScalarAsync(strSql.ToString(), ToDynamicParameters(parameters), _tran);
                 return Convert.ToInt64(id);
+            }
+            finally
+            {
+                if (_tran == null)
+                {
+                    conn.Close();
+                }
             }
         }
         #endregion
@@ -118,13 +150,22 @@ namespace Dapper.Lite
 
                 var listPage = list.Skip(i).Take(pageSize).ToList();
 
-                PrepareInsertSql<T>(listPage, _autoIncrement, ref strSql, ref parameters, ref savedCount);
+                PrepareInsertSql<T>(listPage, ref strSql, ref parameters, ref savedCount);
 
                 OnExecuting?.Invoke(strSql.ToString(), parameters);
 
-                using (_conn = _connFactory.GetConnection(_tran))
+                var conn = GetConnection(_tran);
+
+                try
                 {
-                    _conn.Conn.Execute(strSql.ToString(), ToDynamicParameters(parameters), _tran?.Tran);
+                    conn.Execute(strSql.ToString(), ToDynamicParameters(parameters), _tran);
+                }
+                finally
+                {
+                    if (_tran == null)
+                    {
+                        conn.Close();
+                    }
                 }
             }
         }
@@ -152,13 +193,22 @@ namespace Dapper.Lite
 
                 var listPage = list.Skip(i).Take(pageSize).ToList();
 
-                PrepareInsertSql<T>(listPage, _autoIncrement, ref strSql, ref parameters, ref savedCount);
+                PrepareInsertSql<T>(listPage, ref strSql, ref parameters, ref savedCount);
 
                 OnExecuting?.Invoke(strSql.ToString(), parameters);
 
-                using (_conn = await _connFactory.GetConnectionAsync(_tran))
+                var conn = GetConnection(_tran);
+
+                try
                 {
-                    await _conn.Conn.ExecuteAsync(strSql.ToString(), ToDynamicParameters(parameters), _tran?.Tran);
+                    await conn.ExecuteAsync(strSql.ToString(), ToDynamicParameters(parameters), _tran);
+                }
+                finally
+                {
+                    if (_tran == null)
+                    {
+                        conn.Close();
+                    }
                 }
             }
         }
@@ -168,45 +218,34 @@ namespace Dapper.Lite
         /// <summary>
         /// 准备Insert的SQL
         /// </summary>
-        private void PrepareInsertSql(object obj, bool autoIncrement, ref StringBuilder strSql, ref DbParameter[] parameters, ref int savedCount)
+        private void PrepareInsertSql(object obj, ref StringBuilder strSql, ref DbParameter[] parameters)
         {
             Type type = obj.GetType();
             SetTypeMap(type);
             strSql.Append(string.Format("insert into {0}(", GetTableName(_provider, type)));
             PropertyInfoEx[] propertyInfoList = GetEntityProperties(type);
             List<Tuple<string, Type>> propertyNameList = new List<Tuple<string, Type>>();
+            List<DbParameter> parameterList = new List<DbParameter>();
             foreach (PropertyInfoEx propertyInfoEx in propertyInfoList)
             {
                 PropertyInfo propertyInfo = propertyInfoEx.PropertyInfo;
 
-                if (IsAutoIncrementPk(type, propertyInfoEx, autoIncrement)) continue;
+                if (IsAutoIncrementPk(propertyInfoEx)) continue;
 
                 if (propertyInfoEx.IsDBField)
                 {
                     propertyNameList.Add(new Tuple<string, Type>(propertyInfoEx.FieldName, propertyInfoEx.PropertyInfo.PropertyType));
-                    savedCount++;
-                }
-            }
 
-            strSql.Append(string.Format("{0})", string.Join(",", propertyNameList.Select(a => string.Format("{0}{1}{2}", _provider.OpenQuote, a.Item1, _provider.CloseQuote)))));
-            strSql.Append(string.Format(" values ({0})", string.Join(",", propertyNameList.Select(a => _provider.GetParameterName(a.Item1, a.Item2)))));
-            parameters = new DbParameter[savedCount];
-            int k = 0;
-            for (int i = 0; i < propertyInfoList.Length && savedCount > 0; i++)
-            {
-                PropertyInfoEx propertyInfoEx = propertyInfoList[i];
-                PropertyInfo propertyInfo = propertyInfoEx.PropertyInfo;
-
-                if (IsAutoIncrementPk(type, propertyInfoEx, autoIncrement)) continue;
-
-                if (propertyInfoEx.IsDBField)
-                {
                     object val = propertyInfo.GetValue(obj, null);
                     Type parameterType = val == null ? typeof(object) : val.GetType();
                     DbParameter param = _provider.GetDbParameter(_provider.GetParameterName(propertyInfoEx.FieldName, parameterType), val);
-                    parameters[k++] = param;
+                    parameterList.Add(param);
                 }
             }
+            parameters = parameterList.ToArray();
+
+            strSql.Append(string.Format("{0})", string.Join(",", propertyNameList.Select(a => string.Format("{0}{1}{2}", _provider.OpenQuote, a.Item1, _provider.CloseQuote)))));
+            strSql.Append(string.Format(" values ({0})", string.Join(",", propertyNameList.Select(a => _provider.GetParameterName(a.Item1, a.Item2)))));
         }
         #endregion
 
@@ -214,7 +253,7 @@ namespace Dapper.Lite
         /// <summary>
         /// 准备批量Insert的SQL
         /// </summary>
-        private void PrepareInsertSql<T>(List<T> list, bool autoIncrement, ref StringBuilder strSql, ref DbParameter[] parameters, ref int savedCount)
+        private void PrepareInsertSql<T>(List<T> list, ref StringBuilder strSql, ref DbParameter[] parameters, ref int savedCount)
         {
             Type type = typeof(T);
             SetTypeMap(type);
@@ -225,7 +264,7 @@ namespace Dapper.Lite
             {
                 PropertyInfo propertyInfo = propertyInfoEx.PropertyInfo;
 
-                if (IsAutoIncrementPk(type, propertyInfoEx, autoIncrement)) continue;
+                if (IsAutoIncrementPk(propertyInfoEx)) continue;
 
                 if (propertyInfoEx.IsDBField)
                 {
@@ -254,7 +293,7 @@ namespace Dapper.Lite
                     PropertyInfoEx propertyInfoEx = propertyInfoList[i];
                     PropertyInfo propertyInfo = propertyInfoEx.PropertyInfo;
 
-                    if (IsAutoIncrementPk(type, propertyInfoEx, autoIncrement)) continue;
+                    if (IsAutoIncrementPk(propertyInfoEx)) continue;
 
                     if (propertyInfoEx.IsDBField)
                     {

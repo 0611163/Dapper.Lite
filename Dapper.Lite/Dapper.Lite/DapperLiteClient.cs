@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Data;
 using System.Data.Common;
 using System.Drawing;
 using System.Linq.Expressions;
@@ -21,24 +22,9 @@ namespace Dapper.Lite
         private string _connectionString;
 
         /// <summary>
-        /// 数据库类型
+        /// 数据库提供者
         /// </summary>
-        private DBType? _dbType;
-
-        /// <summary>
-        /// 数据库提供者类型
-        /// </summary>
-        private Type _providerType;
-
-        /// <summary>
-        /// 主键自增全局配置
-        /// </summary>
-        private bool _autoIncrement;
-
-        /// <summary>
-        /// 数据库连接池
-        /// </summary>
-        private DbConnectionFactory _connFactory;
+        private IProvider _provider;
         #endregion
 
         #region 构造函数
@@ -46,40 +32,19 @@ namespace Dapper.Lite
         /// 构造函数
         /// </summary>
         /// <param name="connectionString">数据库连接字符串</param>
-        /// <param name="dbType">数据库类型</param>
-        /// <param name="provider">数据库Provider</param>
-        /// <param name="maxPoolSize">数据库最大连接池大小，null值表示不设置上限</param>
-        /// <param name="autoIncrement">主键自增全局配置(如果实体类或实体类的主键添加了AutoIncrementAttribute特性则不使用全局配置)</param>
-        public DapperLiteClient(string connectionString, DBType dbType, IProvider provider, int? maxPoolSize = 100, bool autoIncrement = false)
+        /// <param name="provider">数据库提供者</param>
+        public DapperLiteClient(string connectionString, IProvider provider)
         {
             _connectionString = connectionString;
-            _dbType = dbType;
-            _autoIncrement = autoIncrement;
-
-            ProviderFactory.RegisterDBProvider(dbType, provider);
-            _connFactory = new DbConnectionFactory(provider, connectionString, maxPoolSize);
+            _provider = provider;
 
             SqlMapper.AddTypeHandler(typeof(Guid), new GuidTypeHanlder());
-        }
 
-        /// <summary>
-        /// 构造函数
-        /// </summary>
-        /// <param name="connectionString">数据库连接字符串</param>
-        /// <param name="providerType">数据库提供者类型</param>
-        /// <param name="provider">数据库Provider</param>
-        /// <param name="maxPoolSize">数据库最大连接池大小，null值表示不设置上限</param>
-        /// <param name="autoIncrement">主键自增全局配置(如果实体类或实体类的主键添加了AutoIncrementAttribute特性则不使用全局配置)</param>
-        public DapperLiteClient(string connectionString, Type providerType, IProvider provider, int? maxPoolSize = 100, bool autoIncrement = false)
-        {
-            _connectionString = connectionString;
-            _providerType = providerType;
-            _autoIncrement = autoIncrement;
-
-            ProviderFactory.RegisterDBProvider(providerType, provider);
-            _connFactory = new DbConnectionFactory(provider, connectionString, maxPoolSize);
-
-            SqlMapper.AddTypeHandler(typeof(Guid), new GuidTypeHanlder());
+            // 预热
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+            }
         }
         #endregion
 
@@ -89,16 +54,7 @@ namespace Dapper.Lite
         /// </summary>
         public IDbSession GetSession(SplitTableMapping splitTableMapping = null)
         {
-            DbSession dbSession;
-
-            if (_dbType != null)
-            {
-                dbSession = new DbSession(_connectionString, _dbType.Value, splitTableMapping, _connFactory, _autoIncrement);
-            }
-            else
-            {
-                dbSession = new DbSession(_connectionString, _providerType, splitTableMapping, _connFactory, _autoIncrement);
-            }
+            DbSession dbSession = new DbSession(_connectionString, _provider, splitTableMapping);
 
             if (OnExecuting != null)
             {
@@ -115,16 +71,7 @@ namespace Dapper.Lite
         /// </summary>
         public Task<IDbSession> GetSessionAsync(SplitTableMapping splitTableMapping = null)
         {
-            DbSession dbSession;
-
-            if (_dbType != null)
-            {
-                dbSession = new DbSession(_connectionString, _dbType.Value, splitTableMapping, _connFactory, _autoIncrement);
-            }
-            else
-            {
-                dbSession = new DbSession(_connectionString, _providerType, splitTableMapping, _connFactory, _autoIncrement);
-            }
+            DbSession dbSession = new DbSession(_connectionString, _provider, splitTableMapping);
 
             if (OnExecuting != null)
             {
@@ -202,22 +149,22 @@ namespace Dapper.Lite
         }
         #endregion
 
-        #region 从连接池池获取连接
+        #region 获取数据库连接
         /// <summary>
-        /// 从连接池池获取连接
+        /// 获取数据库连接
         /// 如果需要使用数据库事务，请使用IDbSession接口的同名方法
         /// </summary>
-        public DbConnectionExt GetConnection()
+        public DbConnection GetConnection()
         {
             var session = GetSession();
             return session.GetConnection(null);
         }
 
         /// <summary>
-        /// 从连接池池获取连接
+        /// 获取数据库连接
         /// 如果需要使用数据库事务，请使用IDbSession接口的同名方法
         /// </summary>
-        public Task<DbConnectionExt> GetConnectionAsync()
+        public Task<DbConnection> GetConnectionAsync()
         {
             var session = GetSession();
             return session.GetConnectionAsync(null);

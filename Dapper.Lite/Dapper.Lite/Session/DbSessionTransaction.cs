@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Data.Common;
 
 namespace Dapper.Lite
 {
@@ -8,11 +9,11 @@ namespace Dapper.Lite
         /// <summary>
         /// 开始事务
         /// </summary>
-        public DbTransactionExt BeginTransaction()
+        public DbTransaction BeginTransaction()
         {
-            _conn = _connFactory.GetConnection(null);
-            if (_conn.Conn.State == ConnectionState.Closed) _conn.Conn.Open();
-            _tran = new DbTransactionExt(_conn.Conn.BeginTransaction(), _conn);
+            var conn = GetConnection();
+            if (conn.State == ConnectionState.Closed) conn.Open();
+            _tran = conn.BeginTransaction();
             return _tran;
         }
         #endregion
@@ -27,20 +28,17 @@ namespace Dapper.Lite
 
             try
             {
-                _tran.Tran.Commit();
+                _tran.Commit();
             }
             catch
             {
-                _tran.Tran.Rollback();
+                _tran.Rollback();
                 throw;
             }
             finally
             {
-                _tran.Tran.Dispose();
-                _tran.Tran = null;
-                _tran = null;
-                _conn.Tran = null;
-                _connFactory.Release(_conn);
+                _tran.Connection.Close();
+                _tran.Dispose();
             }
         }
         #endregion
@@ -53,7 +51,7 @@ namespace Dapper.Lite
         {
             if (_tran == null) return; //防止重复回滚
 
-            _tran.Tran.Rollback();
+            _tran.Rollback();
         }
         #endregion
 

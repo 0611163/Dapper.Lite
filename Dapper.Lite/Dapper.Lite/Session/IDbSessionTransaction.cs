@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ namespace Dapper.Lite
         /// <summary>
         /// 开始事务
         /// </summary>
-        DbTransactionExt BeginTransaction();
+        DbTransaction BeginTransaction();
         #endregion
 
         #region 提交事务

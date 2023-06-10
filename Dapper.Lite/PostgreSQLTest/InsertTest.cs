@@ -81,7 +81,7 @@ namespace PostgreSQLTest
                 session.Insert(userList);
                 session.CommitTransaction();
 
-                int count = session.QuerySingle<int>("select count(*) from sys_user");
+                int count = LiteSqlFactory.GetSession().QuerySingle<int>("select count(*) from sys_user");
                 Assert.IsTrue(count >= 1000);
             }
             catch (Exception ex)

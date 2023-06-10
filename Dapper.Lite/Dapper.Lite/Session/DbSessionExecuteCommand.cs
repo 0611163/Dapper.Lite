@@ -30,9 +30,11 @@ namespace Dapper.Lite
             SqlFilter(ref sqlString);
             OnExecuting?.Invoke(sqlString, null);
 
-            using (_conn = _connFactory.GetConnection(_tran))
+            var conn = GetConnection(_tran);
+
+            try
             {
-                object obj = _conn.Conn.ExecuteScalar(sqlString);
+                object obj = conn.ExecuteScalar(sqlString);
 
                 if (object.Equals(obj, null) || object.Equals(obj, DBNull.Value))
                 {
@@ -41,6 +43,13 @@ namespace Dapper.Lite
                 else
                 {
                     return true;
+                }
+            }
+            finally
+            {
+                if (_tran == null)
+                {
+                    conn.Close();
                 }
             }
         }
@@ -55,9 +64,11 @@ namespace Dapper.Lite
             SqlFilter(ref sqlString);
             OnExecuting?.Invoke(sqlString, null);
 
-            using (_conn = await _connFactory.GetConnectionAsync(_tran))
+            var conn = GetConnection(_tran);
+
+            try
             {
-                object obj = await _conn.Conn.ExecuteScalarAsync(sqlString);
+                object obj = await conn.ExecuteScalarAsync(sqlString);
 
                 if (object.Equals(obj, null) || object.Equals(obj, DBNull.Value))
                 {
@@ -66,6 +77,13 @@ namespace Dapper.Lite
                 else
                 {
                     return true;
+                }
+            }
+            finally
+            {
+                if (_tran == null)
+                {
+                    conn.Close();
                 }
             }
         }
@@ -82,9 +100,11 @@ namespace Dapper.Lite
             SqlFilter(ref sqlString);
             OnExecuting?.Invoke(sqlString, null);
 
-            using (_conn = _connFactory.GetConnection(_tran))
+            var conn = GetConnection(_tran);
+
+            try
             {
-                object obj = _conn.Conn.ExecuteScalar(sqlString);
+                object obj = conn.ExecuteScalar(sqlString);
 
                 if (object.Equals(obj, null) || object.Equals(obj, DBNull.Value))
                 {
@@ -93,6 +113,13 @@ namespace Dapper.Lite
                 else
                 {
                     return (T)Convert.ChangeType(obj, typeof(T));
+                }
+            }
+            finally
+            {
+                if (_tran == null)
+                {
+                    conn.Close();
                 }
             }
         }
@@ -108,9 +135,11 @@ namespace Dapper.Lite
             SqlFilter(ref sqlString);
             OnExecuting?.Invoke(sqlString, null);
 
-            using (_conn = _connFactory.GetConnection(_tran))
+            var conn = GetConnection(_tran);
+
+            try
             {
-                object obj = _conn.Conn.ExecuteScalar(sqlString);
+                object obj = conn.ExecuteScalar(sqlString);
 
                 if (object.Equals(obj, null) || object.Equals(obj, DBNull.Value))
                 {
@@ -119,6 +148,13 @@ namespace Dapper.Lite
                 else
                 {
                     return obj;
+                }
+            }
+            finally
+            {
+                if (_tran == null)
+                {
+                    conn.Close();
                 }
             }
         }
@@ -134,9 +170,11 @@ namespace Dapper.Lite
             SqlFilter(ref sqlString);
             OnExecuting?.Invoke(sqlString, null);
 
-            using (_conn = await _connFactory.GetConnectionAsync(_tran))
+            var conn = GetConnection(_tran);
+
+            try
             {
-                object obj = await _conn.Conn.ExecuteScalarAsync(sqlString);
+                object obj = await conn.ExecuteScalarAsync(sqlString);
 
                 if (object.Equals(obj, null) || object.Equals(obj, DBNull.Value))
                 {
@@ -145,6 +183,13 @@ namespace Dapper.Lite
                 else
                 {
                     return (T)Convert.ChangeType(obj, typeof(T));
+                }
+            }
+            finally
+            {
+                if (_tran == null)
+                {
+                    conn.Close();
                 }
             }
         }
@@ -160,9 +205,11 @@ namespace Dapper.Lite
             SqlFilter(ref sqlString);
             OnExecuting?.Invoke(sqlString, null);
 
-            using (_conn = await _connFactory.GetConnectionAsync(_tran))
+            var conn = GetConnection(_tran);
+
+            try
             {
-                object obj = await _conn.Conn.ExecuteScalarAsync(sqlString);
+                object obj = await conn.ExecuteScalarAsync(sqlString);
 
                 if (object.Equals(obj, null) || object.Equals(obj, DBNull.Value))
                 {
@@ -171,6 +218,13 @@ namespace Dapper.Lite
                 else
                 {
                     return obj;
+                }
+            }
+            finally
+            {
+                if (_tran == null)
+                {
+                    conn.Close();
                 }
             }
         }
@@ -243,9 +297,11 @@ namespace Dapper.Lite
             SqlFilter(ref sqlString);
             OnExecuting?.Invoke(sqlString, cmdParms);
 
-            using (_conn = _connFactory.GetConnection(_tran))
+            var conn = GetConnection(_tran);
+
+            try
             {
-                object obj = _conn.Conn.ExecuteScalar(sqlString, ToDynamicParameters(cmdParms));
+                object obj = conn.ExecuteScalar(sqlString, ToDynamicParameters(cmdParms));
 
                 if (object.Equals(obj, null) || object.Equals(obj, DBNull.Value))
                 {
@@ -254,6 +310,13 @@ namespace Dapper.Lite
                 else
                 {
                     return true;
+                }
+            }
+            finally
+            {
+                if (_tran == null)
+                {
+                    conn.Close();
                 }
             }
         }
@@ -268,9 +331,11 @@ namespace Dapper.Lite
             SqlFilter(ref sqlString);
             OnExecuting?.Invoke(sqlString, cmdParms);
 
-            using (_conn = await _connFactory.GetConnectionAsync(_tran))
+            var conn = GetConnection(_tran);
+
+            try
             {
-                object obj = await _conn.Conn.ExecuteScalarAsync(sqlString, ToDynamicParameters(cmdParms));
+                object obj = await conn.ExecuteScalarAsync(sqlString, ToDynamicParameters(cmdParms));
 
                 if (object.Equals(obj, null) || object.Equals(obj, DBNull.Value))
                 {
@@ -279,6 +344,13 @@ namespace Dapper.Lite
                 else
                 {
                     return true;
+                }
+            }
+            finally
+            {
+                if (_tran == null)
+                {
+                    conn.Close();
                 }
             }
         }
@@ -296,9 +368,11 @@ namespace Dapper.Lite
             SqlFilter(ref sqlString);
             OnExecuting?.Invoke(sqlString, cmdParms);
 
-            using (_conn = _connFactory.GetConnection(_tran))
+            var conn = GetConnection(_tran);
+
+            try
             {
-                object obj = _conn.Conn.ExecuteScalar(sqlString, ToDynamicParameters(cmdParms));
+                object obj = conn.ExecuteScalar(sqlString, ToDynamicParameters(cmdParms));
 
                 if (object.Equals(obj, null) || object.Equals(obj, DBNull.Value))
                 {
@@ -307,6 +381,13 @@ namespace Dapper.Lite
                 else
                 {
                     return (T)Convert.ChangeType(obj, typeof(T));
+                }
+            }
+            finally
+            {
+                if (_tran == null)
+                {
+                    conn.Close();
                 }
             }
         }
@@ -323,9 +404,11 @@ namespace Dapper.Lite
             SqlFilter(ref sqlString);
             OnExecuting?.Invoke(sqlString, cmdParms);
 
-            using (_conn = _connFactory.GetConnection(_tran))
+            var conn = GetConnection(_tran);
+
+            try
             {
-                object obj = _conn.Conn.ExecuteScalar(sqlString, ToDynamicParameters(cmdParms));
+                object obj = conn.ExecuteScalar(sqlString, ToDynamicParameters(cmdParms));
 
                 if (object.Equals(obj, null) || object.Equals(obj, DBNull.Value))
                 {
@@ -334,6 +417,13 @@ namespace Dapper.Lite
                 else
                 {
                     return obj;
+                }
+            }
+            finally
+            {
+                if (_tran == null)
+                {
+                    conn.Close();
                 }
             }
         }
@@ -350,9 +440,11 @@ namespace Dapper.Lite
             SqlFilter(ref sqlString);
             OnExecuting?.Invoke(sqlString, cmdParms);
 
-            using (_conn = await _connFactory.GetConnectionAsync(_tran))
+            var conn = GetConnection(_tran);
+
+            try
             {
-                object obj = await _conn.Conn.ExecuteScalarAsync(sqlString, ToDynamicParameters(cmdParms));
+                object obj = await conn.ExecuteScalarAsync(sqlString, ToDynamicParameters(cmdParms));
 
                 if (object.Equals(obj, null) || object.Equals(obj, DBNull.Value))
                 {
@@ -361,6 +453,13 @@ namespace Dapper.Lite
                 else
                 {
                     return (T)Convert.ChangeType(obj, typeof(T));
+                }
+            }
+            finally
+            {
+                if (_tran == null)
+                {
+                    conn.Close();
                 }
             }
         }
@@ -377,9 +476,11 @@ namespace Dapper.Lite
             SqlFilter(ref sqlString);
             OnExecuting?.Invoke(sqlString, cmdParms);
 
-            using (_conn = await _connFactory.GetConnectionAsync(_tran))
+            var conn = GetConnection(_tran);
+
+            try
             {
-                object obj = await _conn.Conn.ExecuteScalarAsync(sqlString, ToDynamicParameters(cmdParms));
+                object obj = await conn.ExecuteScalarAsync(sqlString, ToDynamicParameters(cmdParms));
 
                 if (object.Equals(obj, null) || object.Equals(obj, DBNull.Value))
                 {
@@ -388,6 +489,13 @@ namespace Dapper.Lite
                 else
                 {
                     return obj;
+                }
+            }
+            finally
+            {
+                if (_tran == null)
+                {
+                    conn.Close();
                 }
             }
         }
@@ -464,9 +572,18 @@ namespace Dapper.Lite
         /// <returns>影响的记录数</returns>
         public int Execute(ISqlString sql)
         {
-            using (_conn = _connFactory.GetConnection(_tran))
+            var conn = GetConnection(_tran);
+
+            try
             {
-                return _conn.Conn.Execute(sql.SQL, ToDynamicParameters(sql.Params), _tran?.Tran);
+                return conn.Execute(sql.SQL, ToDynamicParameters(sql.Params), _tran);
+            }
+            finally
+            {
+                if (_tran == null)
+                {
+                    conn.Close();
+                }
             }
         }
 
@@ -477,9 +594,18 @@ namespace Dapper.Lite
         /// <returns>影响的记录数</returns>
         public Task<int> ExecuteAsync(ISqlString sql)
         {
-            using (_conn = _connFactory.GetConnection(_tran))
+            var conn = GetConnection(_tran);
+
+            try
             {
-                return _conn.Conn.ExecuteAsync(sql.SQL, ToDynamicParameters(sql.Params), _tran?.Tran);
+                return conn.ExecuteAsync(sql.SQL, ToDynamicParameters(sql.Params), _tran);
+            }
+            finally
+            {
+                if (_tran == null)
+                {
+                    conn.Close();
+                }
             }
         }
 

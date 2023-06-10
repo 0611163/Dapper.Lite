@@ -70,16 +70,16 @@ namespace Dapper.Lite
         SqlValue ForList(IList list);
         #endregion
 
-        #region 从连接池池获取连接
+        #region 获取数据库连接
         /// <summary>
-        /// 从连接池池获取连接
+        /// 获取数据库连接
         /// </summary>
-        DbConnectionExt GetConnection();
+        DbConnection GetConnection();
 
         /// <summary>
-        /// 从连接池池获取连接
+        /// 获取数据库连接
         /// </summary>
-        Task<DbConnectionExt> GetConnectionAsync();
+        Task<DbConnection> GetConnectionAsync();
         #endregion
 
         #region 设置 数据库字段名与实体类属性名映射

@@ -13,7 +13,7 @@ namespace PostgreSQLTest
     public class LiteSqlFactory
     {
         #region 变量
-        private static IDapperLiteClient _liteSqlClient = new DapperLiteClient(ConfigurationManager.ConnectionStrings["DefaultConnection"].ToString(), DBType.PostgreSQL, new PostgreSQLProvider());
+        private static IDapperLiteClient _liteSqlClient = new DapperLiteClient(ConfigurationManager.ConnectionStrings["DefaultConnection"].ToString(), new PostgreSQLProvider());
         #endregion
 
         #region 获取 IDbSession

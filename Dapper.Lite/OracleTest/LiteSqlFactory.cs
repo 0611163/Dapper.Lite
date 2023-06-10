@@ -7,7 +7,7 @@ namespace OracleTest
     public class LiteSqlFactory
     {
         #region 变量
-        private static IDapperLiteClient _liteSqlClient = new DapperLiteClient(ConfigurationManager.ConnectionStrings["DefaultConnection"].ToString(), DBType.Oracle, new OracleProvider());
+        private static IDapperLiteClient _liteSqlClient = new DapperLiteClient(ConfigurationManager.ConnectionStrings["DefaultConnection"].ToString(), new OracleProvider());
         #endregion
 
         #region 获取 IDbSession

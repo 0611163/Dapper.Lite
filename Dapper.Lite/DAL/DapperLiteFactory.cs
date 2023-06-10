@@ -9,9 +9,9 @@ namespace DAL
     public class DapperLiteFactory
     {
         #region 变量
-        private static IDapperLiteClient _dapperLiteClient = new DapperLiteClient(ConfigurationManager.ConnectionStrings["DefaultConnection"].ToString(), DBType.MySQL, new MySQLProvider());
+        private static IDapperLiteClient _db = new DapperLiteClient(ConfigurationManager.ConnectionStrings["DefaultConnection"].ToString(), new MySQLProvider());
 
-        public static IDapperLiteClient Client => _dapperLiteClient;
+        public static IDapperLiteClient Db => _db;
         #endregion
 
         #region 获取 IDbSession
@@ -21,7 +21,7 @@ namespace DAL
         /// <param name="splitTableMapping">分表映射</param>
         public static IDbSession GetSession(SplitTableMapping splitTableMapping = null)
         {
-            return _dapperLiteClient.GetSession(splitTableMapping);
+            return _db.GetSession(splitTableMapping);
         }
         #endregion
 
@@ -32,7 +32,7 @@ namespace DAL
         /// <param name="splitTableMapping">分表映射</param>
         public static async Task<IDbSession> GetSessionAsync(SplitTableMapping splitTableMapping = null)
         {
-            return await _dapperLiteClient.GetSessionAsync(splitTableMapping);
+            return await _db.GetSessionAsync(splitTableMapping);
         }
         #endregion
 

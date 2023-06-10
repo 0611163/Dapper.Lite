@@ -155,7 +155,7 @@ namespace DAL
     public class DapperLiteFactory
     {
         #region 变量
-        private static IDapperLiteClient _dapperLiteClient = new DapperLiteClient(ConfigurationManager.ConnectionStrings["DefaultConnection"].ToString(), DBType.MySQL, new MySQLProvider());
+        private static IDapperLiteClient _dapperLiteClient = new DapperLiteClient(ConfigurationManager.ConnectionStrings["DefaultConnection"].ToString(), new MySQLProvider());
 
         public static IDapperLiteClient Client => _dapperLiteClient;
         #endregion
@@ -190,8 +190,8 @@ namespace DAL
 ```C#
 var builder = WebApplication.CreateBuilder(args);
 
-var db = new DapperLiteClient(builder.Configuration.GetConnectionString("DefaultConnection"), DBType.MySQL, new MySQLProvider());
-var secondDB = new DapperLiteClient(builder.Configuration.GetConnectionString("SecondConnection"), DBType.MySQL, new MySQLProvider());
+var db = new DapperLiteClient(builder.Configuration.GetConnectionString("DefaultConnection"), new MySQLProvider());
+var secondDB = new DapperLiteClient(builder.Configuration.GetConnectionString("SecondConnection"), new MySQLProvider());
 
 // Add services to the container.
 // 注册数据库IDapperLiteClient
@@ -894,22 +894,21 @@ var session = DapperLiteFactory.GetSession();
 
 session.SetTypeMap<SysUser>(); //设置数据库字段名与实体类属性名映射
 
-using (var conn = session.GetConnection()) //此处从连接池获取连接，用完一定要释放，也可以不使用连接池，直接new MySqlConnection
+var conn = session.GetConnection(); // 获取数据库连接，也可以直接new MySqlConnection
+
+DynamicParameters dynamicParameters = new DynamicParameters();
+dynamicParameters.Add("id", 20);
+
+List<SysUser> list = conn.Query<SysUser>(@"
+    select *
+    from sys_user 
+    where id < @id", dynamicParameters).ToList();
+
+foreach (SysUser item in list)
 {
-    DynamicParameters dynamicParameters = new DynamicParameters();
-    dynamicParameters.Add("id", 20);
+    Console.WriteLine(ModelToStringUtil.ToString(item));
 
-    List<SysUser> list = conn.Conn.Query<SysUser>(@"
-        select *
-        from sys_user 
-        where id < @id", dynamicParameters).ToList();
-
-    foreach (SysUser item in list)
-    {
-        Console.WriteLine(ModelToStringUtil.ToString(item));
-
-        Assert.IsTrue(!string.IsNullOrWhiteSpace(item.UserName));
-    }
+    Assert.IsTrue(!string.IsNullOrWhiteSpace(item.UserName));
 }
 ```
 
@@ -920,18 +919,17 @@ var session = DapperLiteFactory.GetSession();
 
 session.SetTypeMap<SysUser>(); //设置数据库字段名与实体类属性名映射
 
-using (var conn = session.GetConnection()) //此处从连接池获取连接，用完一定要释放，也可以不使用连接池，直接new MySqlConnection
+var conn = session.GetConnection(); // 获取数据库连接，也可以直接new MySqlConnection
+
+var sql = session.Where(t => t.Id < 20 && t.RealName.Contains("管理员"));
+
+var list = conn.Conn.Query<SysUser>(sql.SQL, sql.DynamicParameters).ToList();
+
+foreach (SysUser item in list)
 {
-    var sql = session.Where(t => t.Id < 20 && t.RealName.Contains("管理员"));
+    Console.WriteLine(ModelToStringUtil.ToString(item));
 
-    var list = conn.Conn.Query<SysUser>(sql.SQL, sql.DynamicParameters).ToList();
-
-    foreach (SysUser item in list)
-    {
-        Console.WriteLine(ModelToStringUtil.ToString(item));
-
-        Assert.IsTrue(!string.IsNullOrWhiteSpace(item.UserName));
-    }
+    Assert.IsTrue(!string.IsNullOrWhiteSpace(item.UserName));
 }
 ```
 
@@ -949,7 +947,7 @@ namespace DAL
     public class DapperLiteFactory
     {
         #region 变量
-        private static IDapperLiteClient _dapperLiteClient = new DapperLiteClient(ConfigurationManager.ConnectionStrings["DefaultConnection"].ToString(), DBType.MySQL, new MySQLProvider());
+        private static IDapperLiteClient _dapperLiteClient = new DapperLiteClient(ConfigurationManager.ConnectionStrings["DefaultConnection"].ToString(), new MySQLProvider());
 
         public static IDapperLiteClient Client => _dapperLiteClient;
         #endregion
@@ -1204,7 +1202,7 @@ namespace PostgreSQLTest
             var configurationBuilder = new ConfigurationBuilder().AddJsonFile("config.json");
             var configuration = configurationBuilder.Build();
             string connectionString = configuration.GetConnectionString("DefaultConnection");
-            _dapperLiteClient = new DapperLiteClient(connectionString, typeof(PostgreSQLProvider), new PostgreSQLProvider());
+            _dapperLiteClient = new DapperLiteClient(connectionString, new PostgreSQLProvider());
         }
         #endregion
 
@@ -1383,8 +1381,6 @@ namespace Dapper.Lite.Provider
 
 #### ColumnTypeUtil工具类
 
-类型转换暂时只写了DateTime和String类型，需要补充
-
 ```C#
 using System;
 using System.Collections.Generic;
@@ -1399,17 +1395,82 @@ namespace Dapper.Lite.Provider
     {
         public static DbType GetDBType(object value)
         {
-            Type type = value.GetType();
-            if (type == typeof(DateTime))
+            if (value != null)
             {
-                return DbType.DateTime;
-            }
-            else if (type == typeof(string))
-            {
-                return DbType.String;
+                Type type = value.GetType();
+                if (type == typeof(DateTime) || type == typeof(DateTime?))
+                {
+                    return DbType.DateTime;
+                }
+                else if (type == typeof(string))
+                {
+                    return DbType.String;
+                }
+                else if (type == typeof(float) || type == typeof(float?))
+                {
+                    return DbType.Double;
+                }
+                else if (type == typeof(double) || type == typeof(double?))
+                {
+                    return DbType.Double;
+                }
+                else if (type == typeof(decimal) || type == typeof(decimal?))
+                {
+                    return DbType.Decimal;
+                }
+                else if (type == typeof(short) || type == typeof(short?))
+                {
+                    return DbType.Int16;
+                }
+                else if (type == typeof(int) || type == typeof(int?))
+                {
+                    return DbType.Int32;
+                }
+                else if (type == typeof(long) || type == typeof(long?))
+                {
+                    return DbType.Int64;
+                }
             }
             return DbType.String;
         }
+
+        public static string GetDBTypeName(Type parameterType)
+        {
+            if (parameterType == typeof(DateTime) || parameterType == typeof(DateTime?))
+            {
+                return "DateTime";
+            }
+            else if (parameterType == typeof(string))
+            {
+                return "String";
+            }
+            else if (parameterType == typeof(float) || parameterType == typeof(float?))
+            {
+                return "Float32";
+            }
+            else if (parameterType == typeof(double) || parameterType == typeof(double?))
+            {
+                return "Float64";
+            }
+            else if (parameterType == typeof(decimal) || parameterType == typeof(decimal?))
+            {
+                return "Float64";
+            }
+            else if (parameterType == typeof(short) || parameterType == typeof(short?))
+            {
+                return "Int16";
+            }
+            else if (parameterType == typeof(int) || parameterType == typeof(int?))
+            {
+                return "Int32";
+            }
+            else if (parameterType == typeof(long) || parameterType == typeof(long?))
+            {
+                return "Int64";
+            }
+            return "String";
+        }
+
     }
 }
 ```
@@ -1442,7 +1503,7 @@ namespace ClickHouseTest
             var configuration = configurationBuilder.Build();
             string connectionString = configuration.GetConnectionString("DefaultConnection");
 
-            _dapperLiteClient = new DapperLiteClient(connectionString, typeof(ClickHouseProvider), new ClickHouseProvider());
+            _dapperLiteClient = new DapperLiteClient(connectionString, new ClickHouseProvider());
         }
         #endregion
 
