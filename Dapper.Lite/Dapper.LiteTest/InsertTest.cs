@@ -130,5 +130,70 @@ namespace Dapper.LiteTest
         }
         #endregion
 
+        #region 测试添加订单(事务)
+        [TestMethod]
+        public void TestInsertOrderTransaction()
+        {
+            string userId = "10";
+
+            BsOrder order = new BsOrder();
+            order.Id = Guid.NewGuid().ToString("N");
+            order.OrderTime = DateTime.Now;
+            order.Amount = 0;
+            order.OrderUserid = Convert.ToInt64(userId);
+            order.Status = 0;
+            order.CreateUserid = userId;
+
+            BsOrderDetail detail = new BsOrderDetail();
+            detail.Id = Guid.NewGuid().ToString("N");
+            detail.GoodsName = "电脑";
+            detail.Quantity = 3;
+            detail.Price = 5100;
+            detail.Spec = "台";
+            detail.CreateUserid = userId;
+            detail.OrderNum = 1;
+
+            var session = DapperLiteFactory.GetSession();
+
+            session.OnExecuting = (s, p) =>
+            {
+                Console.WriteLine(s); //打印SQL
+            };
+
+            try
+            {
+                session.BeginTransaction();
+
+                decimal amount = 0;
+
+                detail.OrderId = order.Id;
+                detail.CreateTime = DateTime.Now;
+                amount += detail.Price * detail.Quantity;
+                session.Insert(detail);
+
+                int a = int.Parse("abc"); //制造异常
+
+                order.CreateTime = DateTime.Now;
+                order.Amount = amount;
+                session.Insert(order);
+
+                session.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                session.RollbackTransaction();
+                Console.WriteLine("发生异常回滚事务");
+            }
+
+            session = DapperLiteFactory.GetSession();
+
+            bool bl = session.Sql("select * from bs_order where id=@Id", new { Id = order.Id }).Exists();
+            Assert.IsFalse(bl);
+
+            long count = session.Sql("select * from bs_order_detail where order_id=@OrderId", new { OrderId = order.Id }).QueryCount();
+            Assert.IsTrue(count == 0);
+        }
+        #endregion
+
     }
 }

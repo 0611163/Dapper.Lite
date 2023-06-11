@@ -32,12 +32,12 @@ namespace Dapper.Lite
             }
             catch
             {
-                _tran.Rollback();
+                RollbackTransaction();
                 throw;
             }
             finally
             {
-                _tran.Connection.Close();
+                if (_tran.Connection.State != ConnectionState.Closed) _tran.Connection.Close();
                 _tran.Dispose();
                 _tran = null;
             }
@@ -52,7 +52,16 @@ namespace Dapper.Lite
         {
             if (_tran == null) return; //防止重复回滚
 
-            _tran.Rollback();
+            try
+            {
+                _tran.Rollback();
+            }
+            finally
+            {
+                if (_tran.Connection.State != ConnectionState.Closed) _tran.Connection.Close();
+                _tran.Dispose();
+                _tran = null;
+            }
         }
         #endregion
 

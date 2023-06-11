@@ -639,6 +639,7 @@ namespace Dapper.Lite
         private string ReplaceSql(string sql, string oldStr, string name, Type parameterType)
         {
             string newStr = _provider.GetParameterName(name, parameterType);
+            if (newStr == oldStr) return sql;
             return sql.Replace(oldStr, newStr);
         }
         #endregion
