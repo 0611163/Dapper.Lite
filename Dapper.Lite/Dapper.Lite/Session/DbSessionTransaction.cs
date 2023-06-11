@@ -37,9 +37,12 @@ namespace Dapper.Lite
             }
             finally
             {
-                if (_tran.Connection.State != ConnectionState.Closed) _tran.Connection.Close();
-                _tran.Dispose();
-                _tran = null;
+                if (_tran != null)
+                {
+                    if (_tran.Connection.State != ConnectionState.Closed) _tran.Connection.Close();
+                    _tran.Dispose();
+                    _tran = null;
+                }
             }
         }
         #endregion
@@ -58,9 +61,12 @@ namespace Dapper.Lite
             }
             finally
             {
-                if (_tran.Connection.State != ConnectionState.Closed) _tran.Connection.Close();
-                _tran.Dispose();
-                _tran = null;
+                if (_tran != null)
+                {
+                    if (_tran.Connection.State != ConnectionState.Closed) _tran.Connection.Close();
+                    _tran.Dispose();
+                    _tran = null;
+                }
             }
         }
         #endregion
