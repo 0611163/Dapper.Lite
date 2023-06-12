@@ -2,7 +2,7 @@
 
 ## 简介
 
-一款使用原生SQL查询的轻量级ORM，支持Oracle、MSSQL、MySQL、PostgreSQL、SQLite、Access数据库。
+为了更方便地拼接SQL，为了更好地使用Dapper，支持原生SQL和Lambda表达式混写。支持Oracle、MSSQL、MySQL、PostgreSQL、SQLite、Access数据库。
 
 ## 经典示例
 
