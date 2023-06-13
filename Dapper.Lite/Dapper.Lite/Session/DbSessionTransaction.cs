@@ -5,6 +5,11 @@ namespace Dapper.Lite
 {
     public partial class DbSession : IDbSession
     {
+        /// <summary>
+        /// 事务关联的数据库连接
+        /// </summary>
+        private DbConnection _connForTran;
+
         #region 开始事务
         /// <summary>
         /// 开始事务
@@ -14,6 +19,7 @@ namespace Dapper.Lite
             var conn = GetConnection();
             if (conn.State == ConnectionState.Closed) conn.Open();
             _tran = conn.BeginTransaction();
+            _connForTran = _tran.Connection;
             return _tran;
         }
         #endregion
@@ -39,7 +45,11 @@ namespace Dapper.Lite
             {
                 if (_tran != null)
                 {
-                    if (_tran.Connection.State != ConnectionState.Closed) _tran.Connection.Close();
+                    if (_connForTran != null)
+                    {
+                        if (_connForTran.State != ConnectionState.Closed) _connForTran.Close();
+                        _connForTran = null;
+                    }
                     _tran.Dispose();
                     _tran = null;
                 }
@@ -63,7 +73,11 @@ namespace Dapper.Lite
             {
                 if (_tran != null)
                 {
-                    if (_tran.Connection.State != ConnectionState.Closed) _tran.Connection.Close();
+                    if (_connForTran != null)
+                    {
+                        if (_connForTran.State != ConnectionState.Closed) _connForTran.Close();
+                        _connForTran = null;
+                    }
                     _tran.Dispose();
                     _tran = null;
                 }

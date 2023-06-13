@@ -6,9 +6,9 @@
         <Nullable>disable</Nullable>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <Title>Dapper.Lite</Title>
-        <AssemblyVersion>1.8.40</AssemblyVersion>
-        <FileVersion>1.8.40</FileVersion>
-        <Version>1.8.40</Version>
+        <AssemblyVersion>1.8.41</AssemblyVersion>
+        <FileVersion>1.8.41</FileVersion>
+        <Version>1.8.41</Version>
         <PackageId>Dapper.Lite</PackageId>
         <PackageProjectUrl>https://github.com/0611163/Dapper.Lite</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -17,7 +17,7 @@
         <Copyright>Copyright @ 2022</Copyright>
         <Description>为了更方便地拼接SQL，为了更好地使用Dapper，支持原生SQL和Lambda表达式混写。支持Oracle、MSSQL、MySQL、PostgreSQL、SQLite、Access数据库，以及任意ADO.NET支持的数据库。</Description>
         <PackageReleaseNotes>
-            修复BUG：数据库事务回滚后，没有关闭数据库连接(补充修改)
+            修复BUG：使用MySqlConnector v2.2.6时，提交事务后，关闭数据库连接时，报空指针异常
         </PackageReleaseNotes>
     </PropertyGroup>
 
