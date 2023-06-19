@@ -18,8 +18,16 @@ namespace Dapper.Lite
         {
             var conn = GetConnection();
             if (conn.State == ConnectionState.Closed) conn.Open();
-            _tran = conn.BeginTransaction();
-            _connForTran = _tran.Connection;
+            try
+            {
+                _tran = conn.BeginTransaction();
+                _connForTran = _tran.Connection;
+            }
+            catch
+            {
+                if (conn.State != ConnectionState.Closed) conn.Close();
+                throw;
+            }
             return _tran;
         }
         #endregion
