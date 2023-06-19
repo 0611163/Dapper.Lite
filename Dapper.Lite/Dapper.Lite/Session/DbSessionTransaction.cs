@@ -26,6 +26,7 @@ namespace Dapper.Lite
             catch
             {
                 if (conn.State != ConnectionState.Closed) conn.Close();
+                _tran = null;
                 throw;
             }
             return _tran;
