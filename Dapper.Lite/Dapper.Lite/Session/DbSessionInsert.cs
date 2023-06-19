@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Reflection;
@@ -35,7 +36,7 @@ namespace Dapper.Lite
             {
                 if (_tran == null)
                 {
-                    conn.Close();
+                    if (conn.State != ConnectionState.Closed) conn.Close();
                 }
             }
         }
@@ -64,7 +65,7 @@ namespace Dapper.Lite
             {
                 if (_tran == null)
                 {
-                    conn.Close();
+                    if (conn.State != ConnectionState.Closed) conn.Close();
                 }
             }
         }
@@ -93,7 +94,7 @@ namespace Dapper.Lite
             {
                 if (_tran == null)
                 {
-                    conn.Close();
+                    if (conn.State != ConnectionState.Closed) conn.Close();
                 }
             }
         }
@@ -122,7 +123,7 @@ namespace Dapper.Lite
             {
                 if (_tran == null)
                 {
-                    conn.Close();
+                    if (conn.State != ConnectionState.Closed) conn.Close();
                 }
             }
         }
@@ -164,7 +165,7 @@ namespace Dapper.Lite
                 {
                     if (_tran == null)
                     {
-                        conn.Close();
+                        if (conn.State != ConnectionState.Closed) conn.Close();
                     }
                 }
             }
@@ -207,7 +208,7 @@ namespace Dapper.Lite
                 {
                     if (_tran == null)
                     {
-                        conn.Close();
+                        if (conn.State != ConnectionState.Closed) conn.Close();
                     }
                 }
             }

@@ -108,7 +108,7 @@ namespace Dapper.Lite
         /// </summary>
         /// <typeparam name="T">实体类型</typeparam>
         /// <param name="alias">别名，默认值t</param>
-        public ISqlQueryable<T> Queryable<T>(string alias = null) where T : new()
+        public ISqlQueryable<T> Queryable<T>(string alias = "t") where T : new()
         {
             var session = GetSession();
             return session.Queryable<T>(alias);

@@ -63,6 +63,7 @@ namespace Dapper.Lite
                         }
 
                         propertyInfoEx.IsDBField = true;
+                        propertyInfoEx.DBFieldAttribute = dbFieldAttribute;
                     }
                     else
                     {
@@ -88,7 +89,6 @@ namespace Dapper.Lite
                         }
                     }
 
-                    propertyInfoEx.FieldNameUpper = propertyInfoEx.FieldName.ToUpper();
                     result.Add(propertyInfoEx);
                 }
                 return result.ToArray();
@@ -182,10 +182,9 @@ namespace Dapper.Lite
         {
             sql = sql.Trim();
             string ignore = string.Empty;
-            string upperSql = sql.ToUpper();
             foreach (string keyword in _sqlFilteRegexDict.Keys)
             {
-                if (upperSql.IndexOf(keyword.ToUpper()) == 0)
+                if (sql.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) == 0)
                 {
                     ignore = keyword;
                 }
@@ -237,7 +236,7 @@ namespace Dapper.Lite
 
                         PropertyInfoEx propEx = props.FirstOrDefault(prop =>
                         {
-                            if (prop.FieldNameUpper == columnName.ToUpper())
+                            if (string.Compare(prop.FieldName, columnName, true) == 0)
                             {
                                 return true;
                             }

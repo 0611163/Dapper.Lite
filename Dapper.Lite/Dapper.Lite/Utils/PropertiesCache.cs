@@ -12,7 +12,7 @@ namespace Dapper.Lite
     /// <summary>
     /// 缓存PropertyInfo集合
     /// </summary>
-    public static class PropertiesCache
+    internal static class PropertiesCache
     {
         public static ConcurrentDictionary<Type, object> _dict = new ConcurrentDictionary<Type, object>();
 

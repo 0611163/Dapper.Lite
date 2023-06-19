@@ -45,7 +45,7 @@ namespace Dapper.Lite
         /// </summary>
         /// <typeparam name="T">实体类型</typeparam>
         /// <param name="alias">别名，默认值t</param>
-        ISqlQueryable<T> Queryable<T>(string alias = null) where T : new();
+        ISqlQueryable<T> Queryable<T>(string alias = "t") where T : new();
 
         /// <summary>
         /// 创建IQueryable

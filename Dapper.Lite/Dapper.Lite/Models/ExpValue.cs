@@ -10,7 +10,7 @@ namespace Dapper.Lite
     /// <summary>
     /// 表达式树解析，返回值
     /// </summary>
-    public class ExpValue
+    internal class ExpValue
     {
         public ExpValueType Type { get; set; }
 

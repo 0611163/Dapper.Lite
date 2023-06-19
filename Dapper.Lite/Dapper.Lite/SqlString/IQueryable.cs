@@ -88,7 +88,7 @@ namespace Dapper.Lite
         /// </summary>
         /// <param name="subSql">子SQL</param>
         /// <param name="alias">表别名，默认值t</param>
-        ISqlQueryable<T> Select(ISqlQueryable<T> subSql, string alias = null);
+        ISqlQueryable<T> Select(ISqlQueryable<T> subSql, string alias = "t");
 
         /// <summary>
         /// 追加 select SQL
@@ -96,14 +96,14 @@ namespace Dapper.Lite
         /// <param name="sql">SQL，插入到子SQL的前面，或者插入到{0}的位置</param>
         /// <param name="subSql">子SQL</param>
         /// <param name="alias">表别名，默认值t</param>
-        ISqlQueryable<T> Select(string sql, ISqlQueryable<T> subSql = null, string alias = null);
+        ISqlQueryable<T> Select(string sql, ISqlQueryable<T> subSql = null, string alias = "t");
 
         /// <summary>
         /// 追加 select SQL
         /// </summary>
         /// <param name="subSql">子SQL</param>
         /// <param name="alias">表别名，默认值t</param>
-        ISqlQueryable<T> Select<U>(ISqlQueryable<U> subSql, string alias = null) where U : new();
+        ISqlQueryable<T> Select<U>(ISqlQueryable<U> subSql, string alias = "t") where U : new();
 
         /// <summary>
         /// 追加 select SQL
@@ -111,7 +111,7 @@ namespace Dapper.Lite
         /// <param name="sql">SQL，插入到子SQL的前面，或者插入到{0}的位置</param>
         /// <param name="subSql">子SQL</param>
         /// <param name="alias">表别名，默认值t</param>
-        ISqlQueryable<T> Select<U>(string sql, ISqlQueryable<U> subSql = null, string alias = null) where U : new();
+        ISqlQueryable<T> Select<U>(string sql, ISqlQueryable<U> subSql = null, string alias = "t") where U : new();
 
         /// <summary>
         /// 追加 select SQL

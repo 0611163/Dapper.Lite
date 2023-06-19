@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Dapper.Lite
 {
-    public enum SqlStringMethod
+    internal enum SqlStringMethod
     {
         Query,
 

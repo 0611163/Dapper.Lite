@@ -16,7 +16,7 @@ namespace Dapper.Lite
     /// <summary>
     /// 表达式树解析
     /// </summary>
-    public class ExpressionHelper<T>
+    internal class ExpressionHelper<T>
     {
         #region 变量
         private IProvider _provider;
@@ -735,12 +735,12 @@ namespace Dapper.Lite
             {
                 PropertyInfo propertyInfo = propertyInfoEx.PropertyInfo;
 
-                if (propertyInfo.Name.ToUpper() == name.ToUpper())
+                if (string.Compare(propertyInfo.Name, name, true) == 0)
                 {
-                    ColumnAttribute isDBFieldAttribute = propertyInfo.GetCustomAttribute<ColumnAttribute>();
-                    if (isDBFieldAttribute != null && isDBFieldAttribute.Name != null)
+                    ColumnAttribute dbFieldAttribute = propertyInfoEx.DBFieldAttribute;
+                    if (dbFieldAttribute != null && dbFieldAttribute.Name != null)
                     {
-                        return _provider.OpenQuote + isDBFieldAttribute.Name + _provider.CloseQuote;
+                        return _provider.OpenQuote + dbFieldAttribute.Name + _provider.CloseQuote;
                     }
                     else
                     {

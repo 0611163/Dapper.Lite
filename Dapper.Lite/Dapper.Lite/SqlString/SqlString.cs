@@ -660,12 +660,19 @@ namespace Dapper.Lite
         /// </summary>
         internal string RemoveSubSqls(string sql)
         {
-            StringBuilder sb = new StringBuilder(sql);
-            foreach (string subSql in _subSqls)
+            if (_subSqls.Count > 0)
             {
-                sb.Replace(subSql, string.Empty);
+                StringBuilder sb = new StringBuilder(sql);
+                foreach (string subSql in _subSqls)
+                {
+                    sb.Replace(subSql, string.Empty);
+                }
+                return sb.ToString();
             }
-            return sb.ToString();
+            else
+            {
+                return sql;
+            }
         }
         #endregion
 
@@ -705,9 +712,13 @@ namespace Dapper.Lite
                     {
                         sql = regex2.Replace(sql, newParamName + " ", 1);
                     }
-                    else
+                    else if (regex3.IsMatch(sql))
                     {
                         sql = regex3.Replace(sql, newParamName + ",", 1);
+                    }
+                    else
+                    {
+
                     }
                 }
             }

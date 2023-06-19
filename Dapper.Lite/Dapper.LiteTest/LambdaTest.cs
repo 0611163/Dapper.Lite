@@ -372,7 +372,7 @@ namespace Dapper.LiteTest
 
             sql.Select<SysUser>(u => u.UserName, t => t.OrderUserName)
                 .Select<SysUser>(u => u.RealName, t => t.OrderUserRealName)
-                .LeftJoin<SysUser>((t, u) => t.OrderUserid == u.Id)
+                .LeftJoin<SysUser>((t, u) => u.Id == t.OrderUserid)
                 .LeftJoin<BsOrderDetail>((t, d) => t.Id == d.OrderId)
                 .Where<SysUser, BsOrderDetail>((t, u, d) => t.Remark.Contains("订单") && u.CreateUserid == "1" && d.GoodsName != null)
                 .WhereIf<BsOrder>(true, t => t.Remark.Contains("测试"))

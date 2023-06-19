@@ -200,31 +200,44 @@ builder.Services.AddSingleton<IDapperLiteClient>(serviceProvider =>
     return db;
 });
 // 注册第二个数据库IDapperLiteClient
-builder.Services.AddSingleton<IDapperLiteClient>(serviceProvider =>
+builder.Services.AddSingleton<SecondDbClient>(serviceProvider =>
 {
-    return secondDB;
+    return new SecondDbClient(secondDB);
 });
-// 注册数据库DBSession
+// 注册数据库DbSession
 builder.Services.AddScoped<IDbSession>(serviceProvider =>
 {
     return db.GetSession();
 });
-// 注册第二个数据库DBSession
-builder.Services.AddScoped<SecondDBSession>(serviceProvider =>
+// 注册第二个数据库DbSession
+builder.Services.AddScoped<SecondDbSession>(serviceProvider =>
 {
-    return new SecondDBSession(secondDB.GetSession());
+    return new SecondDbSession(secondDB.GetSession());
 });
 
 /// <summary>
-/// 第二个数据库DBSession
+/// 第二个数据库Client
 /// </summary>
-public class SecondDBSession
+public class SecondDbClient
 {
-    public IDbSession DBSession { get; set; }
+    public IDapperLiteClient Db { get; set; }
 
-    public SecondDBSession(IDbSession dBSession)
+    public SecondDbClient(IDapperLiteClient db)
     {
-        DBSession = dBSession;
+        Db = db;
+    }
+}
+
+/// <summary>
+/// 第二个数据库DbSession
+/// </summary>
+public class SecondDbSession
+{
+    public IDbSession DbSession { get; set; }
+
+    public SecondDbSession(IDbSession dBSession)
+    {
+        DbSession = dBSession;
     }
 }
 ```

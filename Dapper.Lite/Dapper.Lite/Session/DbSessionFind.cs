@@ -218,7 +218,7 @@ namespace Dapper.Lite
             {
                 if (_tran == null)
                 {
-                    conn.Close();
+                    if (conn.State != ConnectionState.Closed) conn.Close();
                 }
             }
         }
@@ -243,7 +243,7 @@ namespace Dapper.Lite
             {
                 if (_tran == null)
                 {
-                    conn.Close();
+                    if (conn.State != ConnectionState.Closed) conn.Close();
                 }
             }
         }

@@ -26,6 +26,8 @@ namespace Dapper.Lite
         private IDbSession _session;
 
         private DbSession _dbSession;
+
+        private string _alias = "t";
         #endregion
 
         #region 构造函数
@@ -57,18 +59,18 @@ namespace Dapper.Lite
         /// 创建单表查询SQL
         /// </summary>
         /// <param name="alias">别名，默认值t</param>
-        public ISqlQueryable<T> Queryable(string alias = null)
+        public ISqlQueryable<T> Queryable(string alias = "t")
         {
             Type type = typeof(T);
             alias = alias ?? "t";
+            _alias = alias;
 
-            _sqlString.Sql.AppendFormat("select ", _dbSession.GetTableName(_provider, type));
+            _sqlString.Sql.Append("select ");
 
             PropertyInfoEx[] propertyInfoExArray = DbSession.GetEntityProperties(type);
             foreach (PropertyInfoEx propertyInfoEx in propertyInfoExArray)
             {
-                PropertyInfo propertyInfo = propertyInfoEx.PropertyInfo;
-                if (propertyInfo.GetCustomAttribute<ColumnAttribute>() != null)
+                if (propertyInfoEx.IsDBField)
                 {
                     _sqlString.Sql.AppendFormat(" {0}.{1}{2}{3},", alias, _provider.OpenQuote, propertyInfoEx.FieldName, _provider.CloseQuote);
                 }
@@ -324,6 +326,14 @@ namespace Dapper.Lite
 
             string alias = sql.Split('=')[1].Split('.')[0].Trim();
 
+            if (_alias != null)
+            {
+                if (alias == _alias)
+                {
+                    alias = sql.Split('=')[0].Split('.')[0].Trim();
+                }
+            }
+
             _sqlString.Sql.AppendFormat(" left join {0} {1} on {2} ", tableName, alias, sql);
 
             return this;
@@ -344,6 +354,14 @@ namespace Dapper.Lite
 
             string alias = sql.Split('=')[1].Split('.')[0].Trim();
 
+            if (_alias != null)
+            {
+                if (alias == _alias)
+                {
+                    alias = sql.Split('=')[0].Split('.')[0].Trim();
+                }
+            }
+
             _sqlString.Sql.AppendFormat(" inner join {0} {1} on {2} ", tableName, alias, sql);
 
             return this;
@@ -363,6 +381,14 @@ namespace Dapper.Lite
             string tableName = _dbSession.GetTableName(_provider, typeof(U));
 
             string alias = sql.Split('=')[1].Split('.')[0].Trim();
+
+            if (_alias != null)
+            {
+                if (alias == _alias)
+                {
+                    alias = sql.Split('=')[0].Split('.')[0].Trim();
+                }
+            }
 
             _sqlString.Sql.AppendFormat(" right join {0} {1} on {2} ", tableName, alias, sql);
 
@@ -392,7 +418,7 @@ namespace Dapper.Lite
         /// </summary>
         /// <param name="subSql">子SQL</param>
         /// <param name="alias">别名，默认值t</param>
-        public ISqlQueryable<T> Select(ISqlQueryable<T> subSql = null, string alias = null)
+        public ISqlQueryable<T> Select(ISqlQueryable<T> subSql = null, string alias = "t")
         {
             return Select<T>(null, subSql, alias);
         }
@@ -403,7 +429,7 @@ namespace Dapper.Lite
         /// <param name="sql">SQL，插入到子SQL的前面，或者插入到{0}的位置</param>
         /// <param name="subSql">子SQL</param>
         /// <param name="alias">别名，默认值t</param>
-        public ISqlQueryable<T> Select(string sql, ISqlQueryable<T> subSql = null, string alias = null)
+        public ISqlQueryable<T> Select(string sql, ISqlQueryable<T> subSql = null, string alias = "t")
         {
             return Select<T>(sql, subSql, alias);
         }
@@ -413,7 +439,7 @@ namespace Dapper.Lite
         /// </summary>
         /// <param name="subSql">子SQL</param>
         /// <param name="alias">别名，默认值t</param>
-        public ISqlQueryable<T> Select<U>(ISqlQueryable<U> subSql = null, string alias = null) where U : new()
+        public ISqlQueryable<T> Select<U>(ISqlQueryable<U> subSql = null, string alias = "t") where U : new()
         {
             return Select<U>(null, subSql, alias);
         }
@@ -424,9 +450,10 @@ namespace Dapper.Lite
         /// <param name="sql">SQL，插入到子SQL的前面，或者插入到{0}的位置</param>
         /// <param name="subSql">子SQL</param>
         /// <param name="alias">别名，默认值t</param>
-        public ISqlQueryable<T> Select<U>(string sql, ISqlQueryable<U> subSql = null, string alias = null) where U : new()
+        public ISqlQueryable<T> Select<U>(string sql, ISqlQueryable<U> subSql = null, string alias = "t") where U : new()
         {
             alias = alias ?? "t";
+            _alias = alias;
             if (sql == null) sql = string.Empty;
             if (subSql == null) subSql = _session.Sql<U>();
             if (sql.Contains("{0}"))

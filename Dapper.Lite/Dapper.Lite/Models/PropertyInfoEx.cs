@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -10,7 +11,7 @@ namespace Dapper.Lite
     /// <summary>
     /// 类的属性信息扩展
     /// </summary>
-    public class PropertyInfoEx
+    internal class PropertyInfoEx
     {
         /// <summary>
         /// 类的属性信息
@@ -23,14 +24,14 @@ namespace Dapper.Lite
         public string FieldName { get; set; }
 
         /// <summary>
-        /// 数据库字段名大写
-        /// </summary>
-        public string FieldNameUpper { get; set; }
-
-        /// <summary>
         /// 是否数据库字段
         /// </summary>
         public bool IsDBField { get; set; }
+
+        /// <summary>
+        /// 数据库字段特性
+        /// </summary>
+        public ColumnAttribute DBFieldAttribute { get; set; }
 
         /// <summary>
         /// 是否主键

@@ -16,7 +16,7 @@ using Dapper;
 /* ----------------------------------------------------------------------
 * 作    者：suxiang
 * 创建日期：2016年11月23日
-* 更新日期：2023年05月25日
+* 更新日期：2023年06月19日
 * ---------------------------------------------------------------------- */
 
 namespace Dapper.Lite
@@ -125,7 +125,7 @@ namespace Dapper.Lite
         /// </summary>
         /// <typeparam name="T">实体类型</typeparam>
         /// <param name="alias">别名，默认值t</param>
-        public ISqlQueryable<T> Queryable<T>(string alias = null) where T : new()
+        public ISqlQueryable<T> Queryable<T>(string alias = "t") where T : new()
         {
             SqlQueryable<T> sqlString = new SqlQueryable<T>(_provider, this, null);
             return sqlString.Queryable(alias);
@@ -173,7 +173,7 @@ namespace Dapper.Lite
             {
                 if (_tran == null)
                 {
-                    conn.Close();
+                    if (conn.State != ConnectionState.Closed) conn.Close();
                 }
             }
         }

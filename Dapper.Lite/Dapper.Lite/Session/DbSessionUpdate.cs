@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Dapper;
 using AutoMapper;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Data;
 
 namespace Dapper.Lite
 {
@@ -98,7 +99,7 @@ namespace Dapper.Lite
                 {
                     if (_tran == null)
                     {
-                        conn.Close();
+                        if (conn.State != ConnectionState.Closed) conn.Close();
                     }
                 }
             }
@@ -134,7 +135,7 @@ namespace Dapper.Lite
                 {
                     if (_tran == null)
                     {
-                        conn.Close();
+                        if (conn.State != ConnectionState.Closed) conn.Close();
                     }
                 }
             }
@@ -192,7 +193,7 @@ namespace Dapper.Lite
                     {
                         if (_tran == null)
                         {
-                            conn.Close();
+                            if (conn.State != ConnectionState.Closed) conn.Close();
                         }
                     }
                 }
@@ -251,7 +252,7 @@ namespace Dapper.Lite
                     {
                         if (_tran == null)
                         {
-                            conn.Close();
+                            if (conn.State != ConnectionState.Closed) conn.Close();
                         }
                     }
                 }
