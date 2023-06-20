@@ -490,16 +490,19 @@ namespace Dapper.Lite
 
                 if (left.Trim().EndsWith("select"))
                 {
-                    _sqlString.Sql = new StringBuilder(string.Format("{0} {1} from {2}", left, sql, right));
+                    _sqlString.Sql.Clear();
+                    _sqlString.Sql.Append(string.Format("{0} {1} from {2}", left, sql, right));
                 }
                 else
                 {
-                    _sqlString.Sql = new StringBuilder(string.Format("{0}, {1} from {2}", left, sql, right));
+                    _sqlString.Sql.Clear();
+                    _sqlString.Sql.Append(string.Format("{0}, {1} from {2}", left, sql, right));
                 }
             }
             else
             {
-                _sqlString.Sql = new StringBuilder(string.Format("select {0} from {1} {2}", sql, _dbSession.GetTableName(_provider, typeof(T)), alias));
+                _sqlString.Sql.Clear();
+                _sqlString.Sql.Append(string.Format("select {0} from {1} {2}", sql, _dbSession.GetTableName(_provider, typeof(T)), alias));
             }
 
             string newSubSql = _sqlString.ParamsAddRange(subSql.Params, subSql.SQL);
@@ -554,11 +557,13 @@ namespace Dapper.Lite
 
                 if (left.Trim().EndsWith("select"))
                 {
-                    _sqlString.Sql = new StringBuilder(string.Format("{0} {1} from {2}", left, fields.ToString(), right));
+                    _sqlString.Sql.Clear();
+                    _sqlString.Sql.Append(string.Format("{0} {1} from {2}", left, fields.ToString(), right));
                 }
                 else
                 {
-                    _sqlString.Sql = new StringBuilder(string.Format("{0}, {1} from {2}", left, fields.ToString(), right));
+                    _sqlString.Sql.Clear();
+                    _sqlString.Sql.Append(string.Format("{0}, {1} from {2}", left, fields.ToString(), right));
                 }
             }
             else
@@ -593,11 +598,13 @@ namespace Dapper.Lite
                 string left = leftRigth[0];
                 string right = leftRigth[1];
 
-                _sqlString.Sql = new StringBuilder(string.Format("{0}, {1} as {2} from {3}", left, sql, sql2.Split('.')[1].Trim(), right));
+                _sqlString.Sql.Clear();
+                _sqlString.Sql.Append(string.Format("{0}, {1} as {2} from {3}", left, sql, sql2.Split('.')[1].Trim(), right));
             }
             else
             {
-                _sqlString.Sql = new StringBuilder(string.Format("select {0} as {1} from {2} {3}", sql, sql2.Split('.')[1].Trim(), _dbSession.GetTableName(_provider, typeof(T)), expression2.Parameters[0].Name));
+                _sqlString.Sql.Clear();
+                _sqlString.Sql.Append(string.Format("select {0} as {1} from {2} {3}", sql, sql2.Split('.')[1].Trim(), _dbSession.GetTableName(_provider, typeof(T)), expression2.Parameters[0].Name));
             }
 
             ReplaceAlias(condition2.Alias);
