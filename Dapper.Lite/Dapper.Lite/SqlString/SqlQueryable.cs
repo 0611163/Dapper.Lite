@@ -564,8 +564,8 @@ namespace Dapper.Lite
             ExpressionHelper<U> condition = new ExpressionHelper<U>(_provider, _sqlString.DbParameterNames, SqlStringMethod.Select);
             string sql = condition.VisitLambda(expression, out dbParameters);
 
-            ExpressionHelper<U> condition2 = new ExpressionHelper<U>(_provider, _sqlString.DbParameterNames, SqlStringMethod.Select);
-            string sql2 = condition.VisitLambda(expression2, out dbParameters);
+            ExpressionHelper<T> condition2 = new ExpressionHelper<T>(_provider, _sqlString.DbParameterNames, SqlStringMethod.Select);
+            string sql2 = condition2.VisitLambda(expression2, out dbParameters);
 
             if (_sqlString.Sql.ToString().Contains(" from "))
             {
