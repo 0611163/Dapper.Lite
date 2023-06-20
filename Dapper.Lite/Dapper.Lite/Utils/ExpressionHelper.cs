@@ -22,6 +22,8 @@ namespace Dapper.Lite
         private IProvider _provider;
         private HashSet<string> _dbParameterNames;
         private SqlStringMethod _SqlStringMethod;
+
+        internal string Alias { get; set; }
         #endregion
 
         #region 构造函数
@@ -411,6 +413,11 @@ namespace Dapper.Lite
                     result.MemberName = mebmerExp.Member.Name;
                     result.MemberAliasName = mebmerExp.Member.Name;
                     result.Type = ExpValueType.MemberValue;
+
+                    if (Alias == null && mebmerExp.Expression.Type == typeof(T))
+                    {
+                        Alias = parameterExp.Name;
+                    }
                 }
                 else
                 {

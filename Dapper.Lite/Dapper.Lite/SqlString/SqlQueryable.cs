@@ -145,6 +145,8 @@ namespace Dapper.Lite
                 {
                     _sqlString.Sql.Append(" where " + result);
                 }
+
+                ReplaceAlias(condition.Alias);
             }
             catch
             {
@@ -164,7 +166,7 @@ namespace Dapper.Lite
         {
             try
             {
-                ExpressionHelper<T> condition = new ExpressionHelper<T>(_provider, _sqlString.DbParameterNames, SqlStringMethod.Where);
+                ExpressionHelper<U> condition = new ExpressionHelper<U>(_provider, _sqlString.DbParameterNames, SqlStringMethod.Where);
 
                 DbParameter[] dbParameters;
                 string result = condition.VisitLambda(expression, out dbParameters);
@@ -219,6 +221,8 @@ namespace Dapper.Lite
                 {
                     _sqlString.Sql.Append(" where " + result);
                 }
+
+                ReplaceAlias(condition.Alias);
             }
             catch
             {
@@ -256,6 +260,8 @@ namespace Dapper.Lite
                 {
                     _sqlString.Sql.Append(" where " + result);
                 }
+
+                ReplaceAlias(condition.Alias);
             }
             catch
             {
@@ -285,6 +291,8 @@ namespace Dapper.Lite
                 _sqlString.Sql.AppendFormat(", {0} asc ", sql);
             }
 
+            ReplaceAlias(condition.Alias);
+
             return this;
         }
         #endregion
@@ -307,6 +315,8 @@ namespace Dapper.Lite
             {
                 _sqlString.Sql.AppendFormat(", {0} desc ", sql);
             }
+
+            ReplaceAlias(condition.Alias);
 
             return this;
         }
@@ -336,6 +346,8 @@ namespace Dapper.Lite
 
             _sqlString.Sql.AppendFormat(" left join {0} {1} on {2} ", tableName, alias, sql);
 
+            ReplaceAlias(condition.Alias);
+
             return this;
         }
         #endregion
@@ -363,6 +375,8 @@ namespace Dapper.Lite
             }
 
             _sqlString.Sql.AppendFormat(" inner join {0} {1} on {2} ", tableName, alias, sql);
+
+            ReplaceAlias(condition.Alias);
 
             return this;
         }
@@ -392,6 +406,8 @@ namespace Dapper.Lite
 
             _sqlString.Sql.AppendFormat(" right join {0} {1} on {2} ", tableName, alias, sql);
 
+            ReplaceAlias(condition.Alias);
+
             return this;
         }
         #endregion
@@ -407,6 +423,8 @@ namespace Dapper.Lite
             string sql = condition.VisitLambda(expression, out dbParameters);
 
             _sqlString.Sql.AppendFormat(" where {0} ", sql);
+
+            ReplaceAlias(condition.Alias);
 
             return this;
         }
@@ -548,6 +566,8 @@ namespace Dapper.Lite
                 _sqlString.Sql.AppendFormat("select {0} from {1} {2}", fields.ToString(), _dbSession.GetTableName(_provider, typeof(T)), expression.Parameters[0].Name);
             }
 
+            ReplaceAlias(expression.Parameters[0].Name);
+
             return this;
         }
 
@@ -579,6 +599,8 @@ namespace Dapper.Lite
             {
                 _sqlString.Sql = new StringBuilder(string.Format("select {0} as {1} from {2} {3}", sql, sql2.Split('.')[1].Trim(), _dbSession.GetTableName(_provider, typeof(T)), expression2.Parameters[0].Name));
             }
+
+            ReplaceAlias(condition2.Alias);
 
             return this;
         }
@@ -914,6 +936,52 @@ namespace Dapper.Lite
         public SqlValue ForList(IList list)
         {
             return _sqlString.ForList(list);
+        }
+        #endregion
+
+        #region 替换alias
+        private void ReplaceAlias(string newAlias)
+        {
+            if (newAlias == null) return;
+            if (_alias == newAlias) return;
+
+            Regex regex1 = new Regex("[\\s]{1}" + _alias + "[\\s]{1}");
+            Regex regex2 = new Regex("[\\s]{1}" + _alias + "[\\s]{0}$");
+
+            string oldSql = _sqlString.SQL;
+            if (regex1.IsMatch(oldSql))
+            {
+                _sqlString.Sql.Clear();
+                _sqlString.Sql.Append(regex1.Replace(oldSql, $" {newAlias} ", 1));
+            }
+            else if (regex2.IsMatch(oldSql))
+            {
+                _sqlString.Sql.Clear();
+                _sqlString.Sql.Append(regex2.Replace(oldSql, $" {newAlias}", 1));
+            }
+
+            Regex regex3 = new Regex("[\\s]{1}" + _alias + "\\.");
+            Regex regex4 = new Regex("[,]{1}" + _alias + "\\.");
+            Regex regex5 = new Regex("[(]{1}" + _alias + "\\.");
+
+            oldSql = _sqlString.SQL;
+            if (regex3.IsMatch(oldSql))
+            {
+                _sqlString.Sql.Clear();
+                _sqlString.Sql.Append(regex3.Replace(oldSql, $" {newAlias}."));
+            }
+            else if (regex4.IsMatch(oldSql))
+            {
+                _sqlString.Sql.Clear();
+                _sqlString.Sql.Append(regex3.Replace(oldSql, $",{newAlias}."));
+            }
+            else if (regex5.IsMatch(oldSql))
+            {
+                _sqlString.Sql.Clear();
+                _sqlString.Sql.Append(regex3.Replace(oldSql, $"({newAlias}."));
+            }
+
+            _alias = newAlias;
         }
         #endregion
 

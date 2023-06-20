@@ -408,7 +408,7 @@ namespace Dapper.LiteTest
                 && t.Remark != null
                 && t.OrderTime >= new DateTime(2010, 1, 1)
                 && t.OrderTime <= DateTime.Now.AddDays(1))
-                .WhereIf(true, u => u.CreateTime < DateTime.Now)
+                .WhereIf(true, t => t.CreateTime < DateTime.Now)
                 .OrderByDescending(t => t.OrderTime).OrderBy(t => t.Id)
                 .ToList();
 
@@ -613,6 +613,89 @@ namespace Dapper.LiteTest
             {
                 Console.WriteLine(ModelToStringUtil.ToString(item));
             }
+            Assert.IsTrue(list.Count > 0);
+        }
+        #endregion
+
+        #region 测试查询订单集合(使用 Lambda 表达式)(Lambda 表达式不使用t)
+        [TestMethod]
+        public void TestQueryByLambda17()
+        {
+            var session = DapperLiteFactory.GetSession();
+
+            session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
+
+            ISqlQueryable<BsOrder> sql = session.Queryable<BsOrder>();
+
+            List<BsOrder> list = sql
+                .Select<SysUser>(u => u.UserName, od => od.OrderUserName)
+                .Select<SysUser>(u => u.RealName, od => od.OrderUserRealName)
+                .LeftJoin<SysUser>((od, u) => od.OrderUserid == u.Id)
+                .LeftJoin<BsOrderDetail>((od, d) => d.OrderId == od.Id)
+                .Where<SysUser, BsOrderDetail>((od, u, d) => od.Remark.Contains("订单") && u.CreateUserid == "1" && d.GoodsName == "电脑")
+                .WhereIf<BsOrder>(true, od => od.Remark.Contains("测试"))
+                .WhereIf<SysUser>(true, u => u.CreateUserid == "1")
+                .OrderByDescending(od => od.OrderTime).OrderBy(od => od.Id)
+                .ToList();
+
+            foreach (BsOrder item in list)
+            {
+                Console.WriteLine(ModelToStringUtil.ToString(item));
+            }
+            Assert.IsTrue(list.Count > 0);
+        }
+        #endregion
+
+        #region 测试查询订单集合(使用 Lambda 表达式)(Lambda 表达式不使用t)
+        [TestMethod]
+        public void TestQueryByLambda18()
+        {
+            DateTime? endTime = new DateTime(2023, 1, 1);
+
+            var session = DapperLiteFactory.GetSession();
+
+            session.OnExecuting = (s, p) => Console.WriteLine(s);
+
+            List<SysUser> list = session.Queryable<SysUser>()
+                .Where(user => user.CreateTime < endTime.Value.Date.AddDays(1).AddSeconds(-1) && user.Id > 0)
+                .Where(user => user.Id <= 20).ToList();
+
+            foreach (SysUser item in list)
+            {
+                Console.WriteLine(ModelToStringUtil.ToString(item));
+            }
+            Assert.IsTrue(list.Count > 0);
+
+            list = session.Queryable<SysUser>().ToList();
+            long count = session.Queryable<SysUser>().Count();
+            Assert.IsTrue(count > 0);
+            Assert.IsTrue(list.Count > 0);
+        }
+        #endregion
+
+        #region 测试查询订单集合(使用 Lambda 表达式)(Lambda 表达式不使用t)
+        [TestMethod]
+        public void TestQueryByLambda19()
+        {
+            DateTime? endTime = new DateTime(2023, 1, 1);
+
+            var session = DapperLiteFactory.GetSession();
+
+            session.OnExecuting = (s, p) => Console.WriteLine(s);
+
+            List<SysUser> list = session.Sql<SysUser>("select * from sys_user t where t.id>0")
+                .Where(user => user.CreateTime < endTime.Value.Date.AddDays(1).AddSeconds(-1) && user.Id > 0)
+                .Where(user => user.Id <= 20).ToList();
+
+            foreach (SysUser item in list)
+            {
+                Console.WriteLine(ModelToStringUtil.ToString(item));
+            }
+            Assert.IsTrue(list.Count > 0);
+
+            list = session.Queryable<SysUser>().ToList();
+            long count = session.Queryable<SysUser>().Count();
+            Assert.IsTrue(count > 0);
             Assert.IsTrue(list.Count > 0);
         }
         #endregion
