@@ -6,9 +6,9 @@
         <Nullable>disable</Nullable>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <Title>Dapper.Lite</Title>
-        <AssemblyVersion>1.8.45</AssemblyVersion>
-        <FileVersion>1.8.45</FileVersion>
-        <Version>1.8.45</Version>
+        <AssemblyVersion>1.8.46</AssemblyVersion>
+        <FileVersion>1.8.46</FileVersion>
+        <Version>1.8.46</Version>
         <PackageId>Dapper.Lite</PackageId>
         <PackageProjectUrl>https://github.com/0611163/Dapper.Lite</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
