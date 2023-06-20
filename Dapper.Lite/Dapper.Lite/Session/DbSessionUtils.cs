@@ -16,6 +16,10 @@ namespace Dapper.Lite
 {
     public partial class DbSession : IDbSession
     {
+        private static object _lockGetEntityPropertiesDict = new object();
+
+        private static ConcurrentDictionary<Type, object> _dictEntityPropertiesDict = new ConcurrentDictionary<Type, object>();
+
         #region 获取主键名称
         /// <summary>
         /// 获取主键名称
@@ -93,6 +97,27 @@ namespace Dapper.Lite
                 }
                 return result.ToArray();
             });
+        }
+
+        /// <summary>
+        /// 获取实体类属性
+        /// </summary>
+        internal static Dictionary<string, PropertyInfoEx> GetEntityPropertiesDict(Type type)
+        {
+            lock (_lockGetEntityPropertiesDict)
+            {
+                if (_dictEntityPropertiesDict.TryGetValue(type, out object obj))
+                {
+                    return (Dictionary<string, PropertyInfoEx>)obj;
+                }
+                else
+                {
+                    var properties = GetEntityProperties(type);
+                    var dict = properties.ToDictionary(t => t.PropertyInfo.Name);
+                    _dictEntityPropertiesDict.TryAdd(type, dict);
+                    return dict;
+                }
+            }
         }
         #endregion
 

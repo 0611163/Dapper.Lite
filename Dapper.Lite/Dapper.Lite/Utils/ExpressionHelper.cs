@@ -729,31 +729,25 @@ namespace Dapper.Lite
         #region GetDbField
         private string GetDbField(string name, Type type)
         {
-            string result = string.Empty;
-
-            foreach (PropertyInfoEx propertyInfoEx in DbSession.GetEntityProperties(type))
+            var dict = DbSession.GetEntityPropertiesDict(type);
+            if (dict.TryGetValue(name, out PropertyInfoEx propInfoEx))
             {
-                PropertyInfo propertyInfo = propertyInfoEx.PropertyInfo;
+                PropertyInfo propertyInfo = propInfoEx.PropertyInfo;
 
-                if (string.Compare(propertyInfo.Name, name, true) == 0)
+                ColumnAttribute dbFieldAttribute = propInfoEx.DBFieldAttribute;
+                if (dbFieldAttribute != null && dbFieldAttribute.Name != null)
                 {
-                    ColumnAttribute dbFieldAttribute = propertyInfoEx.DBFieldAttribute;
-                    if (dbFieldAttribute != null && dbFieldAttribute.Name != null)
-                    {
-                        return _provider.OpenQuote + dbFieldAttribute.Name + _provider.CloseQuote;
-                    }
-                    else
-                    {
-                        return _provider.OpenQuote + propertyInfo.Name + _provider.CloseQuote;
-                    }
+                    return _provider.OpenQuote + dbFieldAttribute.Name + _provider.CloseQuote;
+                }
+                else
+                {
+                    return _provider.OpenQuote + propertyInfo.Name + _provider.CloseQuote;
                 }
             }
-            if (string.IsNullOrWhiteSpace(result))
+            else
             {
-
+                throw new Exception($"GetDbField错误, name={name}, type={type.Name}");
             }
-
-            return result;
         }
         #endregion
 

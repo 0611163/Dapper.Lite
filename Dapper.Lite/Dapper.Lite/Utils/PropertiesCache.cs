@@ -14,7 +14,7 @@ namespace Dapper.Lite
     /// </summary>
     internal static class PropertiesCache
     {
-        public static ConcurrentDictionary<Type, object> _dict = new ConcurrentDictionary<Type, object>();
+        private static ConcurrentDictionary<Type, object> _dict = new ConcurrentDictionary<Type, object>();
 
         private static object _lock = new object();
 
