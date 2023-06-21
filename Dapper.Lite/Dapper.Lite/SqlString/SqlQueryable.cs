@@ -953,18 +953,18 @@ namespace Dapper.Lite
             if (_alias == newAlias) return;
 
             Regex regex1 = new Regex("[\\s]{1}" + _alias + "[\\s]{1}");
-            Regex regex2 = new Regex("[\\s]{1}" + _alias + "[\\s]{0}$");
+            Regex regex2 = new Regex("[\\s]{1}" + _alias + "$");
 
             string oldSql = _sqlString.SQL;
             if (regex1.IsMatch(oldSql))
             {
                 _sqlString.Sql.Clear();
-                _sqlString.Sql.Append(regex1.Replace(oldSql, $" {newAlias} ", 1));
+                _sqlString.Sql.Append(regex1.Replace(oldSql, $" {newAlias} "));
             }
             else if (regex2.IsMatch(oldSql))
             {
                 _sqlString.Sql.Clear();
-                _sqlString.Sql.Append(regex2.Replace(oldSql, $" {newAlias}", 1));
+                _sqlString.Sql.Append(regex2.Replace(oldSql, $" {newAlias}"));
             }
 
             Regex regex3 = new Regex("[\\s]{1}" + _alias + "\\.");
@@ -980,12 +980,12 @@ namespace Dapper.Lite
             else if (regex4.IsMatch(oldSql))
             {
                 _sqlString.Sql.Clear();
-                _sqlString.Sql.Append(regex3.Replace(oldSql, $",{newAlias}."));
+                _sqlString.Sql.Append(regex4.Replace(oldSql, $",{newAlias}."));
             }
             else if (regex5.IsMatch(oldSql))
             {
                 _sqlString.Sql.Clear();
-                _sqlString.Sql.Append(regex3.Replace(oldSql, $"({newAlias}."));
+                _sqlString.Sql.Append(regex5.Replace(oldSql, $"({newAlias}."));
             }
 
             _alias = newAlias;
