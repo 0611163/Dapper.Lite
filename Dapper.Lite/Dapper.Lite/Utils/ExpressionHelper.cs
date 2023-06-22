@@ -9,7 +9,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations.Schema;
-using AutoMapper.Internal;
 
 namespace Dapper.Lite
 {
@@ -452,23 +451,23 @@ namespace Dapper.Lite
                 if (memberExp.Expression is ConstantExpression)
                 {
                     var target = VisitConstant(memberExp.Expression);
-                    result = memberExp.Member.GetMemberValue(target);
+                    result = GetMemberValue(memberExp.Member, target);
                 }
                 else if (memberExp.Expression is NewExpression newExp)
                 {
                     var target = VisitNew(newExp).Value;
-                    result = memberExp.Member.GetMemberValue(target);
+                    result = GetMemberValue(memberExp.Member, target);
                 }
                 else if (memberExp.Type == typeof(DateTime))
                 {
                     if (memberExp.Expression == null)
                     {
-                        result = memberExp.Member.GetMemberValue(null);
+                        result = GetMemberValue(memberExp.Member, null);
                     }
                     else
                     {
                         var target = InvokeValue(memberExp.Expression);
-                        result = memberExp.Member.GetMemberValue(target);
+                        result = GetMemberValue(memberExp.Member, target);
                     }
                 }
                 else
@@ -537,7 +536,7 @@ namespace Dapper.Lite
             {
                 if (parent.Type == typeof(DateTime))
                 {
-                    result = parent.Member.GetMemberValue(null);
+                    result = GetMemberValue(parent.Member, null);
                 }
                 else
                 {
@@ -549,12 +548,12 @@ namespace Dapper.Lite
                 if (parent.Expression is MemberExpression)
                 {
                     var target = ReflectionValue(parent.Expression, null);
-                    result = parent.Member.GetMemberValue(target);
+                    result = GetMemberValue(parent.Member, target);
                 }
                 else if (parent.Expression is ConstantExpression)
                 {
                     var target = VisitConstant(parent.Expression);
-                    result = parent.Member.GetMemberValue(target);
+                    result = GetMemberValue(parent.Member, target);
                 }
                 else
                 {
@@ -567,16 +566,16 @@ namespace Dapper.Lite
                 if (memberExp.Expression is ConstantExpression)
                 {
                     var target = VisitConstant(memberExp.Expression);
-                    result = memberExp.Member.GetMemberValue(target);
+                    result = GetMemberValue(memberExp.Member, target);
                 }
                 else if (memberExp.Expression is NewExpression newExp)
                 {
                     var expValue = VisitNew(newExp);
-                    result = memberExp.Member.GetMemberValue(expValue.Value);
+                    result = GetMemberValue(memberExp.Member, expValue.Value);
                 }
                 else if (memberExp.Type == typeof(DateTime))
                 {
-                    result = memberExp.Member.GetMemberValue(null);
+                    result = GetMemberValue(memberExp.Member, null);
                 }
                 else
                 {
@@ -821,6 +820,24 @@ namespace Dapper.Lite
                 }
             }
             return new Tuple<string, List<DbParameter>>(sql, newParamList);
+        }
+        #endregion
+
+        #region GetMemberValue
+        private object GetMemberValue(MemberInfo propertyOrField, object target)
+        {
+            if (propertyOrField is PropertyInfo propertyInfo)
+            {
+                return propertyInfo.GetValue(target, null);
+            }
+            else if (propertyOrField is FieldInfo fieldInfo)
+            {
+                return fieldInfo.GetValue(target);
+            }
+            else
+            {
+                throw new ArgumentOutOfRangeException("propertyOrField", "Expected a property or field, not " + propertyOrField);
+            }
         }
         #endregion
 

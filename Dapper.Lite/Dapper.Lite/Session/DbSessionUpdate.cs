@@ -6,9 +6,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using Dapper;
-using AutoMapper;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 
 namespace Dapper.Lite
@@ -20,10 +17,6 @@ namespace Dapper.Lite
         /// 新旧数据集合 key:新数据 value:旧数据
         /// </summary>
         private ConcurrentDictionary<object, object> _oldObjs = new ConcurrentDictionary<object, object>();
-
-        private IMapper _mapper;
-
-        private object _lockForMapper = new object();
         #endregion
 
         #region AttachOld 附加更新前的旧实体
@@ -40,19 +33,8 @@ namespace Dapper.Lite
 
             if (!_oldObjs.ContainsKey(obj))
             {
-                lock (_lockForMapper)
-                {
-                    if (_mapper == null)
-                    {
-                        MapperConfiguration _config = new MapperConfiguration(cfg => cfg.CreateMap<T, T>());
-
-                        _mapper = _config.CreateMapper();
-                    }
-                }
-
-                object cloneObj = new T();
-                Type type = typeof(T);
-                cloneObj = _mapper.Map(obj, type, type);
+                object cloneObj;
+                cloneObj = ModelMapper<T>.Map(obj);
                 _oldObjs.TryAdd(obj, cloneObj);
             }
         }
