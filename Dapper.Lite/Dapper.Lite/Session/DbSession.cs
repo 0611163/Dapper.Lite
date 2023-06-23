@@ -97,7 +97,7 @@ namespace Dapper.Lite
         {
             _connectionString = connectionString;
             _provider = provider;
-            _splitTableMapping = splitTableMapping;
+            _splitTableMapping = splitTableMapping ?? new SplitTableMapping();
         }
         #endregion
 

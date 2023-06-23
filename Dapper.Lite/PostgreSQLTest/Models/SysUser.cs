@@ -11,7 +11,7 @@ namespace Models
     /// 用户表
     /// </summary>
     [Serializable]
-    [Table("sys_user")]
+    [Table("sys_user", Schema = "public")]
     public partial class SysUser
     {
 

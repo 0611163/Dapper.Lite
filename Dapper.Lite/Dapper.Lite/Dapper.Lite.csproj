@@ -6,9 +6,9 @@
         <Nullable>disable</Nullable>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <Title>Dapper.Lite</Title>
-        <AssemblyVersion>1.8.49</AssemblyVersion>
-        <FileVersion>1.8.49</FileVersion>
-        <Version>1.8.49</Version>
+        <AssemblyVersion>1.8.50</AssemblyVersion>
+        <FileVersion>1.8.50</FileVersion>
+        <Version>1.8.50</Version>
         <PackageId>Dapper.Lite</PackageId>
         <PackageProjectUrl>https://github.com/0611163/Dapper.Lite</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -17,7 +17,7 @@
         <Copyright>Copyright @ 2022</Copyright>
         <Description>为了更方便地拼接SQL，为了更好地使用Dapper，支持原生SQL和Lambda表达式混写。支持Oracle、MSSQL、MySQL、PostgreSQL、SQLite、Access数据库，以及任意ADO.NET支持的数据库。</Description>
         <PackageReleaseNotes>
-            接口无变化，接口方法AttachOld和内部方法GetMemberValue不再依赖AutoMapper
+            实体类支持设置Schema，完善SplitTableMapping，IDbSession接口新增方法SetTableNameMap设置表名映射
         </PackageReleaseNotes>
     </PropertyGroup>
 

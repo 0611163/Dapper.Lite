@@ -994,9 +994,8 @@ namespace DAL
 ### 数据插入
 
 ```C#
-SplitTableMapping splitTableMapping = new SplitTableMapping(typeof(SysUser), "sys_user_202208");
-
-var session = DapperLiteFactory.GetSession(splitTableMapping);
+var session = DapperLiteFactory.GetSession();
+session.SetTableNameMap<SysUser>("sys_user_202208");
 
 session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
@@ -1009,9 +1008,8 @@ Console.WriteLine("插入成功, user.Id=" + user.Id);
 ### 数据更新
 
 ```C#
-SplitTableMapping splitTableMapping = new SplitTableMapping(typeof(SysUser), "sys_user_202208");
-
-var session = DapperLiteFactory.GetSession(splitTableMapping);
+var session = DapperLiteFactory.GetSession();
+session.SetTableNameMap<SysUser>("sys_user_202208");
 
 session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
@@ -1027,9 +1025,8 @@ session.Update(user);
 ### 数据删除
 
 ```C#
-SplitTableMapping splitTableMapping = new SplitTableMapping(typeof(SysUser), "sys_user_202208");
-
-var session = DapperLiteFactory.GetSession(splitTableMapping);
+var session = DapperLiteFactory.GetSession();
+session.SetTableNameMap<SysUser>("sys_user_202208");
 
 session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
@@ -1042,7 +1039,8 @@ Console.WriteLine(deleteCount2 + "条数据已删除");
 ### 数据查询
 
 ```C#
-var session = DapperLiteFactory.GetSession(splitTableMapping);
+var session = DapperLiteFactory.GetSession();
+session.SetTableNameMap<SysUser>("sys_user_202208");
 
 session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 

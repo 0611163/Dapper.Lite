@@ -175,26 +175,44 @@ namespace Dapper.Lite
         /// </summary>
         public string GetTableName(IProvider provider, Type type)
         {
-            if (_splitTableMapping == null)
+            if (_splitTableMapping != null && _splitTableMapping.Exists(type))
             {
-                TableAttribute dbTableAttribute = type.GetCustomAttribute<TableAttribute>();
-                if (dbTableAttribute != null && !string.IsNullOrWhiteSpace(dbTableAttribute.Name))
+                string tableName = _splitTableMapping.GetTableName(type);
+                string schema = _splitTableMapping.GetSchema(type);
+                if (schema == null)
                 {
-                    return provider.OpenQuote + dbTableAttribute.Name + provider.CloseQuote;
+                    return $"{provider.OpenQuote}{tableName}{provider.CloseQuote}";
                 }
                 else
                 {
-                    return provider.OpenQuote + type.Name + provider.CloseQuote;
+                    return $"{provider.OpenQuote}{schema}{provider.CloseQuote}.{provider.OpenQuote}{tableName}{provider.CloseQuote}";
                 }
             }
             else
             {
-                string tableName = _splitTableMapping.GetTableName(type);
-                if (tableName == null)
+                TableAttribute dbTableAttribute = type.GetCustomAttribute<TableAttribute>();
+                if (dbTableAttribute != null && !string.IsNullOrWhiteSpace(dbTableAttribute.Name))
                 {
-                    throw new Exception("缺少分表映射");
+                    if (dbTableAttribute.Schema == null)
+                    {
+                        return $"{provider.OpenQuote}{dbTableAttribute.Name}{provider.CloseQuote}";
+                    }
+                    else
+                    {
+                        return $"{provider.OpenQuote}{dbTableAttribute.Schema}{provider.CloseQuote}.{provider.OpenQuote}{dbTableAttribute.Name}{provider.CloseQuote}";
+                    }
                 }
-                return provider.OpenQuote + tableName + provider.CloseQuote;
+                else
+                {
+                    if (dbTableAttribute.Schema == null)
+                    {
+                        return $"{provider.OpenQuote}{type.Name}{provider.CloseQuote}";
+                    }
+                    else
+                    {
+                        return $"{provider.OpenQuote}{dbTableAttribute.Schema}{provider.CloseQuote}.{provider.OpenQuote}{type.Name}{provider.CloseQuote}";
+                    }
+                }
             }
         }
         #endregion

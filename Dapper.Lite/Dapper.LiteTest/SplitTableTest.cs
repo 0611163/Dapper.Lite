@@ -42,9 +42,8 @@ namespace Dapper.LiteTest
             user.CreateUserid = "1";
             user.CreateTime = DateTime.Now;
 
-            SplitTableMapping splitTableMapping = new SplitTableMapping(typeof(SysUser), "sys_user_202208");
-
-            var session = DapperLiteFactory.GetSession(splitTableMapping);
+            var session = DapperLiteFactory.GetSession();
+            session.SetTableNameMap<SysUser>("sys_user_202208");
 
             session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
@@ -107,9 +106,8 @@ namespace Dapper.LiteTest
             long userId = 10;
             SysUser user = null;
 
-            SplitTableMapping splitTableMapping = new SplitTableMapping(typeof(SysUser), "sys_user_202208");
-
-            var session = DapperLiteFactory.GetSession(splitTableMapping);
+            var session = DapperLiteFactory.GetSession();
+            session.SetTableNameMap<SysUser>("sys_user_202208");
 
             user = session.QueryById<SysUser>(userId);
 
@@ -143,8 +141,8 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void Test4Delete()
         {
-            SplitTableMapping splitTableMapping = new SplitTableMapping(typeof(SysUser), "sys_user_202208");
-            var session = DapperLiteFactory.GetSession(splitTableMapping);
+            var session = DapperLiteFactory.GetSession();
+            session.SetTableNameMap<SysUser>("sys_user_202208");
 
             session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
@@ -159,10 +157,9 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void Test3Query()
         {
-            SplitTableMapping splitTableMapping = new SplitTableMapping(typeof(SysUser), "sys_user_202208");
-
             List<SysUser> list = new List<SysUser>();
-            var session = DapperLiteFactory.GetSession(splitTableMapping);
+            var session = DapperLiteFactory.GetSession();
+            session.SetTableNameMap<SysUser>("sys_user_202208");
 
             session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
 
