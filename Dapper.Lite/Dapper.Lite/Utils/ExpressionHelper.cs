@@ -692,6 +692,10 @@ namespace Dapper.Lite
             {
                 result = VisitNew(operandExp as NewExpression);
             }
+            else if (operandExp is MethodCallExpression)
+            {
+                result = VisitValue(operandExp);
+            }
             else
             {
                 throw new Exception("不支持");
