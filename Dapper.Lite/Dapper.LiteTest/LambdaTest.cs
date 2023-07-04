@@ -44,7 +44,7 @@ namespace Dapper.LiteTest
 
             List<BsOrder> list = sql.Where(t => t.Status == status
                 && t.Remark.Contains(remark.ToString())
-                && t.OrderTime >= startTime
+                && startTime <= t.OrderTime
                 && t.OrderTime <= endTime)
                 .OrderByDescending(t => t.OrderTime).OrderBy(t => t.Id)
                 .ToList();
@@ -211,7 +211,7 @@ namespace Dapper.LiteTest
 
             sql.Where(t => t.Remark.StartsWith(GetStr(9)));
 
-            sql.Where(t => t.OrderTime >= time.startTime);
+            sql.Where(t => time.startTime <= t.OrderTime);
 
             sql.Where(t => t.OrderTime >= dt);
 
@@ -403,7 +403,7 @@ namespace Dapper.LiteTest
                 left join sys_user u on t.order_userid=u.id");
 
             List<BsOrder> list = sql.Where(t => t.Status == int.Parse("0")
-                && t.Status == new BsOrder().Status
+                && new BsOrder().Status == t.Status
                 && t.Remark.Contains("订单")
                 && t.Remark != null
                 && t.OrderTime >= new DateTime(2010, 1, 1)

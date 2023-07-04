@@ -152,11 +152,11 @@ namespace Dapper.Lite
             var sqlOperator = ToSqlOperator(exp.NodeType);
             if (sqlOperator == "AND")
             {
-                result.Sql = string.Format(" {0} {1} {2} ", left.Sql, ToSqlOperator(exp.NodeType), right.Sql);
+                result.Sql = string.Format(" {0} {1} {2} ", left.Sql, sqlOperator, right.Sql);
             }
             else
             {
-                result.Sql = string.Format(" ({0} {1} {2}) ", left.Sql, ToSqlOperator(exp.NodeType), right.Sql);
+                result.Sql = string.Format(" ({0} {1} {2}) ", left.Sql, sqlOperator, right.Sql);
             }
             result.Type = ExpValueType.SqlAndDbParameter;
 
@@ -193,8 +193,20 @@ namespace Dapper.Lite
                     exp.NodeType == ExpressionType.LessThanOrEqual ||
                     exp.NodeType == ExpressionType.Equal)
                 {
-                    ExpValue left = VisitMember(exp.Left);
-                    ExpValue right = VisitValue(exp.Right);
+                    ExpValue left;
+                    ExpValue right;
+                    var isrRversed = false;
+                    if (IsMember(exp.Left))
+                    {
+                        left = VisitMember(exp.Left);
+                        right = VisitValue(exp.Right);
+                    }
+                    else
+                    {
+                        left = VisitMember(exp.Right);
+                        right = VisitValue(exp.Left);
+                        isrRversed = true;
+                    }
 
                     left.MemberAliasName = GetAliasName(left.MemberAliasName);
                     _dbParameterNames.Add(left.MemberAliasName);
@@ -224,13 +236,13 @@ namespace Dapper.Lite
                             string markKey = _provider.GetParameterName(left.MemberAliasName, parameterType);
 
                             result.DbParameters.Add(_provider.GetDbParameter(left.MemberAliasName, right.Value));
-                            result.Sql = string.Format(" {0}.{1} {2} {3} ", left.MemberParentName, left.MemberDBField, ToSqlOperator(exp.NodeType), sqlValue.Sql.Replace("{0}", markKey));
+                            result.Sql = string.Format(" {0}.{1} {2} {3} ", left.MemberParentName, left.MemberDBField, ToSqlOperator(exp.NodeType, isrRversed), sqlValue.Sql.Replace("{0}", markKey));
                         }
                         else
                         {
                             string markKey = _provider.GetParameterName(left.MemberAliasName, right.Value.GetType());
                             result.DbParameters.Add(_provider.GetDbParameter(left.MemberAliasName, right.Value));
-                            result.Sql = string.Format(" {0}.{1} {2} {3} ", left.MemberParentName, left.MemberDBField, ToSqlOperator(exp.NodeType), markKey);
+                            result.Sql = string.Format(" {0}.{1} {2} {3} ", left.MemberParentName, left.MemberDBField, ToSqlOperator(exp.NodeType, isrRversed), markKey);
                         }
                     }
                 }
@@ -706,32 +718,63 @@ namespace Dapper.Lite
         #endregion
 
         #region ToSqlOperator
-        private string ToSqlOperator(ExpressionType type)
+        private string ToSqlOperator(ExpressionType type, bool isReversed = false)
         {
-            switch (type)
+            if (!isReversed)
             {
-                case (ExpressionType.AndAlso):
-                case (ExpressionType.And):
-                    return "AND";
-                case (ExpressionType.OrElse):
-                case (ExpressionType.Or):
-                    return "OR";
-                case (ExpressionType.Not):
-                    return "NOT";
-                case (ExpressionType.NotEqual):
-                    return "<>";
-                case ExpressionType.GreaterThan:
-                    return ">";
-                case ExpressionType.GreaterThanOrEqual:
-                    return ">=";
-                case ExpressionType.LessThan:
-                    return "<";
-                case ExpressionType.LessThanOrEqual:
-                    return "<=";
-                case (ExpressionType.Equal):
-                    return "=";
-                default:
-                    throw new Exception("不支持该方法");
+                switch (type)
+                {
+                    case (ExpressionType.AndAlso):
+                    case (ExpressionType.And):
+                        return "AND";
+                    case (ExpressionType.OrElse):
+                    case (ExpressionType.Or):
+                        return "OR";
+                    case (ExpressionType.Not):
+                        return "NOT";
+                    case (ExpressionType.NotEqual):
+                        return "<>";
+                    case ExpressionType.GreaterThan:
+                        return ">";
+                    case ExpressionType.GreaterThanOrEqual:
+                        return ">=";
+                    case ExpressionType.LessThan:
+                        return "<";
+                    case ExpressionType.LessThanOrEqual:
+                        return "<=";
+                    case (ExpressionType.Equal):
+                        return "=";
+                    default:
+                        throw new Exception("不支持该方法");
+                }
+            }
+            else
+            {
+                switch (type)
+                {
+                    case (ExpressionType.AndAlso):
+                    case (ExpressionType.And):
+                        return "AND";
+                    case (ExpressionType.OrElse):
+                    case (ExpressionType.Or):
+                        return "OR";
+                    case (ExpressionType.Not):
+                        return "NOT";
+                    case (ExpressionType.NotEqual):
+                        return "<>";
+                    case ExpressionType.GreaterThan:
+                        return "<";
+                    case ExpressionType.GreaterThanOrEqual:
+                        return "<=";
+                    case ExpressionType.LessThan:
+                        return ">";
+                    case ExpressionType.LessThanOrEqual:
+                        return ">=";
+                    case (ExpressionType.Equal):
+                        return "=";
+                    default:
+                        throw new Exception("不支持该方法");
+                }
             }
         }
         #endregion
@@ -842,6 +885,27 @@ namespace Dapper.Lite
             {
                 throw new ArgumentOutOfRangeException("propertyOrField", "Expected a property or field, not " + propertyOrField);
             }
+        }
+        #endregion
+
+        #region IsMember
+        private bool IsMember(Expression exp)
+        {
+            if (exp is MemberExpression memberExp)
+            {
+                if (memberExp.Expression is ParameterExpression)
+                {
+                    return true;
+                }
+            }
+            else if (exp.NodeType == ExpressionType.Convert)
+            {
+                if (exp is UnaryExpression unaryExp)
+                {
+                    return IsMember(unaryExp.Operand);
+                }
+            }
+            return false;
         }
         #endregion
 
