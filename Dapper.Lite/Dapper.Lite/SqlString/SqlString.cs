@@ -156,77 +156,18 @@ namespace Dapper.Lite
         {
             if (args == null) throw new Exception("参数args不能为null");
 
-            //匿名对象处理
-            bool anonymousType = false;
-            Dictionary<string, object> dictValues = new Dictionary<string, object>();
-            if (args.Length == 1)
-            {
-                Type type = args[0].GetType();
-                if (type.Name.Contains("<>f__AnonymousType"))
-                {
-                    anonymousType = true;
-                    PropertyInfo[] props = type.GetProperties();
-                    foreach (PropertyInfo propInfo in props)
-                    {
-                        dictValues.Add(propInfo.Name, propInfo.GetValue(args[0]));
-                    }
-                }
-            }
+            //从匿名对象获取参数(参数名称、参数值)
+            Dictionary<string, object> anonymousValues = GetAnonymousParameters(out bool isAnonymous, args);
 
-            //获取SQL中的参数
-            Dictionary<string, object> dict = new Dictionary<string, object>();
-            MatchCollection mc = _regex.Matches(sql);
-            int argIndex = 0;
-            foreach (Match m in mc)
-            {
-                string val1 = m.Groups[1].Value;
-                if (!dict.ContainsKey(val1))
-                {
-                    dict.Add(val1, null);
-                    Type parameterType = typeof(object);
-                    if (anonymousType)
-                    {
-                        if (dictValues.ContainsKey(val1))
-                        {
-                            object obj = dictValues[val1];
-                            if (obj != null) parameterType = obj.GetType();
-                        }
-                    }
-                    else
-                    {
-                        if (argIndex < args.Length)
-                        {
-                            object obj = args[argIndex];
-                            if (obj != null) parameterType = obj.GetType();
-                        }
-                    }
-                    sql = ReplaceSql(sql, m.Value, val1, parameterType);
-                }
-            }
+            //获取SQL中的参数(参数名称、参数值)
+            Dictionary<string, object> dict = GetParametersFromSql(ref sql, isAnonymous, anonymousValues, args);
 
-            if (!anonymousType && args.Length < dict.Keys.Count) throw new Exception("SqlString.AppendFormat参数不够");
+            if (!isAnonymous && args.Length < dict.Count) throw new Exception("SqlString.AppendFormat参数不够");
 
-            List<string> keyList = dict.Keys.ToList();
-            for (int i = 0; i < keyList.Count; i++)
+            foreach (string name in dict.Keys)
             {
-                string key = keyList[i];
-                object value;
-                if (anonymousType)
-                {
-                    if (dictValues.ContainsKey(key))
-                    {
-                        value = dictValues[key];
-                    }
-                    else
-                    {
-                        throw new Exception("参数" + key + "缺少值");
-                    }
-                }
-                else
-                {
-                    value = args[i];
-                }
-                Type valueType = value != null ? value.GetType() : null;
+                object value = dict[name];
+                Type valueType = value?.GetType();
 
                 if (valueType == typeof(SqlValue))
                 {
@@ -234,14 +175,14 @@ namespace Dapper.Lite
                     Type parameterType = sqlValue.Value.GetType();
                     if (sqlValue.Value.GetType().Name != typeof(List<>).Name)
                     {
-                        string markKey = _provider.GetParameterName(key, parameterType);
+                        string markKey = _provider.GetParameterName(name, parameterType);
                         sql = sql.Replace(markKey, sqlValue.Sql.Replace("{0}", markKey));
-                        DbParameter param = _provider.GetDbParameter(key, sqlValue.Value);
+                        DbParameter param = _provider.GetDbParameter(name, sqlValue.Value);
                         _params.Add(param.ParameterName, param);
                     }
                     else
                     {
-                        string markKey = _provider.GetParameterName(key, parameterType);
+                        string markKey = _provider.GetParameterName(name, parameterType);
                         sql = sql.Replace(markKey, sqlValue.Sql.Replace("{0}", markKey));
                         string[] keyArr = sqlValue.Sql.Replace("(", string.Empty).Replace(")", string.Empty).Replace("@", string.Empty).Split(',');
                         IList valueList = (IList)sqlValue.Value;
@@ -255,7 +196,7 @@ namespace Dapper.Lite
                 }
                 else
                 {
-                    DbParameter param = _provider.GetDbParameter(key, value);
+                    DbParameter param = _provider.GetDbParameter(name, value);
                     _params.Add(param.ParameterName, param);
                 }
             }
@@ -263,6 +204,71 @@ namespace Dapper.Lite
             _sql.Append(string.Format(" {0} ", sql.Trim()));
 
             return this;
+        }
+
+        /// <summary>
+        /// 从匿名对象中获取参数
+        /// 返回参数名称、参数值字典
+        /// </summary>
+        private Dictionary<string, object> GetAnonymousParameters(out bool isAnonymous, params object[] args)
+        {
+            isAnonymous = false;
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            if (args?.Length == 1)
+            {
+                Type type = args[0].GetType();
+                if (type.Name.Contains("<>f__AnonymousType"))
+                {
+                    isAnonymous = true;
+                    PropertyInfo[] props = type.GetProperties();
+                    foreach (PropertyInfo propInfo in props)
+                    {
+                        dict.Add(propInfo.Name, propInfo.GetValue(args[0]));
+                    }
+                }
+            }
+            return dict;
+        }
+
+        /// <summary>
+        /// 获取SQL中的参数
+        /// 返回参数名称、参数值字典
+        /// </summary>
+        private Dictionary<string, object> GetParametersFromSql(ref string sql, bool isAnonymous, Dictionary<string, object> anonymousValues, params object[] args)
+        {
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            MatchCollection mc = _regex.Matches(sql);
+            int argIndex = 0;
+            foreach (Match m in mc)
+            {
+                var oldSql = m.Value;
+                string name = m.Groups[1].Value;
+
+                if (!dict.ContainsKey(name))
+                {
+                    Type parameterType = typeof(object);
+                    if (isAnonymous)
+                    {
+                        if (anonymousValues.ContainsKey(name))
+                        {
+                            object obj = anonymousValues[name];
+                            parameterType = obj?.GetType();
+                            dict.Add(name, obj);
+                        }
+                    }
+                    else
+                    {
+                        if (argIndex < args?.Length)
+                        {
+                            object obj = args[argIndex++];
+                            parameterType = obj?.GetType();
+                            dict.Add(name, obj);
+                        }
+                    }
+                    sql = ReplaceSql(sql, oldSql, name, parameterType);
+                }
+            }
+            return dict;
         }
         #endregion
 

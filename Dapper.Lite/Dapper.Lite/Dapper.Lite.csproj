@@ -6,18 +6,21 @@
         <Nullable>disable</Nullable>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <Title>Dapper.Lite</Title>
-        <AssemblyVersion>1.8.52</AssemblyVersion>
-        <FileVersion>1.8.52</FileVersion>
-        <Version>1.8.52</Version>
+        <AssemblyVersion>1.8.53</AssemblyVersion>
+        <FileVersion>1.8.53</FileVersion>
+        <Version>1.8.53</Version>
         <PackageId>Dapper.Lite</PackageId>
         <PackageProjectUrl>https://github.com/0611163/Dapper.Lite</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageOutputPath>..\Dapper.Lite</PackageOutputPath>
         <Authors>suxiang</Authors>
         <Copyright>Copyright @ 2022</Copyright>
-        <Description>为了更方便地拼接SQL，为了更好地使用Dapper，支持原生SQL和Lambda表达式混写。支持Oracle、MSSQL、MySQL、PostgreSQL、SQLite、Access数据库，以及任意ADO.NET支持的数据库。</Description>
+        <Description>
+            A Dapper extension that supports both SQL concatenation and simple Lambda expressions. It supports databases such as Oracle, MSSQL, MySQL, PostgreSQL, SQLite, Access, etc.
+            一款Dapper扩展，同时支持SQL拼接和简单的Lambda表达式。支持Oracle、MSSQL、MySQL、PostgreSQL、SQLite、Access等数据库。
+        </Description>
         <PackageReleaseNotes>
-            优化Lambda：startTime 〈= t.OrderTime 反过来写 startTime 〈= t.OrderTime 也支持
+            内部代码优化，降低Append方法的圈复杂度
         </PackageReleaseNotes>
     </PropertyGroup>
 
