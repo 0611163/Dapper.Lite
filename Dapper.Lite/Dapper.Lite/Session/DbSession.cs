@@ -26,6 +26,19 @@ namespace Dapper.Lite
     /// 一个DbSession实例对应一个数据库连接，一个DbSession实例只有一个数据库连接
     /// DbSession不是线程安全的，不能跨线程使用
     /// </summary>
+    public partial class DbSession<TFlag> : DbSession, IDbSession<TFlag>
+    {
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        public DbSession(string connectionString, IProvider provider, SplitTableMapping splitTableMapping) : base(connectionString, provider, splitTableMapping) { }
+    }
+
+    /// <summary>
+    /// DbSession实例表示与数据库的会话
+    /// 一个DbSession实例对应一个数据库连接，一个DbSession实例只有一个数据库连接
+    /// DbSession不是线程安全的，不能跨线程使用
+    /// </summary>
     public partial class DbSession : IDbSession
     {
         #region 静态变量

@@ -21,6 +21,7 @@ namespace Dapper.Lite
     /// </summary>
     public interface IDapperLiteClient
     {
+        #region 获取 IDbSession
         /// <summary>
         /// 获取 IDbSession
         /// </summary>
@@ -28,10 +29,23 @@ namespace Dapper.Lite
         IDbSession GetSession(SplitTableMapping splitTableMapping = null);
 
         /// <summary>
+        /// 获取 IDbSession
+        /// </summary>
+        IDbSession<TFlag> GetSession<TFlag>(SplitTableMapping splitTableMapping = null);
+        #endregion
+
+        #region 获取 IDbSession (异步)
+        /// <summary>
         /// 获取 IDbSession (异步)
         /// </summary>
         /// <param name="splitTableMapping">分表映射</param>
         Task<IDbSession> GetSessionAsync(SplitTableMapping splitTableMapping = null);
+
+        /// <summary>
+        /// 获取 IDbSession (异步)
+        /// </summary>
+        Task<IDbSession<TFlag>> GetSessionAsync<TFlag>(SplitTableMapping splitTableMapping = null);
+        #endregion
 
         #region 创建SqlString对象
         /// <summary>

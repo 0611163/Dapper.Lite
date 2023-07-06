@@ -76,6 +76,21 @@ namespace Dapper.Lite
 
             return dbSession;
         }
+
+        /// <summary>
+        /// 获取 IDbSession
+        /// </summary>
+        public IDbSession<TFlag> GetSession<TFlag>(SplitTableMapping splitTableMapping = null)
+        {
+            DbSession<TFlag> dbSession = new DbSession<TFlag>(_connectionString, _provider, splitTableMapping);
+
+            if (OnExecuting != null)
+            {
+                dbSession.OnExecuting = OnExecuting;
+            }
+
+            return dbSession;
+        }
         #endregion
 
         #region 获取 IDbSession (异步)
@@ -92,6 +107,21 @@ namespace Dapper.Lite
             }
 
             return Task.FromResult(dbSession as IDbSession);
+        }
+
+        /// <summary>
+        /// 获取 IDbSession (异步)
+        /// </summary>
+        public Task<IDbSession<TFlag>> GetSessionAsync<TFlag>(SplitTableMapping splitTableMapping = null)
+        {
+            DbSession<TFlag> dbSession = new DbSession<TFlag>(_connectionString, _provider, splitTableMapping);
+
+            if (OnExecuting != null)
+            {
+                dbSession.OnExecuting = OnExecuting;
+            }
+
+            return Task.FromResult(dbSession as IDbSession<TFlag>);
         }
         #endregion
 
