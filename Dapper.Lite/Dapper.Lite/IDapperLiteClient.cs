@@ -13,7 +13,22 @@ namespace Dapper.Lite
     /// Dapper.Lite客户端接口
     /// IDapperLiteClient是线程安全的
     /// </summary>
-    public interface IDapperLiteClient<TFlag> : IDapperLiteClient { }
+    public interface IDapperLiteClient<TFlag> : IDapperLiteClient
+    {
+        #region 获取 IDbSession
+        /// <summary>
+        /// 获取 IDbSession
+        /// </summary>
+        new IDbSession<TFlag> GetSession(SplitTableMapping splitTableMapping = null);
+        #endregion
+
+        #region 获取 IDbSession (异步)
+        /// <summary>
+        /// 获取 IDbSession (异步)
+        /// </summary>
+        new Task<IDbSession<TFlag>> GetSessionAsync(SplitTableMapping splitTableMapping = null);
+        #endregion
+    }
 
     /// <summary>
     /// Dapper.Lite客户端接口
@@ -27,11 +42,6 @@ namespace Dapper.Lite
         /// </summary>
         /// <param name="splitTableMapping">分表映射</param>
         IDbSession GetSession(SplitTableMapping splitTableMapping = null);
-
-        /// <summary>
-        /// 获取 IDbSession
-        /// </summary>
-        IDbSession<TFlag> GetSession<TFlag>(SplitTableMapping splitTableMapping = null);
         #endregion
 
         #region 获取 IDbSession (异步)
@@ -40,11 +50,6 @@ namespace Dapper.Lite
         /// </summary>
         /// <param name="splitTableMapping">分表映射</param>
         Task<IDbSession> GetSessionAsync(SplitTableMapping splitTableMapping = null);
-
-        /// <summary>
-        /// 获取 IDbSession (异步)
-        /// </summary>
-        Task<IDbSession<TFlag>> GetSessionAsync<TFlag>(SplitTableMapping splitTableMapping = null);
         #endregion
 
         #region 创建SqlString对象

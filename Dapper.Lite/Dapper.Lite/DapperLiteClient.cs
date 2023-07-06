@@ -14,12 +14,35 @@ namespace Dapper.Lite
     /// </summary>
     public class DapperLiteClient<TFlag> : DapperLiteClient, IDapperLiteClient<TFlag>
     {
+        #region 构造函数
         /// <summary>
         /// 构造函数
         /// </summary>
         /// <param name="connectionString">数据库连接字符串</param>
         /// <param name="provider">数据库提供者</param>
         public DapperLiteClient(string connectionString, IProvider provider) : base(connectionString, provider) { }
+        #endregion
+
+        #region 获取 IDbSession
+
+        /// <summary>
+        /// 获取 IDbSession
+        /// </summary>
+        public new IDbSession<TFlag> GetSession(SplitTableMapping splitTableMapping = null)
+        {
+            return GetSession<TFlag>(splitTableMapping);
+        }
+        #endregion
+
+        #region 获取 IDbSession (异步)
+        /// <summary>
+        /// 获取 IDbSession (异步)
+        /// </summary>
+        public new Task<IDbSession<TFlag>> GetSessionAsync(SplitTableMapping splitTableMapping = null)
+        {
+            return GetSessionAsync<TFlag>(splitTableMapping);
+        }
+        #endregion
     }
 
     /// <summary>
@@ -80,7 +103,7 @@ namespace Dapper.Lite
         /// <summary>
         /// 获取 IDbSession
         /// </summary>
-        public IDbSession<TFlag> GetSession<TFlag>(SplitTableMapping splitTableMapping = null)
+        protected IDbSession<TFlag> GetSession<TFlag>(SplitTableMapping splitTableMapping = null)
         {
             DbSession<TFlag> dbSession = new DbSession<TFlag>(_connectionString, _provider, splitTableMapping);
 
@@ -112,7 +135,7 @@ namespace Dapper.Lite
         /// <summary>
         /// 获取 IDbSession (异步)
         /// </summary>
-        public Task<IDbSession<TFlag>> GetSessionAsync<TFlag>(SplitTableMapping splitTableMapping = null)
+        protected Task<IDbSession<TFlag>> GetSessionAsync<TFlag>(SplitTableMapping splitTableMapping = null)
         {
             DbSession<TFlag> dbSession = new DbSession<TFlag>(_connectionString, _provider, splitTableMapping);
 
