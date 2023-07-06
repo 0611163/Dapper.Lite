@@ -6,9 +6,9 @@
         <Nullable>disable</Nullable>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <Title>Dapper.Lite</Title>
-        <AssemblyVersion>1.8.53</AssemblyVersion>
-        <FileVersion>1.8.53</FileVersion>
-        <Version>1.8.53</Version>
+        <AssemblyVersion>1.8.54</AssemblyVersion>
+        <FileVersion>1.8.54</FileVersion>
+        <Version>1.8.54</Version>
         <PackageId>Dapper.Lite</PackageId>
         <PackageProjectUrl>https://github.com/0611163/Dapper.Lite</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -20,7 +20,8 @@
             一款Dapper扩展，同时支持SQL拼接和简单的Lambda表达式。支持Oracle、MSSQL、MySQL、PostgreSQL、SQLite、Access等数据库。
         </Description>
         <PackageReleaseNotes>
-            内部代码优化，降低Append方法的圈复杂度
+            1. 增加接口：DbTransaction BeginTransaction(IsolationLevel isolationLevel)
+            2. 新增IDapperLiteClient泛型、DapperLiteClient泛型、IDbSession泛型、DbSession泛型，以便可以注入多个IDapperLiteClient或IDbSession
         </PackageReleaseNotes>
     </PropertyGroup>
 
