@@ -191,55 +191,28 @@ namespace DAL
 var builder = WebApplication.CreateBuilder(args);
 
 var db = new DapperLiteClient(builder.Configuration.GetConnectionString("DefaultConnection"), new MySQLProvider());
-var secondDB = new DapperLiteClient(builder.Configuration.GetConnectionString("SecondConnection"), new MySQLProvider());
+var secondDB = new DapperLiteClient<SecondDbFlag>(builder.Configuration.GetConnectionString("SecondConnection"), new MySQLProvider());
 
 // Add services to the container.
 // 注册数据库IDapperLiteClient
-builder.Services.AddSingleton<IDapperLiteClient>(serviceProvider =>
-{
-    return db;
-});
+builder.Services.AddSingleton<IDapperLiteClient>(db);
 // 注册第二个数据库IDapperLiteClient
-builder.Services.AddSingleton<SecondDbClient>(serviceProvider =>
-{
-    return new SecondDbClient(secondDB);
-});
+builder.Services.AddSingleton<IDapperLiteClient<SecondDbFlag>>(secondDB);
 // 注册数据库DbSession
 builder.Services.AddScoped<IDbSession>(serviceProvider =>
 {
-    return db.GetSession();
+    return serviceProvider.GetService<IDapperLiteClient>().GetSession();
 });
 // 注册第二个数据库DbSession
-builder.Services.AddScoped<SecondDbSession>(serviceProvider =>
+builder.Services.AddScoped<IDbSession<SecondDbFlag>>(serviceProvider =>
 {
-    return new SecondDbSession(secondDB.GetSession());
+    return serviceProvider.GetService<IDapperLiteClient<SecondDbFlag>>().GetSession();
 });
 
 /// <summary>
-/// 第二个数据库Client
+/// 第二个数据库标识
 /// </summary>
-public class SecondDbClient
-{
-    public IDapperLiteClient Db { get; set; }
-
-    public SecondDbClient(IDapperLiteClient db)
-    {
-        Db = db;
-    }
-}
-
-/// <summary>
-/// 第二个数据库DbSession
-/// </summary>
-public class SecondDbSession
-{
-    public IDbSession DbSession { get; set; }
-
-    public SecondDbSession(IDbSession dBSession)
-    {
-        DbSession = dBSession;
-    }
-}
+public class SecondDbFlag { }
 ```
 
 ## 配套Model生成器
