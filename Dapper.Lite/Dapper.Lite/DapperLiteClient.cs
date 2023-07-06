@@ -5,10 +5,23 @@ using System.Data.Common;
 using System.Drawing;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using static System.Collections.Specialized.BitVector32;
 
 namespace Dapper.Lite
 {
+    /// <summary>
+    /// Dapper.Lite客户端
+    /// DapperLiteClient是线程安全的
+    /// </summary>
+    public class DapperLiteClient<TFlag> : DapperLiteClient, IDapperLiteClient<TFlag>
+    {
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        /// <param name="connectionString">数据库连接字符串</param>
+        /// <param name="provider">数据库提供者</param>
+        public DapperLiteClient(string connectionString, IProvider provider) : base(connectionString, provider) { }
+    }
+
     /// <summary>
     /// Dapper.Lite客户端
     /// DapperLiteClient是线程安全的
