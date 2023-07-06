@@ -16,11 +16,19 @@ namespace Dapper.Lite
         /// </summary>
         public DbTransaction BeginTransaction()
         {
+            return BeginTransaction(IsolationLevel.Unspecified);
+        }
+
+        /// <summary>
+        /// 开始事务
+        /// </summary>
+        public DbTransaction BeginTransaction(IsolationLevel isolationLevel)
+        {
             var conn = GetConnection();
             if (conn.State == ConnectionState.Closed) conn.Open();
             try
             {
-                _tran = conn.BeginTransaction();
+                _tran = conn.BeginTransaction(isolationLevel);
                 _connForTran = _tran.Connection;
             }
             catch
