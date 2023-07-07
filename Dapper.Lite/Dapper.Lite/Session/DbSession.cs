@@ -16,15 +16,15 @@ using Dapper;
 /* ----------------------------------------------------------------------
 * 作    者：suxiang
 * 创建日期：2016年11月23日
-* 更新日期：2023年06月19日
+* 更新日期：2023年07月07日
 * ---------------------------------------------------------------------- */
 
 namespace Dapper.Lite
 {
     /// <summary>
     /// DbSession实例表示与数据库的会话
-    /// 一个DbSession实例对应一个数据库连接，一个DbSession实例只有一个数据库连接
-    /// DbSession不是线程安全的，不能跨线程使用
+    /// 使用事务时，DbSession不是线程安全的
+    /// DbSession不建议定义成单例模式
     /// </summary>
     public partial class DbSession<TFlag> : DbSession, IDbSession<TFlag>
     {
@@ -36,8 +36,8 @@ namespace Dapper.Lite
 
     /// <summary>
     /// DbSession实例表示与数据库的会话
-    /// 一个DbSession实例对应一个数据库连接，一个DbSession实例只有一个数据库连接
-    /// DbSession不是线程安全的，不能跨线程使用
+    /// 使用事务时，DbSession不是线程安全的
+    /// DbSession不建议定义成单例模式
     /// </summary>
     public partial class DbSession : IDbSession
     {

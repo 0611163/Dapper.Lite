@@ -12,6 +12,7 @@ namespace Dapper.Lite
     /// <summary>
     /// Dapper.Lite客户端接口
     /// IDapperLiteClient是线程安全的
+    /// 请定义成单例模式
     /// </summary>
     public interface IDapperLiteClient<TFlag> : IDapperLiteClient
     {
@@ -33,6 +34,7 @@ namespace Dapper.Lite
     /// <summary>
     /// Dapper.Lite客户端接口
     /// IDapperLiteClient是线程安全的
+    /// 请定义成单例模式
     /// </summary>
     public interface IDapperLiteClient
     {
