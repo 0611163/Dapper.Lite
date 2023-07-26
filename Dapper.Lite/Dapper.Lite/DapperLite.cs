@@ -10,9 +10,9 @@ namespace Dapper.Lite
 {
     /// <summary>
     /// Dapper.Lite客户端
-    /// DapperLiteClient是线程安全的
+    /// DapperLite是线程安全的
     /// </summary>
-    public class DapperLiteClient<TFlag> : DapperLiteClient, IDapperLiteClient<TFlag>
+    public class DapperLite<TFlag> : DapperLite, IDapperLite<TFlag>
     {
         #region 构造函数
         /// <summary>
@@ -20,7 +20,7 @@ namespace Dapper.Lite
         /// </summary>
         /// <param name="connectionString">数据库连接字符串</param>
         /// <param name="provider">数据库提供者</param>
-        public DapperLiteClient(string connectionString, IProvider provider) : base(connectionString, provider) { }
+        public DapperLite(string connectionString, IProvider provider) : base(connectionString, provider) { }
         #endregion
 
         #region 获取 IDbSession
@@ -47,9 +47,9 @@ namespace Dapper.Lite
 
     /// <summary>
     /// Dapper.Lite客户端
-    /// DapperLiteClient是线程安全的
+    /// DapperLite是线程安全的
     /// </summary>
-    public class DapperLiteClient : IDapperLiteClient
+    public class DapperLite : IDapperLite
     {
         #region 变量
         /// <summary>
@@ -69,7 +69,7 @@ namespace Dapper.Lite
         /// </summary>
         /// <param name="connectionString">数据库连接字符串</param>
         /// <param name="provider">数据库提供者</param>
-        public DapperLiteClient(string connectionString, IProvider provider)
+        public DapperLite(string connectionString, IProvider provider)
         {
             _connectionString = connectionString;
             _provider = provider;

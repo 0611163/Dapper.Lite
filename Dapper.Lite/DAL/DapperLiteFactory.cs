@@ -9,9 +9,9 @@ namespace DAL
     public class DapperLiteFactory
     {
         #region 变量
-        private static IDapperLiteClient _db = new DapperLiteClient(ConfigurationManager.ConnectionStrings["DefaultConnection"].ToString(), new MySQLProvider());
+        private static IDapperLite _db = new DapperLite(ConfigurationManager.ConnectionStrings["DefaultConnection"].ToString(), new MySQLProvider());
 
-        public static IDapperLiteClient Db => _db;
+        public static IDapperLite Db => _db;
         #endregion
 
         #region 获取 IDbSession

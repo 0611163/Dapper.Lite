@@ -15,7 +15,7 @@ namespace Dapper.LiteTest
     [TestClass]
     public class SqlStringTest
     {
-        private IDapperLiteClient _db;
+        private IDapperLite _db;
 
         private Regex _regSpace = new Regex(@"[\s]{2,}");
 

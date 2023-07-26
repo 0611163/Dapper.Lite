@@ -155,9 +155,9 @@ namespace DAL
     public class DapperLiteFactory
     {
         #region 变量
-        private static IDapperLiteClient _dapperLiteClient = new DapperLiteClient(ConfigurationManager.ConnectionStrings["DefaultConnection"].ToString(), new MySQLProvider());
+        private static IDapperLite _dapperLite = new DapperLite(ConfigurationManager.ConnectionStrings["DefaultConnection"].ToString(), new MySQLProvider());
 
-        public static IDapperLiteClient Client => _dapperLiteClient;
+        public static IDapperLite Client => _dapperLite;
         #endregion
 
         #region 获取 IDbSession
@@ -167,7 +167,7 @@ namespace DAL
         /// <param name="splitTableMapping">分表映射</param>
         public static IDbSession GetSession(SplitTableMapping splitTableMapping = null)
         {
-            return _dapperLiteClient.GetSession(splitTableMapping);
+            return _dapperLite.GetSession(splitTableMapping);
         }
         #endregion
 
@@ -178,7 +178,7 @@ namespace DAL
         /// <param name="splitTableMapping">分表映射</param>
         public static async Task<IDbSession> GetSessionAsync(SplitTableMapping splitTableMapping = null)
         {
-            return await _dapperLiteClient.GetSessionAsync(splitTableMapping);
+            return await _dapperLite.GetSessionAsync(splitTableMapping);
         }
         #endregion
 
@@ -190,23 +190,23 @@ namespace DAL
 ```C#
 var builder = WebApplication.CreateBuilder(args);
 
-var db = new DapperLiteClient(builder.Configuration.GetConnectionString("DefaultConnection"), new MySQLProvider());
-var secondDB = new DapperLiteClient<SecondDbFlag>(builder.Configuration.GetConnectionString("SecondConnection"), new MySQLProvider());
+var db = new DapperLite(builder.Configuration.GetConnectionString("DefaultConnection"), new MySQLProvider());
+var secondDB = new DapperLite<SecondDbFlag>(builder.Configuration.GetConnectionString("SecondConnection"), new MySQLProvider());
 
 // Add services to the container.
-// 注册数据库IDapperLiteClient
-builder.Services.AddSingleton<IDapperLiteClient>(db);
-// 注册第二个数据库IDapperLiteClient
-builder.Services.AddSingleton<IDapperLiteClient<SecondDbFlag>>(secondDB);
+// 注册数据库IDapperLite
+builder.Services.AddSingleton<IDapperLite>(db);
+// 注册第二个数据库IDapperLite
+builder.Services.AddSingleton<IDapperLite<SecondDbFlag>>(secondDB);
 // 注册数据库DbSession
 builder.Services.AddScoped<IDbSession>(serviceProvider =>
 {
-    return serviceProvider.GetService<IDapperLiteClient>().GetSession();
+    return serviceProvider.GetService<IDapperLite>().GetSession();
 });
 // 注册第二个数据库DbSession
 builder.Services.AddScoped<IDbSession<SecondDbFlag>>(serviceProvider =>
 {
-    return serviceProvider.GetService<IDapperLiteClient<SecondDbFlag>>().GetSession();
+    return serviceProvider.GetService<IDapperLite<SecondDbFlag>>().GetSession();
 });
 
 /// <summary>
@@ -933,9 +933,9 @@ namespace DAL
     public class DapperLiteFactory
     {
         #region 变量
-        private static IDapperLiteClient _dapperLiteClient = new DapperLiteClient(ConfigurationManager.ConnectionStrings["DefaultConnection"].ToString(), new MySQLProvider());
+        private static IDapperLite _dapperLite = new DapperLite(ConfigurationManager.ConnectionStrings["DefaultConnection"].ToString(), new MySQLProvider());
 
-        public static IDapperLiteClient Client => _dapperLiteClient;
+        public static IDapperLite Db => _dapperLite;
         #endregion
 
         #region 获取 IDbSession
@@ -945,7 +945,7 @@ namespace DAL
         /// <param name="splitTableMapping">分表映射</param>
         public static IDbSession GetSession(SplitTableMapping splitTableMapping = null)
         {
-            return _dapperLiteClient.GetSession(splitTableMapping);
+            return _dapperLite.GetSession(splitTableMapping);
         }
         #endregion
 
@@ -956,7 +956,7 @@ namespace DAL
         /// <param name="splitTableMapping">分表映射</param>
         public static async Task<IDbSession> GetSessionAsync(SplitTableMapping splitTableMapping = null)
         {
-            return await _dapperLiteClient.GetSessionAsync(splitTableMapping);
+            return await _dapperLite.GetSessionAsync(splitTableMapping);
         }
         #endregion
 
@@ -1177,7 +1177,7 @@ namespace PostgreSQLTest
     public class DapperLiteFactory
     {
         #region 变量
-        private static IDapperLiteClient _dapperLiteClient;
+        private static IDapperLite _dapperLite;
         #endregion
 
         #region 静态构造函数
@@ -1186,7 +1186,7 @@ namespace PostgreSQLTest
             var configurationBuilder = new ConfigurationBuilder().AddJsonFile("config.json");
             var configuration = configurationBuilder.Build();
             string connectionString = configuration.GetConnectionString("DefaultConnection");
-            _dapperLiteClient = new DapperLiteClient(connectionString, new PostgreSQLProvider());
+            _dapperLite = new DapperLite(connectionString, new PostgreSQLProvider());
         }
         #endregion
 
@@ -1197,7 +1197,7 @@ namespace PostgreSQLTest
         /// <param name="splitTableMapping">分表映射</param>
         public static ISession GetSession(SplitTableMapping splitTableMapping = null)
         {
-            return _dapperLiteClient.GetSession(splitTableMapping);
+            return _dapperLite.GetSession(splitTableMapping);
         }
         #endregion
 
@@ -1208,7 +1208,7 @@ namespace PostgreSQLTest
         /// <param name="splitTableMapping">分表映射</param>
         public static async Task<ISession> GetSessionAsync(SplitTableMapping splitTableMapping = null)
         {
-            return await _dapperLiteClient.GetSessionAsync(splitTableMapping);
+            return await _dapperLite.GetSessionAsync(splitTableMapping);
         }
         #endregion
 
@@ -1477,7 +1477,7 @@ namespace ClickHouseTest
     public class DapperLiteFactory
     {
         #region 变量
-        private static IDapperLiteClient _dapperLiteClient;
+        private static IDapperLite _dapperLite;
         #endregion
 
         #region 静态构造函数
@@ -1487,7 +1487,7 @@ namespace ClickHouseTest
             var configuration = configurationBuilder.Build();
             string connectionString = configuration.GetConnectionString("DefaultConnection");
 
-            _dapperLiteClient = new DapperLiteClient(connectionString, new ClickHouseProvider());
+            _dapperLite = new DapperLite(connectionString, new ClickHouseProvider());
         }
         #endregion
 
@@ -1498,7 +1498,7 @@ namespace ClickHouseTest
         /// <param name="splitTableMapping">分表映射</param>
         public static ISession GetSession(SplitTableMapping splitTableMapping = null)
         {
-            return _dapperLiteClient.GetSession(splitTableMapping);
+            return _dapperLite.GetSession(splitTableMapping);
         }
         #endregion
 
@@ -1509,7 +1509,7 @@ namespace ClickHouseTest
         /// <param name="splitTableMapping">分表映射</param>
         public static async Task<ISession> GetSessionAsync(SplitTableMapping splitTableMapping = null)
         {
-            return await _dapperLiteClient.GetSessionAsync(splitTableMapping);
+            return await _dapperLite.GetSessionAsync(splitTableMapping);
         }
         #endregion
 

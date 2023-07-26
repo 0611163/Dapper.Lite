@@ -11,10 +11,10 @@ namespace Dapper.Lite
 {
     /// <summary>
     /// Dapper.Lite客户端接口
-    /// IDapperLiteClient是线程安全的
+    /// IDapperLite是线程安全的
     /// 请定义成单例模式
     /// </summary>
-    public interface IDapperLiteClient<TFlag> : IDapperLiteClient
+    public interface IDapperLite<TFlag> : IDapperLite
     {
         #region 获取 IDbSession
         /// <summary>
@@ -33,10 +33,10 @@ namespace Dapper.Lite
 
     /// <summary>
     /// Dapper.Lite客户端接口
-    /// IDapperLiteClient是线程安全的
+    /// IDapperLite是线程安全的
     /// 请定义成单例模式
     /// </summary>
-    public interface IDapperLiteClient
+    public interface IDapperLite
     {
         #region 获取 IDbSession
         /// <summary>
