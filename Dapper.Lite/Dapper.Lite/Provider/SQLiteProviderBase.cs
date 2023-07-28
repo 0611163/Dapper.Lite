@@ -11,13 +11,13 @@ namespace Dapper.Lite
     /// <summary>
     /// MSSQL 数据库提供者基类
     /// </summary>
-    public class SQLiteProviderBase : IProvider
+    public abstract class SQLiteProviderBase : IProvider
     {
         #region OpenQuote 引号
         /// <summary>
         /// 引号
         /// </summary>
-        public string OpenQuote
+        public virtual string OpenQuote
         {
             get
             {
@@ -30,7 +30,7 @@ namespace Dapper.Lite
         /// <summary>
         /// 引号
         /// </summary>
-        public string CloseQuote
+        public virtual string CloseQuote
         {
             get
             {
@@ -48,21 +48,21 @@ namespace Dapper.Lite
         #endregion
 
         #region GetParameterName
-        public string GetParameterName(string parameterName, Type parameterType)
+        public virtual string GetParameterName(string parameterName, Type parameterType)
         {
             return ":" + parameterName;
         }
         #endregion
 
         #region 创建获取最大编号SQL
-        public string CreateGetMaxIdSql(string tableName, string key)
+        public virtual string CreateGetMaxIdSql(string tableName, string key)
         {
             return string.Format("SELECT Max(cast({0} as int)) FROM {1}", key, tableName);
         }
         #endregion
 
         #region 创建分页SQL
-        public string CreatePageSql(string sql, string orderby, int pageSize, int currentPage)
+        public virtual string CreatePageSql(string sql, string orderby, int pageSize, int currentPage)
         {
             StringBuilder sb = new StringBuilder();
             int startRow = 0;
@@ -88,7 +88,7 @@ namespace Dapper.Lite
         /// <summary>
         /// 删除SQL语句模板 两个值分别对应 “delete from [表名] where [查询条件]”中的“delete from”和“where”
         /// </summary>
-        public Tuple<string, string> CreateDeleteSqlTempldate()
+        public virtual Tuple<string, string> CreateDeleteSqlTempldate()
         {
             return new Tuple<string, string>("delete from", "where");
         }
@@ -98,14 +98,14 @@ namespace Dapper.Lite
         /// <summary>
         /// 更新SQL语句模板 三个值分别对应 “update [表名] set [赋值语句] where [查询条件]”中的“update”、“set”和“where”
         /// </summary>
-        public Tuple<string, string, string> CreateUpdateSqlTempldate()
+        public virtual Tuple<string, string, string> CreateUpdateSqlTempldate()
         {
             return new Tuple<string, string, string>("update", "set", "where");
         }
         #endregion
 
         #region ForList
-        public SqlValue ForList(IList list)
+        public virtual SqlValue ForList(IList list)
         {
             List<string> argList = new List<string>();
             for (int i = 0; i < list.Count; i++)
