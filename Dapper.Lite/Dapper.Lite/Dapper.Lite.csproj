@@ -6,9 +6,9 @@
         <Nullable>disable</Nullable>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <Title>Dapper.Lite</Title>
-        <AssemblyVersion>1.8.56</AssemblyVersion>
-        <FileVersion>1.8.56</FileVersion>
-        <Version>1.8.56</Version>
+        <AssemblyVersion>2.0.0</AssemblyVersion>
+        <FileVersion>2.0.0</FileVersion>
+        <Version>2.0.0</Version>
         <PackageId>Dapper.Lite</PackageId>
         <PackageProjectUrl>https://github.com/0611163/Dapper.Lite</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -20,7 +20,7 @@
             一款Dapper扩展，同时支持SQL拼接和简单的Lambda表达式。支持Oracle、MSSQL、MySQL、PostgreSQL、SQLite、Access等数据库。
         </Description>
         <PackageReleaseNotes>
-            优化内部代码：Provider基类的方法全部修改为虚方法，以便子类可以重写，使用场景：可以仅更换Provider中的分页实现，因为不同数据库版本，推荐使用的分页实现可能不同
+            简化
         </PackageReleaseNotes>
     </PropertyGroup>
 

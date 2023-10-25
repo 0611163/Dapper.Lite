@@ -67,9 +67,12 @@ namespace Dapper.LiteTest
         {
             var session = DapperLiteFactory.GetSession();
 
-            session.OnExecuting = (sql, param) => Console.WriteLine(sql); //打印SQL
+            session.OnExecuting = (sql, param) =>
+            {
+                Console.WriteLine(sql); //打印SQL
+            };
 
-            int rows = session.Sql<BsOrder>("id not like @Id", new { Id = "10000_" }).Delete();
+            int rows = session.Sql("id not like @Id", new { Id = "10000_" }).Delete<BsOrder>();
             Console.WriteLine("BsOrder表" + rows + "行已删除");
             rows = session.Sql("order_id not like @OrderId", new { OrderId = "10000_" }).Delete<BsOrderDetail>();
             Console.WriteLine("BsOrderDetail表" + rows + "行已删除");

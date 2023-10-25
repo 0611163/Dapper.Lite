@@ -179,8 +179,8 @@ namespace Dapper.LiteTest
             {
                 var tran = session.BeginTransaction();
 
-                var sql1 = session.Sql<SysUser>(@"update sys_user set remark=@Remark where id=@Id", new { Remark = remark1, Id = 1 });
-                var sql2 = session.Sql<SysUser>(@"update sys_user set remark=@Remark where id=@Id", new { Remark = remark2, Id = 2 });
+                var sql1 = session.Sql(@"update sys_user set remark=@Remark where id=@Id", new { Remark = remark1, Id = 1 });
+                var sql2 = session.Sql(@"update sys_user set remark=@Remark where id=@Id", new { Remark = remark2, Id = 2 });
                 tran.Connection.Execute(sql1.SQL, sql1.DynamicParameters);
                 tran.Connection.Execute(sql2.SQL, sql2.DynamicParameters);
 
@@ -228,8 +228,8 @@ namespace Dapper.LiteTest
 
                     try
                     {
-                        var sql1 = session.Sql<SysUser>(@"update sys_user set remark=@Remark where id=@Id", new { Remark = remark1, Id = 1 });
-                        var sql2 = session.Sql<SysUser>(@"update sys_user set remark=@Remark where id=@Id", new { Remark = remark2, Id = 2 });
+                        var sql1 = session.Sql(@"update sys_user set remark=@Remark where id=@Id", new { Remark = remark1, Id = 1 });
+                        var sql2 = session.Sql(@"update sys_user set remark=@Remark where id=@Id", new { Remark = remark2, Id = 2 });
                         tran.Connection.Execute(sql1.SQL, sql1.DynamicParameters, tran);
                         tran.Connection.Execute(sql2.SQL, sql2.DynamicParameters, tran);
 

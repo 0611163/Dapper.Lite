@@ -285,13 +285,25 @@ namespace DAL
                 left join sys_user u on t.order_userid=u.id
                 where 1=1");
 
-            sql.AppendIf(status.HasValue, " and t.status=@status", status);
+            if (status.HasValue)
+            {
+                sql.Append(" and t.status=@status", status);
+            }
 
-            sql.AppendIf(!string.IsNullOrWhiteSpace(remark), " and t.remark like @Remark", new { Remark = "%" + remark + "%" });
+            if (!string.IsNullOrWhiteSpace(remark))
+            {
+                sql.Append(" and t.remark like @Remark", new { Remark = "%" + remark + "%" });
+            }
 
-            sql.AppendIf(startTime.HasValue, " and t.order_time>=@startTime ", startTime);
+            if (startTime.HasValue)
+            {
+                sql.Append(" and t.order_time>=@startTime ", startTime);
+            }
 
-            sql.AppendIf(endTime.HasValue, " and t.order_time<=@endTime ", endTime);
+            if (endTime.HasValue)
+            {
+                sql.Append(" and t.order_time<=@endTime ", endTime);
+            }
 
             int index = 0;
             string[] idArr = ids.Split(',');
@@ -319,13 +331,13 @@ namespace DAL
                 left join sys_user u on t.order_userid=u.id
                 where 1=1");
 
-            sql.AppendIf(status.HasValue, " and t.status=@status", status);
+            if (status.HasValue) sql.Append(" and t.status=@status", status);
 
-            sql.AppendIf(!string.IsNullOrWhiteSpace(remark), " and t.remark like concat('%',@remark,'%')", remark);
+            if (!string.IsNullOrWhiteSpace(remark)) sql.Append(" and t.remark like concat('%',@remark,'%')", remark);
 
-            sql.AppendIf(startTime.HasValue, " and t.order_time>=STR_TO_DATE(@startTime, '%Y-%m-%d %H:%i:%s') ", () => startTime.Value.ToString("yyyy-MM-dd HH:mm:ss"));
+            if (startTime.HasValue) sql.Append(" and t.order_time>=STR_TO_DATE(@startTime, '%Y-%m-%d %H:%i:%s') ", startTime.Value.ToString("yyyy-MM-dd HH:mm:ss"));
 
-            sql.AppendIf(endTime.HasValue, " and t.order_time<=STR_TO_DATE(@endTime, '%Y-%m-%d %H:%i:%s') ", () => endTime.Value.ToString("yyyy-MM-dd HH:mm:ss"));
+            if (endTime.HasValue) sql.Append(" and t.order_time<=STR_TO_DATE(@endTime, '%Y-%m-%d %H:%i:%s') ", endTime.Value.ToString("yyyy-MM-dd HH:mm:ss"));
 
             sql.Append(" order by t.order_time desc, t.id asc ");
 
@@ -354,9 +366,9 @@ namespace DAL
 
             sql.AppendIf(!string.IsNullOrWhiteSpace(remark), " and t.remark like concat('%',@remark,'%')", remark);
 
-            sql.AppendIf(startTime.HasValue, " and t.order_time>=STR_TO_DATE(@startTime, '%Y-%m-%d %H:%i:%s') ", () => startTime.Value.ToString("yyyy-MM-dd HH:mm:ss"));
+            sql.AppendIf(startTime.HasValue, " and t.order_time>=STR_TO_DATE(@startTime, '%Y-%m-%d %H:%i:%s') ", startTime.Value.ToString("yyyy-MM-dd HH:mm:ss"));
 
-            sql.AppendIf(endTime.HasValue, " and t.order_time<=STR_TO_DATE(@endTime, '%Y-%m-%d %H:%i:%s') ", () => endTime.Value.ToString("yyyy-MM-dd HH:mm:ss"));
+            sql.AppendIf(endTime.HasValue, " and t.order_time<=STR_TO_DATE(@endTime, '%Y-%m-%d %H:%i:%s') ", endTime.Value.ToString("yyyy-MM-dd HH:mm:ss"));
 
             sql.Append(" order by t.order_time desc, t.id asc ");
 
@@ -384,9 +396,9 @@ namespace DAL
 
             sql.AppendIf(!string.IsNullOrWhiteSpace(remark), " and t.remark like concat('%',@remark,'%')", remark);
 
-            sql.AppendIf(startTime.HasValue, " and t.order_time>=STR_TO_DATE(@startTime, '%Y-%m-%d %H:%i:%s') ", () => startTime.Value.ToString("yyyy-MM-dd HH:mm:ss"));
+            sql.AppendIf(startTime.HasValue, " and t.order_time>=STR_TO_DATE(@startTime, '%Y-%m-%d %H:%i:%s') ", startTime.Value.ToString("yyyy-MM-dd HH:mm:ss"));
 
-            sql.AppendIf(endTime.HasValue, " and t.order_time<=STR_TO_DATE(@endTime, '%Y-%m-%d %H:%i:%s') ", () => endTime.Value.ToString("yyyy-MM-dd HH:mm:ss"));
+            sql.AppendIf(endTime.HasValue, " and t.order_time<=STR_TO_DATE(@endTime, '%Y-%m-%d %H:%i:%s') ", endTime.Value.ToString("yyyy-MM-dd HH:mm:ss"));
 
             string orderby = " order by t.order_time desc, t.id asc ";
 
@@ -414,9 +426,9 @@ namespace DAL
 
             sql.AppendIf(!string.IsNullOrWhiteSpace(remark), " and t.remark like @remark", "%" + remark + "%");
 
-            sql.AppendIf(startTime.HasValue, " and t.order_time >= @startTime ", () => startTime);
+            sql.AppendIf(startTime.HasValue, " and t.order_time >= @startTime ", startTime);
 
-            sql.AppendIf(endTime.HasValue, " and t.order_time <= @endTime ", () => endTime);
+            sql.AppendIf(endTime.HasValue, " and t.order_time <= @endTime ", endTime);
 
             sql.Append(" and t.id in @ids ", sql.ForList(ids.Split(',').ToList()));
 

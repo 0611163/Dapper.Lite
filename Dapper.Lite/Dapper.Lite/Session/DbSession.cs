@@ -122,14 +122,6 @@ namespace Dapper.Lite
         {
             return new SqlString(_provider, this, sql, args);
         }
-
-        /// <summary>
-        /// 创建SqlString对象
-        /// </summary>
-        public ISqlQueryable<T> Sql<T>(string sql = null, params object[] args) where T : new()
-        {
-            return new SqlQueryable<T>(_provider, this, sql, args);
-        }
         #endregion
 
         #region 创建ISqlQueryable<T>
@@ -137,22 +129,10 @@ namespace Dapper.Lite
         /// 创建IQueryable
         /// </summary>
         /// <typeparam name="T">实体类型</typeparam>
-        /// <param name="alias">别名，默认值t</param>
-        public ISqlQueryable<T> Queryable<T>(string alias = "t") where T : new()
+        public ISqlQueryable<T> Queryable<T>() where T : new()
         {
             SqlQueryable<T> sqlString = new SqlQueryable<T>(_provider, this, null);
-            return sqlString.Queryable(alias);
-        }
-
-        /// <summary>
-        /// 创建IQueryable
-        /// </summary>
-        /// <typeparam name="T">实体类型</typeparam>
-        /// <param name="expression">返回匿名对象的表达式</param>
-        public ISqlQueryable<T> Queryable<T>(Expression<Func<T, object>> expression) where T : new()
-        {
-            SqlQueryable<T> sqlString = new SqlQueryable<T>(_provider, this, null);
-            return sqlString.Select(expression);
+            return sqlString.Queryable();
         }
         #endregion
 

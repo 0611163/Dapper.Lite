@@ -30,7 +30,7 @@ namespace Dapper.LiteTest
         [TestMethod]
         public void TestUpdateSql1()
         {
-            var sql = _db.Sql<SysUser>(@"update sys_user set user_name=@UserName where id=@Id", new { UserName = "abc", Id = 20 });
+            var sql = _db.Sql(@"update sys_user set user_name=@UserName where id=@Id", new { UserName = "abc", Id = 20 });
             Assert.IsTrue("update sys_user set user_name=@UserName where id=@Id" == sql.SQL.Trim());
             Assert.IsTrue(sql.Params.Length == 2);
             var parameters = sql.Params.ToList();
