@@ -52,24 +52,22 @@ Assert.IsTrue(list.Count > 0);
 5. 支持参数化查询，统一不同数据库的参数化查询SQL
 6. 支持连接多个数据源
 9. 支持手动分表
-10. 单表查询、单表分页查询、简单的连表查询支持Lambda表达式
-11. 支持原生SQL和Lambda表达式混写
-12. 支持拼接子查询；主查询、子查询可以分开拼接，逻辑更清晰
+10. 单表查询支持Lambda表达式
 
 ## 优点
 
 1. 比较简单，学习成本低
-2. 查询以原生SQL为主，简单Lambda表达式辅助
+2. 查询以原生SQL为主，Lambda表达式辅助
 3. 代码量仅4000多行，更容易修改和掌控代码质量
 
 ## 缺点
 
 1. 对Lambda表达式的支持比较弱
-2. 复杂查询不支持Lambda表达式(子查询、分组统计查询、嵌套查询等不支持Lambda表达式写法)
+2. 复杂查询不支持Lambda表达式(连表查询、子查询、分组统计查询、嵌套查询等不支持Lambda表达式写法)
 
 ## 建议
 
-1. 单表查询、简单的连表查询可以使用Lambda表达式
+1. 单表查询可以使用Lambda表达式
 2. 复杂查询建议使用原生SQL
 3. 如果出现不支持的Lambda表达式写法，请使用原生SQL替代
 
@@ -671,203 +669,6 @@ public void TestQueryByLambda6()
         Console.WriteLine(ModelToStringUtil.ToString(item));
     }
 }
-```
-
-### 使用Lambda表达式联表分页查询(简单的联表查询，复杂情况请使用原生SQL或原生SQL和Lambda表达式混写)
-
-```C#
-public void TestQueryByLambda7()
-{
-    var session = DapperLiteFactory.GetSession();
-
-    ISqlQueryable<BsOrder> sql = session.Queryable<BsOrder>();
-
-    int total;
-    List<string> idsNotIn = new List<string>() { "100007", "100008", "100009" };
-
-    List<BsOrder> list = sql
-        .Select<SysUser>(u => u.UserName, t => t.OrderUserName)
-        .Select<SysUser>(u => u.RealName, t => t.OrderUserRealName)
-        .LeftJoin<SysUser>((t, u) => t.OrderUserid == u.Id)
-        .LeftJoin<BsOrderDetail>((t, d) => t.Id == d.OrderId)
-        .Where<SysUser, BsOrderDetail>((t, u, d) => t.Remark.Contains("订单") && u.CreateUserid == "1" && d.GoodsName != null)
-        .WhereIf<BsOrder>(true, t => t.Remark.Contains("测试"))
-        .WhereIf<BsOrder>(true, t => !idsNotIn.Contains(t.Id))
-        .WhereIf<SysUser>(true, u => u.CreateUserid == "1")
-        .OrderByDescending(t => t.OrderTime).OrderBy(t => t.Id)
-        .ToPageList(1, 20, out total);
-
-    foreach (BsOrder item in list)
-    {
-        Console.WriteLine(ModelToStringUtil.ToString(item));
-    }
-}
-```
-
-### 原生SQL和Lambda表达式混写
-
-```C#
-public void TestQueryByLambda9()
-{
-    var session = DapperLiteFactory.GetSession();
-
-    ISqlQueryable<BsOrder> sql = session.Sql<BsOrder>(@"
-        select t.*, u.real_name as OrderUserRealName
-        from bs_order t
-        left join sys_user u on t.order_userid=u.id");
-
-    List<BsOrder> list = sql.Where(t => t.Status == int.Parse("0")
-        && t.Status == new BsOrder().Status
-        && t.Remark.Contains("订单")
-        && t.Remark != null
-        && t.OrderTime >= new DateTime(2010, 1, 1)
-        && t.OrderTime <= DateTime.Now.AddDays(1))
-        .WhereIf(true, u => u.CreateTime < DateTime.Now)
-        .OrderByDescending(t => t.OrderTime).OrderBy(t => t.Id)
-        .ToList();
-
-    foreach (BsOrder item in list)
-    {
-        Console.WriteLine(ModelToStringUtil.ToString(item));
-    }
-}
-```
-
-```C#
-DateTime? startTime = null;
-
-var session = DapperLiteFactory.GetSession();
-
-session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
-
-List<SysUser> list = session.Queryable<SysUser>() //Lambda写法
-
-    //拼SQL写法
-    .Append(@" where t.create_userid = @CreateUserId 
-        and t.password like @Password
-        and t.id in @Ids",
-        new
-        {
-            CreateUserId = "1",
-            Password = "%345%",
-            Ids = session.ForList(new List<int> { 1, 2, 9, 10, 11 })
-        })
-
-    .Where(t => !t.RealName.Contains("管理员")) //Lambda写法
-
-    .Append(@" and t.create_time >= @StartTime", new { StartTime = new DateTime(2020, 1, 1) }) //拼SQL写法
-
-    .Where(t => t.Id <= 20) //Lambda写法
-
-    .AppendIf(startTime.HasValue, " and t.create_time >= @StartTime ", new { StartTime = startTime }) //拼SQL写法
-
-    .Append(" and t.create_time <= @EndTime ", new { EndTime = new DateTime(2022, 8, 1) }) //拼SQL写法
-
-    .ToList();
-
-long id = session.Queryable<SysUser>().Where(t => t.Id == 1).First().Id;
-Assert.IsTrue(id == 1);
-
-foreach (SysUser item in list)
-{
-    Console.WriteLine(ModelToStringUtil.ToString(item));
-}
-Assert.IsTrue(list.Count > 0);
-```
-
-### 拼接子SQL
-
-```C#
-var session = DapperLiteFactory.GetSession();
-
-session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
-
-var subSql = session.Sql<SysUser>().Select(t => new { t.Id }).Where(t => !t.RealName.Contains("管理员"));
-
-var subSql2 = session.Sql<SysUser>().Select(t => new { t.Id }).Where(t => t.Id <= 20);
-
-var sql = session.Queryable<SysUser>()
-
-    .Where(t => t.Password.Contains("345"))
-
-    .AppendSubSql(" and id in ", subSql)
-
-    .Append(@" and t.create_time >= @StartTime", new { StartTime = new DateTime(2020, 1, 1) })
-
-    .AppendSubSql(" and id in ", subSql2)
-
-    .Where(t => t.Password.Contains("234"));
-
-var sql2 = session.Queryable<SysUser>().Where(t => t.RealName.Contains("管理员"));
-
-sql.AppendSubSql(" union all ", sql2);
-
-List<SysUser> list = sql.QueryList<SysUser>();
-
-foreach (SysUser item in list)
-{
-    Console.WriteLine(ModelToStringUtil.ToString(item));
-}
-Assert.IsTrue(list.Count > 0);
-Assert.IsTrue(list.Count(t => t.RealName.Contains("管理员")) > 0);
-Assert.IsTrue(list.Count(t => t.Id > 20) == 0);
-```
-
-### 拼接子查询
-
-```C#
-var session = DapperLiteFactory.GetSession();
-
-session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
-
-List<SysUser> list = session.Queryable<SysUser>(
-    t => new
-    {
-        t.RealName,
-        t.CreateUserid
-    })
-    .Select("count(id) as Count")
-    .Where(t => t.Id >= 0)
-    .GroupBy("t.real_name, t.create_userid")
-    .Having("real_name like @Name1 or real_name like @Name2", new
-    {
-        Name1 = "%管理员%",
-        Name2 = "%测试%"
-    })
-    .ToList();
-
-foreach (SysUser item in list)
-{
-    Console.WriteLine(ModelToStringUtil.ToString(item));
-}
-Assert.IsTrue(list.Count > 0);
-```
-
-```C#
-var session = DapperLiteFactory.GetSession();
-
-session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
-
-List<SysUser> list = session.Sql<SysUser>()
-    .Select(t => new
-    {
-        t.RealName,
-        t.CreateUserid
-    })
-    .Select(session.Sql(@"(
-            select count(1) 
-            from bs_order o 
-            where o.order_userid = t.id
-            and o.status = @Status
-        ) as OrderCount", new { Status = 0 }))
-    .Where(t => t.Id >= 0)
-    .ToList();
-
-foreach (SysUser item in list)
-{
-    Console.WriteLine(ModelToStringUtil.ToString(item));
-}
-Assert.IsTrue(list.Count > 0);
 ```
 
 ## 直接使用Dapper
