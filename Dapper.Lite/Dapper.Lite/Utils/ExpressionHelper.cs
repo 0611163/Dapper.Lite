@@ -105,8 +105,8 @@ namespace Dapper.Lite
             }
             else if (exp.NodeType == ExpressionType.MemberAccess) // 支持 order by
             {
-                ExpValue expValue = VisitMember(exp as MemberExpression, null);
-                result.Sql = string.Format("{0}.{1}", expValue.MemberParentName, expValue.MemberDBField);
+                ExpMemberValue memberValue = VisitMember(exp as MemberExpression, null);
+                result.Sql = string.Format("{0}.{1}", memberValue.MemberParentName, memberValue.MemberDBField);
             }
             else if (exp.NodeType == ExpressionType.NotEqual ||
                  exp.NodeType == ExpressionType.GreaterThan ||
@@ -158,7 +158,6 @@ namespace Dapper.Lite
             {
                 result.Sql = string.Format(" ({0} {1} {2}) ", left.Sql, sqlOperator, right.Sql);
             }
-            result.Type = ExpValueType.SqlAndDbParameter;
 
             result.DbParameters.AddRange(left.DbParameters);
             result.DbParameters.AddRange(right.DbParameters);
@@ -177,11 +176,10 @@ namespace Dapper.Lite
 
             if (_SqlStringMethod == SqlStringMethod.LeftJoin)
             {
-                ExpValue left = VisitMember(exp.Left);
-                ExpValue right = VisitMember(exp.Right);
+                ExpMemberValue left = VisitMember(exp.Left);
+                ExpMemberValue right = VisitMember(exp.Right);
 
                 result.Sql = string.Format("{0}.{1} = {2}.{3}", left.MemberParentName, left.MemberDBField, right.MemberParentName, right.MemberDBField);
-                result.Type = ExpValueType.SqlAndDbParameter;
             }
             else
             {
@@ -193,8 +191,8 @@ namespace Dapper.Lite
                     exp.NodeType == ExpressionType.LessThanOrEqual ||
                     exp.NodeType == ExpressionType.Equal)
                 {
-                    ExpValue left;
-                    ExpValue right;
+                    ExpMemberValue left;
+                    object right;
                     var isrRversed = false;
                     if (IsMember(exp.Left))
                     {
@@ -211,7 +209,7 @@ namespace Dapper.Lite
                     left.MemberAliasName = GetAliasName(left.MemberAliasName);
                     _dbParameterNames.Add(left.MemberAliasName);
 
-                    if (right.Value == null)
+                    if (right == null)
                     {
                         if (exp.NodeType == ExpressionType.Not ||
                             exp.NodeType == ExpressionType.NotEqual)
@@ -229,19 +227,19 @@ namespace Dapper.Lite
                     }
                     else
                     {
-                        if (right.Value.GetType() == typeof(DateTime))
+                        if (right.GetType() == typeof(DateTime))
                         {
-                            SqlValue sqlValue = new SqlValue(right.Value);
+                            SqlValue sqlValue = new SqlValue(right);
                             Type parameterType = sqlValue.Value == null ? typeof(object) : sqlValue.Value.GetType();
                             string markKey = _provider.GetParameterName(left.MemberAliasName, parameterType);
 
-                            result.DbParameters.Add(_provider.GetDbParameter(left.MemberAliasName, right.Value));
+                            result.DbParameters.Add(_provider.GetDbParameter(left.MemberAliasName, right));
                             result.Sql = string.Format(" {0}.{1} {2} {3} ", left.MemberParentName, left.MemberDBField, ToSqlOperator(exp.NodeType, isrRversed), sqlValue.Sql.Replace("{0}", markKey));
                         }
                         else
                         {
-                            string markKey = _provider.GetParameterName(left.MemberAliasName, right.Value.GetType());
-                            result.DbParameters.Add(_provider.GetDbParameter(left.MemberAliasName, right.Value));
+                            string markKey = _provider.GetParameterName(left.MemberAliasName, right.GetType());
+                            result.DbParameters.Add(_provider.GetDbParameter(left.MemberAliasName, right));
                             result.Sql = string.Format(" {0}.{1} {2} {3} ", left.MemberParentName, left.MemberDBField, ToSqlOperator(exp.NodeType, isrRversed), markKey);
                         }
                     }
@@ -271,13 +269,13 @@ namespace Dapper.Lite
                     if (exp.Method.Name == "Contains") sqlValue = new SqlValue("%" + InvokeValue(exp.Arguments[0]).ToString() + "%");
                     if (exp.Method.Name == "StartsWith") sqlValue = new SqlValue(InvokeValue(exp.Arguments[0]).ToString() + "%");
                     if (exp.Method.Name == "EndsWith") sqlValue = new SqlValue("%" + InvokeValue(exp.Arguments[0]).ToString());
-                    ExpValue expValue = VisitMember(exp.Object as MemberExpression, null);
+                    ExpMemberValue memberValue = VisitMember(exp.Object as MemberExpression, null);
 
-                    expValue.MemberAliasName = GetAliasName(expValue.MemberAliasName);
-                    _dbParameterNames.Add(expValue.MemberAliasName);
+                    memberValue.MemberAliasName = GetAliasName(memberValue.MemberAliasName);
+                    _dbParameterNames.Add(memberValue.MemberAliasName);
 
                     Type parameterType = sqlValue.Value.GetType();
-                    string markKey = _provider.GetParameterName(expValue.MemberAliasName, parameterType);
+                    string markKey = _provider.GetParameterName(memberValue.MemberAliasName, parameterType);
 
                     string not = string.Empty;
                     if (parent != null && parent.NodeType == ExpressionType.Not) // not like
@@ -285,20 +283,20 @@ namespace Dapper.Lite
                         not = "not";
                     }
 
-                    result.Sql = string.Format("{0}.{1} {2} like {3}", expValue.MemberParentName, expValue.MemberDBField, not, sqlValue.Sql.Replace("{0}", markKey));
-                    result.DbParameters.Add(_provider.GetDbParameter(expValue.MemberAliasName, sqlValue.Value));
+                    result.Sql = string.Format("{0}.{1} {2} like {3}", memberValue.MemberParentName, memberValue.MemberDBField, not, sqlValue.Sql.Replace("{0}", markKey));
+                    result.DbParameters.Add(_provider.GetDbParameter(memberValue.MemberAliasName, sqlValue.Value));
                 }
                 else // 支持 in 和 not in 例: t => idList.Contains(t.Id)
                 {
                     if (exp.Method.Name == "Contains")
                     {
                         SqlValue sqlValue = null;
-                        ExpValue expValue = null;
+                        ExpMemberValue memberValue = null;
                         if (exp.Object != null) //List
                         {
                             sqlValue = _provider.ForList((IList)InvokeValue(exp.Object));
 
-                            expValue = VisitMember(exp.Arguments[0], null);
+                            memberValue = VisitMember(exp.Arguments[0], null);
 
 
                         }
@@ -306,14 +304,14 @@ namespace Dapper.Lite
                         {
                             sqlValue = _provider.ForList((IList)InvokeValue(exp.Arguments[0]));
 
-                            expValue = VisitMember(exp.Arguments[1], null);
+                            memberValue = VisitMember(exp.Arguments[1], null);
                         }
 
-                        expValue.MemberAliasName = GetAliasName(expValue.MemberAliasName);
-                        _dbParameterNames.Add(expValue.MemberAliasName);
+                        memberValue.MemberAliasName = GetAliasName(memberValue.MemberAliasName);
+                        _dbParameterNames.Add(memberValue.MemberAliasName);
 
                         Type parameterType = sqlValue.Value.GetType();
-                        string markKey = _provider.GetParameterName(expValue.MemberAliasName, parameterType);
+                        string markKey = _provider.GetParameterName(memberValue.MemberAliasName, parameterType);
 
                         string inOrNotIn = string.Empty;
                         if (parent != null && parent.NodeType == ExpressionType.Not)
@@ -325,7 +323,7 @@ namespace Dapper.Lite
                             inOrNotIn = "in";
                         }
 
-                        result.Sql = string.Format("{0}.{1} {2} {3}", expValue.MemberParentName, expValue.MemberDBField, inOrNotIn, sqlValue.Sql.Replace("{0}", markKey));
+                        result.Sql = string.Format("{0}.{1} {2} {3}", memberValue.MemberParentName, memberValue.MemberDBField, inOrNotIn, sqlValue.Sql.Replace("{0}", markKey));
 
                         string[] keyArr = sqlValue.Sql.Replace("(", string.Empty).Replace(")", string.Empty).Replace("@", string.Empty).Split(',');
                         IList valueList = (IList)sqlValue.Value;
@@ -346,10 +344,9 @@ namespace Dapper.Lite
                     }
                 }
             }
-            else // 支持 ToString、Parse 等其它方法
+            else
             {
-                result.Value = ReflectionValue(exp, null);
-                result.Type = ExpValueType.OnlyValue;
+                throw new Exception("不支持");
             }
 
             return result;
@@ -360,13 +357,13 @@ namespace Dapper.Lite
         /// <summary>
         /// 第一级
         /// </summary>
-        public ExpValue VisitValue(Expression exp, MemberExpression parent = null)
+        public object VisitValue(Expression exp, MemberExpression parent = null)
         {
-            ExpValue result = new ExpValue();
+            object result = new object();
 
             if (exp.NodeType == ExpressionType.Call) // 例: t => t.Status == int.Parse("0") 例: t => t.OrderTime <= DateTime.Now.AddDays(1)
             {
-                result = VisitMethodCall(exp as MethodCallExpression);
+                result = ReflectionValue(exp, null);
             }
             else if (exp.NodeType == ExpressionType.New) // 例: t => t.OrderTime > new DateTime(2020, 1, 1)
             {
@@ -381,15 +378,12 @@ namespace Dapper.Lite
                 }
                 else
                 {
-                    object obj = ReflectionValue(exp, parent); // 例: t => t.OrderTime < DateTime.Now  例: t => t.Remark.Contains(new BsOrder().Remark)
-                    result.Value = obj;
-                    result.Type = ExpValueType.OnlyValue;
+                    result = ReflectionValue(exp, parent); // 例: t => t.OrderTime < DateTime.Now  例: t => t.Remark.Contains(new BsOrder().Remark)
                 }
             }
             else if (exp.NodeType == ExpressionType.Constant) // 支持常量、null
             {
-                result.Value = VisitConstant(exp);
-                result.Type = ExpValueType.OnlyValue;
+                result = VisitConstant(exp);
             }
             else if (exp.NodeType == ExpressionType.Convert) // 字段是可空类型的情况
             {
@@ -408,9 +402,9 @@ namespace Dapper.Lite
         /// <summary>
         /// 字段或属性
         /// </summary>
-        public ExpValue VisitMember(Expression exp, MemberExpression parent = null)
+        public ExpMemberValue VisitMember(Expression exp, MemberExpression parent = null)
         {
-            ExpValue result = new ExpValue();
+            ExpMemberValue result = new ExpMemberValue();
 
             if (exp.NodeType == ExpressionType.MemberAccess)
             {
@@ -423,7 +417,6 @@ namespace Dapper.Lite
                     result.MemberDBField = GetDbField(mebmerExp.Member.Name, mebmerExp.Expression.Type);
                     result.MemberName = mebmerExp.Member.Name;
                     result.MemberAliasName = mebmerExp.Member.Name;
-                    result.Type = ExpValueType.MemberValue;
 
                     if (Alias == null && mebmerExp.Expression.Type == typeof(T))
                     {
@@ -467,7 +460,7 @@ namespace Dapper.Lite
                 }
                 else if (memberExp.Expression is NewExpression newExp)
                 {
-                    var target = VisitNew(newExp).Value;
+                    var target = VisitNew(newExp);
                     result = GetMemberValue(memberExp.Member, target);
                 }
                 else if (memberExp.Type == typeof(DateTime))
@@ -493,8 +486,7 @@ namespace Dapper.Lite
             }
             else if (exp.NodeType == ExpressionType.Convert)
             {
-                var expValue = VisitConvert(exp);
-                result = expValue.Value;
+                result = VisitConvert(exp);
             }
             else if (exp is NewArrayExpression newArrayExp)
             {
@@ -527,8 +519,7 @@ namespace Dapper.Lite
             }
             else if (exp is NewExpression newExp)
             {
-                var expValue = VisitNew(newExp);
-                result = expValue.Value;
+                result = VisitNew(newExp);
             }
             else
             {
@@ -583,7 +574,7 @@ namespace Dapper.Lite
                 else if (memberExp.Expression is NewExpression newExp)
                 {
                     var expValue = VisitNew(newExp);
-                    result = GetMemberValue(memberExp.Member, expValue.Value);
+                    result = GetMemberValue(memberExp.Member, expValue);
                 }
                 else if (memberExp.Type == typeof(DateTime))
                 {
@@ -600,8 +591,7 @@ namespace Dapper.Lite
             }
             else if (parent == null && member.NodeType == ExpressionType.Convert)
             {
-                var expValue = VisitConvert(member);
-                result = expValue.Value;
+                result = VisitConvert(member);
             }
             else
             {
@@ -661,9 +651,9 @@ namespace Dapper.Lite
         /// <summary>
         /// New 表达式
         /// </summary>
-        public ExpValue VisitNew(NewExpression exp)
+        public object VisitNew(NewExpression exp)
         {
-            ExpValue result = new ExpValue();
+            object result;
 
             List<object> args = new List<object>();
             foreach (Expression argExp in exp.Arguments.ToArray())
@@ -671,8 +661,7 @@ namespace Dapper.Lite
                 args.Add(InvokeValue(argExp));
             }
 
-            result.Value = exp.Constructor.Invoke(args.ToArray());
-            result.Type = ExpValueType.OnlyValue;
+            result = exp.Constructor.Invoke(args.ToArray());
 
             return result;
         }
@@ -682,9 +671,9 @@ namespace Dapper.Lite
         /// <summary>
         /// Convert 表达式
         /// </summary>
-        public ExpValue VisitConvert(Expression exp)
+        public object VisitConvert(Expression exp)
         {
-            ExpValue result = new ExpValue();
+            object result;
 
             Expression operandExp = (exp as UnaryExpression).Operand;
             if (operandExp is UnaryExpression)
@@ -697,8 +686,7 @@ namespace Dapper.Lite
             }
             else if (operandExp is ConstantExpression)
             {
-                result.Value = VisitConstant(operandExp);
-                result.Type = ExpValueType.OnlyValue;
+                result = VisitConstant(operandExp);
             }
             else if (operandExp is NewExpression)
             {
