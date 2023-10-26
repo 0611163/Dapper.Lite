@@ -2,12 +2,29 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Data.SqlTypes;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Dapper.Lite
 {
+    /// <summary>
+    /// 参数化查询SQL字符串接口
+    /// </summary>
+    public interface ISqlString<T> : ISqlString
+    {
+        #region Where
+        /// <summary>
+        /// 追加参数化查询条件SQL
+        /// </summary>
+        /// <param name="expression">Lambda 表达式</param>
+        ISqlString<T> Where(Expression<Func<T, object>> expression);
+        #endregion
+
+    }
+
     /// <summary>
     /// 参数化查询SQL字符串接口
     /// </summary>

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -11,6 +12,62 @@ using System.Threading.Tasks;
 
 namespace Dapper.Lite
 {
+    /// <summary>
+    /// 参数化查询SQL字符串
+    /// </summary>
+    public class SqlString<T> : SqlString, ISqlString<T>
+    {
+        #region 构造函数
+        public SqlString(IProvider provider, IDbSession session, string sql = null, params object[] args) : base(provider, session, sql, args)
+        {
+
+        }
+
+        public SqlString(IProvider provider, IDbSession session, string sql, DbParameter[] args) : base(provider, session, sql, args)
+        {
+
+        }
+        #endregion
+
+        #region Where
+        /// <summary>
+        /// 追加参数化查询条件SQL
+        /// </summary>
+        /// <param name="expression">Lambda 表达式</param>
+        public ISqlString<T> Where(Expression<Func<T, object>> expression)
+        {
+            try
+            {
+                ExpressionHelper<T> condition = new ExpressionHelper<T>(_provider, DbParameterNames, SqlStringMethod.Where);
+
+                DbParameter[] dbParameters;
+                string result = condition.VisitLambda(expression, out dbParameters);
+
+                if (dbParameters != null)
+                {
+                    result = ParamsAddRange(dbParameters, result);
+                }
+
+                if (Sql.ToString().Contains(" where "))
+                {
+                    Sql.Append(" and " + result);
+                }
+                else
+                {
+                    Sql.Append(" where " + result);
+                }
+            }
+            catch
+            {
+                throw;
+            }
+
+            return this;
+        }
+        #endregion
+
+    }
+
     /// <summary>
     /// 参数化查询SQL字符串
     /// </summary>

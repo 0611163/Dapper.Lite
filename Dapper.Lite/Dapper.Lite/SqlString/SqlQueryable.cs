@@ -3,13 +3,9 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Collections;
-using System.Data.SqlTypes;
 
 namespace Dapper.Lite
 {
@@ -32,17 +28,45 @@ namespace Dapper.Lite
         /// <summary>
         /// 参数化查询的SQL
         /// </summary>
-        public string SQL => _sqlString?.SQL;
+        public string SQL
+        {
+            get
+            {
+                Append();
+                return _sqlString.SQL;
+            }
+        }
 
         /// <summary>
         /// 参数化查询的参数
         /// </summary>
-        public DbParameter[] Params => _sqlString?.Params;
+        public DbParameter[] Params
+        {
+            get
+            {
+                return _sqlString?.Params;
+            }
+        }
 
         /// <summary>
         /// 参数化查询的参数
         /// </summary>
         public DynamicParameters DynamicParameters => _sqlString.DynamicParameters;
+
+        /// <summary>
+        /// Queryable 信息
+        /// </summary>
+        private QueryableInfo queryableInfo = new QueryableInfo();
+
+        /// <summary>
+        /// where 信息集合
+        /// </summary>
+        private List<WhereInfo> whereList = new List<WhereInfo>();
+
+        /// <summary>
+        /// order by 信息集合
+        /// </summary>
+        private List<OrderByInfo> orderByList = new List<OrderByInfo>();
         #endregion
 
         #region 构造函数
@@ -69,6 +93,58 @@ namespace Dapper.Lite
         }
         #endregion
 
+        #region Append 拼接
+        private void Append()
+        {
+            if (_sqlString.Sql.Length == 0)
+            {
+                AppendQueryable();
+                AppendWhere();
+                AppendOrderBy();
+            }
+        }
+
+        private void AppendQueryable()
+        {
+            _sqlString.Sql.AppendFormat(queryableInfo.Sql.ToString(), _alias);
+        }
+
+        private void AppendWhere()
+        {
+            foreach (WhereInfo whereInfo in whereList)
+            {
+                if (whereInfo.DbParameters != null && whereInfo.DbParameters.Length > 0)
+                {
+                    whereInfo.Sql = _sqlString.ParamsAddRange(whereInfo.DbParameters, whereInfo.Sql);
+                }
+
+                if (_sqlString.Sql.ToString().Contains(" where "))
+                {
+                    _sqlString.Sql.Append(" and " + whereInfo.Sql);
+                }
+                else
+                {
+                    _sqlString.Sql.Append(" where " + whereInfo.Sql);
+                }
+            }
+        }
+
+        private void AppendOrderBy()
+        {
+            foreach (OrderByInfo orderByInfo in orderByList)
+            {
+                if (!_sqlString.Sql.ToString().Contains(" order by "))
+                {
+                    _sqlString.Sql.AppendFormat(" order by {0} {1} ", orderByInfo.Sql, orderByInfo.sortType);
+                }
+                else
+                {
+                    _sqlString.Sql.AppendFormat(", {0} {1} ", orderByInfo.Sql, orderByInfo.sortType);
+                }
+            }
+        }
+        #endregion
+
         #region Queryable
         /// <summary>
         /// 创建单表查询SQL
@@ -77,20 +153,20 @@ namespace Dapper.Lite
         {
             Type type = typeof(T);
 
-            _sqlString.Sql.Append("select ");
+            queryableInfo.Sql.Append("select ");
 
             PropertyInfoEx[] propertyInfoExArray = DbSession.GetEntityProperties(type);
             foreach (PropertyInfoEx propertyInfoEx in propertyInfoExArray)
             {
                 if (propertyInfoEx.IsDBField)
                 {
-                    _sqlString.Sql.AppendFormat(" {0}.{1}{2}{3},", _alias, _provider.OpenQuote, propertyInfoEx.FieldName, _provider.CloseQuote);
+                    queryableInfo.Sql.AppendFormat(" {0}.{1}{2}{3},", "{0}", _provider.OpenQuote, propertyInfoEx.FieldName, _provider.CloseQuote);
                 }
             }
 
-            _sqlString.Sql.Remove(_sqlString.Sql.Length - 1, 1);
+            queryableInfo.Sql.Remove(queryableInfo.Sql.Length - 1, 1);
 
-            _sqlString.Sql.AppendFormat(" from {0} {1}", _dbSession.GetTableName(_provider, type), _alias);
+            queryableInfo.Sql.AppendFormat(" from {0} {1}", _dbSession.GetTableName(_provider, type), "{0}");
 
             return this;
         }
@@ -108,23 +184,11 @@ namespace Dapper.Lite
                 ExpressionHelper<T> condition = new ExpressionHelper<T>(_provider, _sqlString.DbParameterNames, SqlStringMethod.Where);
 
                 DbParameter[] dbParameters;
-                string result = condition.VisitLambda(expression, out dbParameters);
+                string sql = condition.VisitLambda(expression, out dbParameters);
 
-                if (dbParameters != null)
-                {
-                    result = _sqlString.ParamsAddRange(dbParameters, result);
-                }
-
-                if (_sqlString.Sql.ToString().Contains(" where "))
-                {
-                    _sqlString.Sql.Append(" and " + result);
-                }
-                else
-                {
-                    _sqlString.Sql.Append(" where " + result);
-                }
-
-                ReplaceAlias(condition.Alias);
+                _alias = condition.Alias;
+                WhereInfo whereInfo = new WhereInfo() { DbParameters = dbParameters, Sql = sql };
+                whereList.Add(whereInfo);
             }
             catch
             {
@@ -147,21 +211,11 @@ namespace Dapper.Lite
                 ExpressionHelper<U> condition = new ExpressionHelper<U>(_provider, _sqlString.DbParameterNames, SqlStringMethod.Where);
 
                 DbParameter[] dbParameters;
-                string result = condition.VisitLambda(expression, out dbParameters);
+                string sql = condition.VisitLambda(expression, out dbParameters);
 
-                if (dbParameters != null)
-                {
-                    result = _sqlString.ParamsAddRange(dbParameters, result);
-                }
-
-                if (_sqlString.Sql.ToString().Contains(" where "))
-                {
-                    _sqlString.Sql.Append(" and " + result);
-                }
-                else
-                {
-                    _sqlString.Sql.Append(" where " + result);
-                }
+                _alias = condition.Alias;
+                WhereInfo whereInfo = new WhereInfo() { DbParameters = dbParameters, Sql = sql };
+                whereList.Add(whereInfo);
             }
             catch
             {
@@ -182,16 +236,9 @@ namespace Dapper.Lite
             DbParameter[] dbParameters;
             string sql = condition.VisitLambda(expression, out dbParameters);
 
-            if (!_sqlString.Sql.ToString().Contains(" order by "))
-            {
-                _sqlString.Sql.AppendFormat(" order by {0} asc ", sql);
-            }
-            else
-            {
-                _sqlString.Sql.AppendFormat(", {0} asc ", sql);
-            }
-
-            ReplaceAlias(condition.Alias);
+            _alias = condition.Alias;
+            OrderByInfo orderByInfo = new OrderByInfo() { sortType = "asc", Sql = sql };
+            orderByList.Add(orderByInfo);
 
             return this;
         }
@@ -207,16 +254,9 @@ namespace Dapper.Lite
             DbParameter[] dbParameters;
             string sql = condition.VisitLambda(expression, out dbParameters);
 
-            if (!_sqlString.Sql.ToString().Contains(" order by "))
-            {
-                _sqlString.Sql.AppendFormat(" order by {0} desc ", sql);
-            }
-            else
-            {
-                _sqlString.Sql.AppendFormat(", {0} desc ", sql);
-            }
-
-            ReplaceAlias(condition.Alias);
+            _alias = condition.Alias;
+            OrderByInfo orderByInfo = new OrderByInfo() { sortType = "desc", Sql = sql };
+            orderByList.Add(orderByInfo);
 
             return this;
         }
@@ -374,51 +414,55 @@ namespace Dapper.Lite
         }
         #endregion
 
-        #region 替换alias
-        private void ReplaceAlias(string newAlias)
-        {
-            if (newAlias == null) return;
-            if (_alias == newAlias) return;
-
-            Regex regex1 = new Regex("[\\s]{1}" + _alias + "[\\s]{1}");
-            Regex regex2 = new Regex("[\\s]{1}" + _alias + "$");
-
-            string oldSql = _sqlString.SQL;
-            if (regex1.IsMatch(oldSql))
-            {
-                _sqlString.Sql.Clear();
-                _sqlString.Sql.Append(regex1.Replace(oldSql, $" {newAlias} "));
-            }
-            else if (regex2.IsMatch(oldSql))
-            {
-                _sqlString.Sql.Clear();
-                _sqlString.Sql.Append(regex2.Replace(oldSql, $" {newAlias}"));
-            }
-
-            Regex regex3 = new Regex("[\\s]{1}" + _alias + "\\.");
-            Regex regex4 = new Regex("[,]{1}" + _alias + "\\.");
-            Regex regex5 = new Regex("[(]{1}" + _alias + "\\.");
-
-            oldSql = _sqlString.SQL;
-            if (regex3.IsMatch(oldSql))
-            {
-                _sqlString.Sql.Clear();
-                _sqlString.Sql.Append(regex3.Replace(oldSql, $" {newAlias}."));
-            }
-            else if (regex4.IsMatch(oldSql))
-            {
-                _sqlString.Sql.Clear();
-                _sqlString.Sql.Append(regex4.Replace(oldSql, $",{newAlias}."));
-            }
-            else if (regex5.IsMatch(oldSql))
-            {
-                _sqlString.Sql.Clear();
-                _sqlString.Sql.Append(regex5.Replace(oldSql, $"({newAlias}."));
-            }
-
-            _alias = newAlias;
-        }
-        #endregion
-
     }
+
+    #region QueryableInfo
+    /// <summary>
+    /// Queryable 信息
+    /// </summary>
+    internal class QueryableInfo
+    {
+        /// <summary>
+        /// SQL
+        /// </summary>
+        public StringBuilder Sql { get; set; } = new StringBuilder();
+    }
+    #endregion
+
+    #region WhereInfo
+    /// <summary>
+    /// Where 信息
+    /// </summary>
+    internal class WhereInfo
+    {
+        /// <summary>
+        /// 参数
+        /// </summary>
+        public DbParameter[] DbParameters { get; set; }
+
+        /// <summary>
+        /// SQL
+        /// </summary>
+        public string Sql { get; set; }
+    }
+    #endregion
+
+    #region OrderByInfo
+    /// <summary>
+    /// order by 信息
+    /// </summary>
+    internal class OrderByInfo
+    {
+        /// <summary>
+        /// asc desc
+        /// </summary>
+        public string sortType { get; set; }
+
+        /// <summary>
+        /// SQL
+        /// </summary>
+        public string Sql { get; set; }
+    }
+    #endregion
+
 }

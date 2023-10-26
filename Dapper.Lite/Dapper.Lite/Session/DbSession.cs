@@ -122,6 +122,14 @@ namespace Dapper.Lite
         {
             return new SqlString(_provider, this, sql, args);
         }
+
+        /// <summary>
+        /// 创建SqlString对象
+        /// </summary>
+        public ISqlString<T> Sql<T>(string sql = null, params object[] args)
+        {
+            return new SqlString<T>(_provider, this, sql, args);
+        }
         #endregion
 
         #region 创建ISqlQueryable<T>

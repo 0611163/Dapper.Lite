@@ -157,6 +157,15 @@ namespace Dapper.Lite
             var session = GetSession();
             return session.Sql(sql, args);
         }
+
+        /// <summary>
+        /// 创建SqlString对象
+        /// </summary>
+        public ISqlString<T> Sql<T>(string sql = null, params object[] args)
+        {
+            var session = GetSession();
+            return session.Sql<T>(sql, args);
+        }
         #endregion
 
         #region 创建ISqlQueryable<T>

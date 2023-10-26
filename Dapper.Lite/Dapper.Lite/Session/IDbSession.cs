@@ -29,6 +29,11 @@ namespace Dapper.Lite
         /// 创建SqlString对象
         /// </summary>
         ISqlString Sql(string sql = null, params object[] args);
+
+        /// <summary>
+        /// 创建SqlString对象
+        /// </summary>
+        ISqlString<T> Sql<T>(string sql = null, params object[] args);
         #endregion
 
         #region 创建SqlQueryable对象

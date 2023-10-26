@@ -249,6 +249,11 @@ namespace Dapper.LiteTest
         {
             var session = DapperLiteFactory.GetSession();
 
+            session.OnExecuting = (s, p) =>
+            {
+                Console.WriteLine(s);
+            };
+
             ISqlQueryable<BsOrder> sql = session.Queryable<BsOrder>();
 
             string remark = "测试";
@@ -358,7 +363,10 @@ namespace Dapper.LiteTest
 
             var session = DapperLiteFactory.GetSession();
 
-            session.OnExecuting = (s, p) => Console.WriteLine(s);
+            session.OnExecuting = (s, p) =>
+            {
+                Console.WriteLine(s);
+            };
 
             List<SysUser> list = session.Queryable<SysUser>()
                 .Where(user => user.CreateTime < endTime.Value.Date.AddDays(1).AddSeconds(-1) && user.Id > 0)

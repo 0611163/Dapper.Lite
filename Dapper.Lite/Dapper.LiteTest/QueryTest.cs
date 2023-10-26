@@ -239,5 +239,35 @@ namespace Dapper.LiteTest
         }
         #endregion
 
+        #region 测试SQL查询拼接Lambda
+        [TestMethod]
+        public void TestSqlQueryAppendLambda()
+        {
+            var session = DapperLiteFactory.GetSession();
+
+            session.OnExecuting = (s, p) =>
+            {
+                Console.WriteLine(s);
+            };
+
+            List<BsOrder> list = session
+                .Sql<BsOrder>("select * from bs_order o")
+                .Where(o => o.Status == int.Parse("0")
+                    && o.Status == new BsOrder().Status
+                    && o.Remark.Contains("订单")
+                    && o.Remark != null
+                    && o.OrderTime >= new DateTime(2010, 1, 1)
+                    && o.OrderTime <= DateTime.Now.AddDays(1))
+                .Append(" order by order_time desc, id asc")
+                .QueryList<BsOrder>();
+
+            foreach (BsOrder item in list)
+            {
+                Console.WriteLine(ModelToStringUtil.ToString(item));
+            }
+            Assert.IsTrue(list.Count > 0);
+        }
+        #endregion
+
     }
 }
