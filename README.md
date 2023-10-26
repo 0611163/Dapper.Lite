@@ -48,7 +48,7 @@ Assert.IsTrue(list.Count > 0);
 1. 支持Oracle、SQL Server、MySQL、PostgreSQL、SQLite五种数据库；另外只要ADO.NET支持的数据库，都可以很方便地通过实现IProvider接口支持，仅需写150行左右的代码
 2. 有配套的Model生成器
 3. 数据插入、更新、批量插入、批量更新，支持实体类、实体类集合，无需拼SQL；删除操作支持根据主键或查询条件删除；增删改支持联合主键
-4. 查询以原生SQL为主，Lambda表达式辅助
+4. 查询以原生SQL为主，查询Where条件可以拼接Lambda表达式
 5. 支持参数化查询，统一不同数据库的参数化查询SQL
 6. 支持连接多个数据源
 9. 支持手动分表

@@ -20,7 +20,11 @@
             一款Dapper扩展，同时支持SQL拼接和简单的Lambda表达式。支持Oracle、MSSQL、MySQL、PostgreSQL、SQLite、Access等数据库。
         </Description>
         <PackageReleaseNotes>
-            简化
+            重构并简化：
+            1. Lambda表达式只支持单表查询
+            2. ExpressionHelper返回值类型优化
+            3. 查询Where条件可以拼接Lambda表达式
+            4. 修复v1.8.56版本的BUG：标注自增字段但不是主键，插入报错
         </PackageReleaseNotes>
     </PropertyGroup>
 
