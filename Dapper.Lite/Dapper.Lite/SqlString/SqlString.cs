@@ -176,22 +176,6 @@ namespace Dapper.Lite
 
         protected DbSession _dbSession;
 
-        /// <summary>
-        /// 子查询SQL集合
-        /// </summary>
-        protected List<string> _subSqls = new List<string>();
-
-        /// <summary>
-        /// 子查询SQL集合
-        /// </summary>
-        internal List<string> SubSqls
-        {
-            get
-            {
-                return _subSqls;
-            }
-        }
-
         #endregion
 
         #region 构造函数
