@@ -77,19 +77,19 @@ namespace Dapper.Lite
                     if (propertyInfo.GetCustomAttribute<KeyAttribute>() != null)
                     {
                         propertyInfoEx.IsDBKey = true;
+                    }
 
-                        AutoIncrementAttribute modelAutoIncrementAttribute = modelType.GetCustomAttribute<AutoIncrementAttribute>(false);
-                        if (modelAutoIncrementAttribute != null)
+                    AutoIncrementAttribute modelAutoIncrementAttribute = modelType.GetCustomAttribute<AutoIncrementAttribute>(false);
+                    if (modelAutoIncrementAttribute != null)
+                    {
+                        propertyInfoEx.IsAutoIncrement = modelAutoIncrementAttribute.Value;
+                    }
+                    else
+                    {
+                        AutoIncrementAttribute propertyAutoIncrementAttribute = propertyInfo.GetCustomAttribute<AutoIncrementAttribute>(false);
+                        if (propertyAutoIncrementAttribute != null)
                         {
-                            propertyInfoEx.IsAutoIncrement = modelAutoIncrementAttribute.Value;
-                        }
-                        else
-                        {
-                            AutoIncrementAttribute propertyAutoIncrementAttribute = propertyInfo.GetCustomAttribute<AutoIncrementAttribute>(false);
-                            if (propertyAutoIncrementAttribute != null)
-                            {
-                                propertyInfoEx.IsAutoIncrement = propertyAutoIncrementAttribute.Value;
-                            }
+                            propertyInfoEx.IsAutoIncrement = propertyAutoIncrementAttribute.Value;
                         }
                     }
 
