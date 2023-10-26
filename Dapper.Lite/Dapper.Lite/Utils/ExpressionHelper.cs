@@ -353,6 +353,49 @@ namespace Dapper.Lite
         }
         #endregion
 
+        #region VisitMember 字段或属性
+        /// <summary>
+        /// 字段或属性
+        /// </summary>
+        public ExpMemberValue VisitMember(Expression exp, MemberExpression parent = null)
+        {
+            ExpMemberValue result = new ExpMemberValue();
+
+            if (exp.NodeType == ExpressionType.MemberAccess)
+            {
+                MemberExpression mebmerExp = exp as MemberExpression;
+                if (mebmerExp.Expression is ParameterExpression) // 例: exp = t.Remark
+                {
+                    ParameterExpression parameterExp = mebmerExp.Expression as ParameterExpression;
+
+                    result.MemberParentName = parameterExp.Name;
+                    result.MemberDBField = GetDbField(mebmerExp.Member.Name, mebmerExp.Expression.Type);
+                    result.MemberName = mebmerExp.Member.Name;
+                    result.MemberAliasName = mebmerExp.Member.Name;
+
+                    if (Alias == null && mebmerExp.Expression.Type == typeof(T))
+                    {
+                        Alias = parameterExp.Name;
+                    }
+                }
+                else
+                {
+                    throw new Exception("不支持");
+                }
+            }
+            else if (exp.NodeType == ExpressionType.Convert) //例：exp = t.OrderTime >= startTime (表达式左边OrderTime的类型是可空类型DateTime?)
+            {
+                return VisitMember((exp as UnaryExpression).Operand);
+            }
+            else
+            {
+                throw new Exception("不支持");
+            }
+
+            return result;
+        }
+        #endregion
+
         #region VisitValue 取值
         /// <summary>
         /// 第一级
@@ -388,49 +431,6 @@ namespace Dapper.Lite
             else if (exp.NodeType == ExpressionType.Convert) // 字段是可空类型的情况
             {
                 result = VisitConvert(exp);
-            }
-            else
-            {
-                throw new Exception("不支持");
-            }
-
-            return result;
-        }
-        #endregion
-
-        #region VisitMember 字段或属性
-        /// <summary>
-        /// 字段或属性
-        /// </summary>
-        public ExpMemberValue VisitMember(Expression exp, MemberExpression parent = null)
-        {
-            ExpMemberValue result = new ExpMemberValue();
-
-            if (exp.NodeType == ExpressionType.MemberAccess)
-            {
-                MemberExpression mebmerExp = exp as MemberExpression;
-                if (mebmerExp.Expression is ParameterExpression) // 例: exp = t.Remark
-                {
-                    ParameterExpression parameterExp = mebmerExp.Expression as ParameterExpression;
-
-                    result.MemberParentName = parameterExp.Name;
-                    result.MemberDBField = GetDbField(mebmerExp.Member.Name, mebmerExp.Expression.Type);
-                    result.MemberName = mebmerExp.Member.Name;
-                    result.MemberAliasName = mebmerExp.Member.Name;
-
-                    if (Alias == null && mebmerExp.Expression.Type == typeof(T))
-                    {
-                        Alias = parameterExp.Name;
-                    }
-                }
-                else
-                {
-                    throw new Exception("不支持");
-                }
-            }
-            else if (exp.NodeType == ExpressionType.Convert) //例：exp = t.OrderTime >= startTime (表达式左边OrderTime的类型是可空类型DateTime?)
-            {
-                return VisitMember((exp as UnaryExpression).Operand);
             }
             else
             {

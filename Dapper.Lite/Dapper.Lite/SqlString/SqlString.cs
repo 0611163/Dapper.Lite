@@ -66,6 +66,43 @@ namespace Dapper.Lite
         }
         #endregion
 
+        #region Where
+        /// <summary>
+        /// 追加参数化查询条件SQL
+        /// </summary>
+        /// <param name="expression">Lambda 表达式</param>
+        public ISqlString<T> Where<U>(Expression<Func<U, object>> expression)
+        {
+            try
+            {
+                ExpressionHelper<U> condition = new ExpressionHelper<U>(_provider, DbParameterNames, SqlStringMethod.Where);
+
+                DbParameter[] dbParameters;
+                string result = condition.VisitLambda(expression, out dbParameters);
+
+                if (dbParameters != null)
+                {
+                    result = ParamsAddRange(dbParameters, result);
+                }
+
+                if (Sql.ToString().Contains(" where "))
+                {
+                    Sql.Append(" and " + result);
+                }
+                else
+                {
+                    Sql.Append(" where " + result);
+                }
+            }
+            catch
+            {
+                throw;
+            }
+
+            return this;
+        }
+        #endregion
+
     }
 
     /// <summary>

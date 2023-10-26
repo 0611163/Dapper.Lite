@@ -21,6 +21,12 @@ namespace Dapper.Lite
         /// </summary>
         /// <param name="expression">Lambda 表达式</param>
         ISqlString<T> Where(Expression<Func<T, object>> expression);
+
+        /// <summary>
+        /// 追加参数化查询条件SQL
+        /// </summary>
+        /// <param name="expression">Lambda 表达式</param>
+        ISqlString<T> Where<U>(Expression<Func<U, object>> expression);
         #endregion
 
     }
