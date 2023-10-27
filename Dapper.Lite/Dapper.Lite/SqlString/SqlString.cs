@@ -152,25 +152,17 @@ namespace Dapper.Lite
         /// <summary>
         /// 执行查询
         /// </summary>
-        public List<T> ToPageList(int page, int pageSize)
+        public List<T> ToPageList(string orderby, int page, int pageSize)
         {
-            string ORDER_BY = " order by ";
-            string[] strArr = this.SQL.Split(new string[] { ORDER_BY }, StringSplitOptions.None);
-            string orderBy = strArr.Length > 1 ? ORDER_BY + strArr[1] : string.Empty;
-
-            return _session.QueryPage<T>(strArr[0], orderBy, pageSize, page, this.Params);
+            return _session.QueryPage<T>(this.SQL, orderby, pageSize, page, this.Params);
         }
 
         /// <summary>
         /// 执行查询
         /// </summary>
-        public async Task<List<T>> ToPageListAsync(int page, int pageSize)
+        public async Task<List<T>> ToPageListAsync(string orderby, int page, int pageSize)
         {
-            string ORDER_BY = " order by ";
-            string[] strArr = this.SQL.Split(new string[] { ORDER_BY }, StringSplitOptions.None);
-            string orderBy = strArr.Length > 1 ? ORDER_BY + strArr[1] : string.Empty;
-
-            return await _session.QueryPageAsync<T>(strArr[0], orderBy, pageSize, page, this.Params);
+            return await _session.QueryPageAsync<T>(this.SQL, orderby, pageSize, page, this.Params);
         }
         #endregion
 

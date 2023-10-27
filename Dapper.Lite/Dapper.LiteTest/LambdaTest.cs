@@ -258,8 +258,7 @@ namespace Dapper.LiteTest
 
             string remark = "测试";
 
-            session.Queryable<BsOrder>().Where(
-                t => t.Remark.Contains(remark)
+            sql.Where(t => t.Remark.Contains(remark)
                 && t.CreateTime < DateTime.Now
                 && t.CreateUserid == "10")
 

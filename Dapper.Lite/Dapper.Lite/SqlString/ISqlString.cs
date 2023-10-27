@@ -60,12 +60,12 @@ namespace Dapper.Lite
         /// <summary>
         /// 执行查询
         /// </summary>
-        List<T> ToPageList(int page, int pageSize);
+        List<T> ToPageList(string orderby, int page, int pageSize);
 
         /// <summary>
         /// 执行查询
         /// </summary>
-        Task<List<T>> ToPageListAsync(int page, int pageSize);
+        Task<List<T>> ToPageListAsync(string orderby, int page, int pageSize);
 
         /// <summary>
         /// 返回数量

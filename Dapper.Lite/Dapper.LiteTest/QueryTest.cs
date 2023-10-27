@@ -251,14 +251,18 @@ namespace Dapper.LiteTest
             };
 
             List<BsOrder> list = session
-                .Sql<BsOrder>("select * from bs_order o")
+                .Sql<BsOrder>(@"
+                    select o.* 
+                    from bs_order o
+                    left join sys_user u on u.id=o.order_userid")
                 .Where(o => o.Status == int.Parse("0")
                     && o.Status == new BsOrder().Status
                     && o.Remark.Contains("订单")
                     && o.Remark != null
                     && o.OrderTime >= new DateTime(2010, 1, 1)
                     && o.OrderTime <= DateTime.Now.AddDays(1))
-                .Append(" order by order_time desc, id asc")
+                .Where<SysUser>(u => u.Id == 10)
+                .Append(" order by o.order_time desc, o.id asc")
                 .ToList();
 
             foreach (BsOrder item in list)
@@ -282,7 +286,7 @@ namespace Dapper.LiteTest
 
             List<BsOrder> list = session
                 .Sql<BsOrder>(@"
-                    select * 
+                    select o.* 
                     from bs_order o
                     left join sys_user u on u.id=o.order_userid")
                 .Where(o => o.Status == int.Parse("0")
@@ -292,8 +296,7 @@ namespace Dapper.LiteTest
                     && o.OrderTime >= new DateTime(2010, 1, 1)
                     && o.OrderTime <= DateTime.Now.AddDays(1))
                 .Where<SysUser>(u => u.Id == 10)
-                .Append(" order by o.order_time desc, o.id asc")
-                .ToList();
+                .ToPageList("order by o.order_time desc, o.id asc", 1, 10);
 
             foreach (BsOrder item in list)
             {
