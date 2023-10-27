@@ -252,7 +252,7 @@ namespace Dapper.LiteTest
 
             List<BsOrder> list = session
                 .Sql<BsOrder>(@"
-                    select o.* 
+                    select o.*, u.user_name as OrderUserName, u.real_name as OrderUserRealName 
                     from bs_order o
                     left join sys_user u on u.id=o.order_userid")
                 .Where(o => o.Status == int.Parse("0")
@@ -286,7 +286,7 @@ namespace Dapper.LiteTest
 
             List<BsOrder> list = session
                 .Sql<BsOrder>(@"
-                    select o.* 
+                    select o.*, u.user_name as OrderUserName, u.real_name as OrderUserRealName 
                     from bs_order o
                     left join sys_user u on u.id=o.order_userid")
                 .Where(o => o.Status == int.Parse("0")
