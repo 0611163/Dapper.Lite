@@ -43,6 +43,24 @@ foreach (SysUser item in list)
 Assert.IsTrue(list.Count > 0);
 ```
 
+## 经典示例2
+
+```C#
+var session = DapperLiteFactory.GetSession();
+List<BsOrder> list = session
+    .Sql<BsOrder>(@"
+        select o.*, u.user_name as OrderUserName, u.real_name as OrderUserRealName 
+        from bs_order o
+        left join sys_user u on u.id=o.order_userid")
+    .Where(o => o.Status == 0
+        && o.Remark.Contains("订单")
+        && o.OrderTime >= new DateTime(2010, 1, 1)
+        && o.OrderTime < DateTime.Now.Date.AddDays(1))
+    .Where<SysUser>(u => new long[] { 8, 9, 10 }.Contains(u.Id))
+    .Append("order by o.order_time desc, o.id asc")
+    .ToList();
+```
+
 ## 特点
 
 1. 支持Oracle、SQL Server、MySQL、PostgreSQL、SQLite五种数据库；另外只要ADO.NET支持的数据库，都可以很方便地通过实现IProvider接口支持，仅需写150行左右的代码
