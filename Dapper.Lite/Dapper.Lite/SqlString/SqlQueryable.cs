@@ -330,7 +330,7 @@ namespace Dapper.Lite
         /// </summary>
         public T First()
         {
-            return _session.QueryList<T>(this.SQL, this.Params).FirstOrDefault();
+            return _session.Query<T>(this.SQL, this.Params);
         }
 
         /// <summary>
@@ -338,7 +338,7 @@ namespace Dapper.Lite
         /// </summary>
         public async Task<T> FirstAsync()
         {
-            return (await _session.QueryListAsync<T>(this.SQL, this.Params)).FirstOrDefault();
+            return await _session.QueryAsync<T>(this.SQL, this.Params);
         }
         #endregion
 
@@ -346,7 +346,7 @@ namespace Dapper.Lite
         /// <summary>
         /// 是否存在
         /// </summary>
-        public new bool Exists()
+        public bool Exists()
         {
             return _session.Exists(this.SQL, this.Params);
         }
@@ -354,7 +354,7 @@ namespace Dapper.Lite
         /// <summary>
         /// 返回数量
         /// </summary>
-        public new async Task<bool> ExistsAsync()
+        public async Task<bool> ExistsAsync()
         {
             return await _session.ExistsAsync(this.SQL, this.Params);
         }

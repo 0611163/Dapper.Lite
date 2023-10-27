@@ -15,7 +15,7 @@ namespace Dapper.Lite
     /// <summary>
     /// 参数化查询SQL字符串
     /// </summary>
-    public class SqlString<T> : SqlString, ISqlString<T>
+    public class SqlString<T> : SqlString, ISqlString<T> where T : new()
     {
         #region 构造函数
         public SqlString(IProvider provider, IDbSession session, string sql = null, params object[] args) : base(provider, session, sql, args)
@@ -26,6 +26,31 @@ namespace Dapper.Lite
         public SqlString(IProvider provider, IDbSession session, string sql, DbParameter[] args) : base(provider, session, sql, args)
         {
 
+        }
+        #endregion
+
+        #region Append
+        /// <summary>
+        /// 追加参数化SQL
+        /// </summary>
+        /// <param name="sql">SQL</param>
+        /// <param name="args">参数(支持多个参数或者把多个参数放在一个匿名对象中)</param>
+        public new ISqlString<T> Append(string sql, params object[] args)
+        {
+            base.Append(sql, args);
+            return this;
+        }
+
+        /// <summary>
+        /// 追加参数化SQL
+        /// </summary>
+        /// <param name="condition">当condition等于true时追加SQL，等于false时不追加SQL</param>
+        /// <param name="sql">SQL</param>
+        /// <param name="args">参数</param>
+        public new ISqlString<T> AppendIf(bool condition, string sql, params object[] args)
+        {
+            base.AppendIf(condition, sql, args);
+            return this;
         }
         #endregion
 
@@ -101,6 +126,162 @@ namespace Dapper.Lite
 
             return this;
         }
+        #endregion
+
+        #region 实现增删改查接口
+
+        #region ToList
+        /// <summary>
+        /// 执行查询
+        /// </summary>
+        public List<T> ToList()
+        {
+            return _session.QueryList<T>(this.SQL, this.Params);
+        }
+
+        /// <summary>
+        /// 执行查询
+        /// </summary>
+        public async Task<List<T>> ToListAsync()
+        {
+            return await _session.QueryListAsync<T>(this.SQL, this.Params);
+        }
+        #endregion
+
+        #region ToPageList
+        /// <summary>
+        /// 执行查询
+        /// </summary>
+        public List<T> ToPageList(int page, int pageSize)
+        {
+            string ORDER_BY = " order by ";
+            string[] strArr = this.SQL.Split(new string[] { ORDER_BY }, StringSplitOptions.None);
+            string orderBy = strArr.Length > 1 ? ORDER_BY + strArr[1] : string.Empty;
+
+            return _session.QueryPage<T>(strArr[0], orderBy, pageSize, page, this.Params);
+        }
+
+        /// <summary>
+        /// 执行查询
+        /// </summary>
+        public async Task<List<T>> ToPageListAsync(int page, int pageSize)
+        {
+            string ORDER_BY = " order by ";
+            string[] strArr = this.SQL.Split(new string[] { ORDER_BY }, StringSplitOptions.None);
+            string orderBy = strArr.Length > 1 ? ORDER_BY + strArr[1] : string.Empty;
+
+            return await _session.QueryPageAsync<T>(strArr[0], orderBy, pageSize, page, this.Params);
+        }
+        #endregion
+
+        #region Count
+        /// <summary>
+        /// 返回数量
+        /// </summary>
+        public long Count()
+        {
+            return _session.QueryCount(this.SQL, this.Params);
+        }
+
+        /// <summary>
+        /// 返回数量
+        /// </summary>
+        public async Task<long> CountAsync()
+        {
+            return await _session.QueryCountAsync(this.SQL, this.Params);
+        }
+        #endregion
+
+        #region First
+        /// <summary>
+        /// 返回数量
+        /// </summary>
+        public T First()
+        {
+            return _session.Query<T>(this.SQL, this.Params);
+        }
+
+        /// <summary>
+        /// 返回数量
+        /// </summary>
+        public async Task<T> FirstAsync()
+        {
+            return await _session.QueryAsync<T>(this.SQL, this.Params);
+        }
+        #endregion
+
+        #region Exists
+        /// <summary>
+        /// 是否存在
+        /// </summary>
+        public new bool Exists()
+        {
+            return _session.Exists(this.SQL, this.Params);
+        }
+
+        /// <summary>
+        /// 返回数量
+        /// </summary>
+        public new async Task<bool> ExistsAsync()
+        {
+            return await _session.ExistsAsync(this.SQL, this.Params);
+        }
+        #endregion
+
+        #region Delete
+        /// <summary>
+        /// 删除
+        /// </summary>
+        public int Delete()
+        {
+            string[] sqlParts = this.SQL.Split(new string[] { " where " }, StringSplitOptions.None);
+            string right;
+            if (sqlParts.Length > 1)
+            {
+                right = sqlParts[1];
+            }
+            else
+            {
+                right = sqlParts[0];
+            }
+
+            Regex regex = new Regex("[\\(]?[\\s]*([\\w]+\\.)", RegexOptions.IgnoreCase);
+            Match match = regex.Match(right);
+            if (match.Success)
+            {
+                right = right.Replace(match.Groups[1].Value, " ");
+            }
+
+            return _session.DeleteByCondition<T>(right, this.Params);
+        }
+
+        /// <summary>
+        /// 删除
+        /// </summary>
+        public Task<int> DeleteAsync()
+        {
+            string[] sqlParts = this.SQL.Split(new string[] { " where " }, StringSplitOptions.None);
+            string right;
+            if (sqlParts.Length > 1)
+            {
+                right = sqlParts[1];
+            }
+            else
+            {
+                right = sqlParts[0];
+            }
+
+            Regex regex = new Regex("[\\(]?[\\s]*([\\w]+\\.)", RegexOptions.IgnoreCase);
+            Match match = regex.Match(right);
+            if (match.Success)
+            {
+                right = right.Replace(match.Groups[1].Value, " ");
+            }
+
+            return _session.DeleteByConditionAsync<T>(right, this.Params);
+        }
+        #endregion
+
         #endregion
 
     }

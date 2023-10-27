@@ -15,6 +15,23 @@ namespace Dapper.Lite
     /// </summary>
     public interface ISqlString<T> : ISqlString
     {
+        #region Append
+        /// <summary>
+        /// 追加参数化SQL
+        /// </summary>
+        /// <param name="sql">SQL</param>
+        /// <param name="args">参数(支持多个参数或者把多个参数放在一个匿名对象中)</param>
+        new ISqlString<T> Append(string sql, params object[] args);
+
+        /// <summary>
+        /// 追加参数化SQL
+        /// </summary>
+        /// <param name="condition">当condition等于true时追加SQL，等于false时不追加SQL</param>
+        /// <param name="sql">SQL</param>
+        /// <param name="args">参数</param>
+        new ISqlString<T> AppendIf(bool condition, string sql, params object[] args);
+        #endregion
+
         #region Where
         /// <summary>
         /// 追加参数化查询条件SQL
@@ -27,6 +44,68 @@ namespace Dapper.Lite
         /// </summary>
         /// <param name="expression">Lambda 表达式</param>
         ISqlString<T> Where<U>(Expression<Func<U, object>> expression);
+        #endregion
+
+        #region 增删改查接口
+        /// <summary>
+        /// 执行查询
+        /// </summary>
+        List<T> ToList();
+
+        /// <summary>
+        /// 执行查询
+        /// </summary>
+        Task<List<T>> ToListAsync();
+
+        /// <summary>
+        /// 执行查询
+        /// </summary>
+        List<T> ToPageList(int page, int pageSize);
+
+        /// <summary>
+        /// 执行查询
+        /// </summary>
+        Task<List<T>> ToPageListAsync(int page, int pageSize);
+
+        /// <summary>
+        /// 返回数量
+        /// </summary>
+        long Count();
+
+        /// <summary>
+        /// 返回数量
+        /// </summary>
+        Task<long> CountAsync();
+
+        /// <summary>
+        /// 返回数量
+        /// </summary>
+        T First();
+
+        /// <summary>
+        /// 返回数量
+        /// </summary>
+        Task<T> FirstAsync();
+
+        /// <summary>
+        /// 是否存在
+        /// </summary>
+        new bool Exists();
+
+        /// <summary>
+        /// 返回数量
+        /// </summary>
+        new Task<bool> ExistsAsync();
+
+        /// <summary>
+        /// 删除
+        /// </summary>
+        int Delete();
+
+        /// <summary>
+        /// 删除
+        /// </summary>
+        Task<int> DeleteAsync();
         #endregion
 
     }

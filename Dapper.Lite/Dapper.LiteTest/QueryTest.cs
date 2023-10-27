@@ -259,7 +259,7 @@ namespace Dapper.LiteTest
                     && o.OrderTime >= new DateTime(2010, 1, 1)
                     && o.OrderTime <= DateTime.Now.AddDays(1))
                 .Append(" order by order_time desc, id asc")
-                .QueryList<BsOrder>();
+                .ToList();
 
             foreach (BsOrder item in list)
             {
@@ -293,7 +293,7 @@ namespace Dapper.LiteTest
                     && o.OrderTime <= DateTime.Now.AddDays(1))
                 .Where<SysUser>(u => u.Id == 10)
                 .Append(" order by o.order_time desc, o.id asc")
-                .QueryList<BsOrder>();
+                .ToList();
 
             foreach (BsOrder item in list)
             {
