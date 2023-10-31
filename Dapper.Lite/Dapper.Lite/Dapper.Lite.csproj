@@ -6,9 +6,9 @@
         <Nullable>disable</Nullable>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <Title>Dapper.Lite</Title>
-        <AssemblyVersion>2.0.2</AssemblyVersion>
-        <FileVersion>2.0.2</FileVersion>
-        <Version>2.0.2</Version>
+        <AssemblyVersion>2.0.3</AssemblyVersion>
+        <FileVersion>2.0.3</FileVersion>
+        <Version>2.0.3</Version>
         <PackageId>Dapper.Lite</PackageId>
         <PackageProjectUrl>https://github.com/0611163/Dapper.Lite</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -20,13 +20,12 @@
         </Description>
         <PackageReleaseNotes>
             更新内容：
-            1. 新增ClickHouseProviderBase
-            2. 新增ReadOnlyAttribute
+            1. 升级Dapper版本
         </PackageReleaseNotes>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Dapper" Version="2.0.123" />
+        <PackageReference Include="Dapper" Version="2.1.15" />
         <PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />
     </ItemGroup>
 
