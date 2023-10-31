@@ -13,10 +13,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.Lite", "Dapper.Lite\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dapper.LiteTest", "Dapper.LiteTest\Dapper.LiteTest.csproj", "{ADACE5A8-5D41-4EC6-AB27-BC63ACA5382B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OracleTest", "OracleTest\OracleTest.csproj", "{D8C7058C-5C86-426F-BB2A-965B50DB3612}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostgreSQLTest", "PostgreSQLTest\PostgreSQLTest.csproj", "{238942E6-0889-43AC-A8EC-036D1628991E}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerformanceTest", "PerformanceTest\PerformanceTest.csproj", "{90B7B563-8A78-4B8E-9EE5-65E16EC88898}"
 EndProject
 Global
@@ -45,14 +41,6 @@ Global
 		{ADACE5A8-5D41-4EC6-AB27-BC63ACA5382B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ADACE5A8-5D41-4EC6-AB27-BC63ACA5382B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ADACE5A8-5D41-4EC6-AB27-BC63ACA5382B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D8C7058C-5C86-426F-BB2A-965B50DB3612}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D8C7058C-5C86-426F-BB2A-965B50DB3612}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D8C7058C-5C86-426F-BB2A-965B50DB3612}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D8C7058C-5C86-426F-BB2A-965B50DB3612}.Release|Any CPU.Build.0 = Release|Any CPU
-		{238942E6-0889-43AC-A8EC-036D1628991E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{238942E6-0889-43AC-A8EC-036D1628991E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{238942E6-0889-43AC-A8EC-036D1628991E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{238942E6-0889-43AC-A8EC-036D1628991E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{90B7B563-8A78-4B8E-9EE5-65E16EC88898}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{90B7B563-8A78-4B8E-9EE5-65E16EC88898}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{90B7B563-8A78-4B8E-9EE5-65E16EC88898}.Release|Any CPU.ActiveCfg = Release|Any CPU
