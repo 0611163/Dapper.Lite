@@ -6,9 +6,9 @@
         <Nullable>disable</Nullable>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <Title>Dapper.Lite</Title>
-        <AssemblyVersion>2.0.1</AssemblyVersion>
-        <FileVersion>2.0.1</FileVersion>
-        <Version>2.0.1</Version>
+        <AssemblyVersion>2.0.2</AssemblyVersion>
+        <FileVersion>2.0.2</FileVersion>
+        <Version>2.0.2</Version>
         <PackageId>Dapper.Lite</PackageId>
         <PackageProjectUrl>https://github.com/0611163/Dapper.Lite</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -16,11 +16,12 @@
         <Authors>suxiang</Authors>
         <Copyright>Copyright @ 2022</Copyright>
         <Description>
-            A Dapper extension that supports both SQL concatenation and simple Lambda expressions. It supports databases such as Oracle, MSSQL, MySQL, PostgreSQL, SQLite, Access, etc.
-            一款Dapper扩展，同时支持SQL拼接和简单的Lambda表达式。支持Oracle、MSSQL、MySQL、PostgreSQL、SQLite、Access等数据库。
+            一款Dapper扩展，单表查询和SQL拼接查询条件支持Lambda表达式。支持Oracle、MSSQL、MySQL、PostgreSQL、SQLite、Access、ClickHouse等数据库。
         </Description>
         <PackageReleaseNotes>
-            增加泛型ISqlString的接口
+            更新内容：
+            1. 新增ClickHouseProviderBase
+            2. 新增ReadOnlyAttribute
         </PackageReleaseNotes>
     </PropertyGroup>
 
