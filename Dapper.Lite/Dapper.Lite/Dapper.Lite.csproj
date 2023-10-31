@@ -16,7 +16,7 @@
         <Authors>suxiang</Authors>
         <Copyright>Copyright @ 2022</Copyright>
         <Description>
-            一款Dapper扩展，单表查询和SQL拼接查询条件支持Lambda表达式。支持Oracle、MSSQL、MySQL、PostgreSQL、SQLite、Access、ClickHouse等数据库。
+            一款Dapper扩展，单表查询和SQL拼接查询条件条件支持Lambda表达式。支持Oracle、MSSQL、MySQL、PostgreSQL、SQLite、Access、ClickHouse等数据库。
         </Description>
         <PackageReleaseNotes>
             更新内容：
