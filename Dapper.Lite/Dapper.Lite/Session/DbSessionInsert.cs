@@ -233,6 +233,8 @@ namespace Dapper.Lite
 
                 if (IsAutoIncrementPk(propertyInfoEx)) continue;
 
+                if (propertyInfoEx.IsReadOnly) continue;
+
                 if (propertyInfoEx.IsDBField)
                 {
                     propertyNameList.Add(new Tuple<string, Type>(propertyInfoEx.FieldName, propertyInfoEx.PropertyInfo.PropertyType));
@@ -267,6 +269,8 @@ namespace Dapper.Lite
 
                 if (IsAutoIncrementPk(propertyInfoEx)) continue;
 
+                if (propertyInfoEx.IsReadOnly) continue;
+
                 if (propertyInfoEx.IsDBField)
                 {
                     propertyNameList.Add(new Tuple<string, Type>(propertyInfoEx.FieldName, propertyInfoEx.PropertyInfo.PropertyType));
@@ -295,6 +299,8 @@ namespace Dapper.Lite
                     PropertyInfo propertyInfo = propertyInfoEx.PropertyInfo;
 
                     if (IsAutoIncrementPk(propertyInfoEx)) continue;
+
+                    if (propertyInfoEx.IsReadOnly) continue;
 
                     if (propertyInfoEx.IsDBField)
                     {

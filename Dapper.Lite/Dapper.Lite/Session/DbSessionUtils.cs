@@ -91,6 +91,9 @@ namespace Dapper.Lite
                         propertyInfoEx.IsAutoIncrement = propertyAutoIncrementAttribute.Value;
                     }
 
+                    ReadOnlyAttribute readOnlyAttribute = propertyInfo.GetCustomAttribute<ReadOnlyAttribute>(false);
+                    propertyInfoEx.IsReadOnly = readOnlyAttribute != null;
+
                     result.Add(propertyInfoEx);
                 }
                 return result.ToArray();

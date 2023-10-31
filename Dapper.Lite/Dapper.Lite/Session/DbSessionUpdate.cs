@@ -258,6 +258,8 @@ namespace Dapper.Lite
             {
                 PropertyInfo propertyInfo = propertyInfoEx.PropertyInfo;
 
+                if (propertyInfoEx.IsReadOnly) continue;
+
                 if (propertyInfoEx.IsDBField && !propertyInfoEx.IsDBKey)
                 {
                     object oldVal = oldObj == null ? null : propertyInfo.GetValue(oldObj, null);
@@ -308,6 +310,8 @@ namespace Dapper.Lite
                 foreach (PropertyInfoEx propertyInfoEx in propertyInfoList)
                 {
                     PropertyInfo propertyInfo = propertyInfoEx.PropertyInfo;
+
+                    if (propertyInfoEx.IsReadOnly) continue;
 
                     if (propertyInfoEx.IsDBField && !propertyInfoEx.IsDBKey)
                     {

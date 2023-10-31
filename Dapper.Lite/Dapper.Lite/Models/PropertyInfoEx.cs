@@ -44,6 +44,11 @@ namespace Dapper.Lite
         public bool? IsAutoIncrement { get; set; }
 
         /// <summary>
+        /// 是否只读
+        /// </summary>
+        public bool IsReadOnly { get; set; }
+
+        /// <summary>
         /// 类的属性信息扩展
         /// </summary>
         /// <param name="propertyInfo">类的属性信息</param>
