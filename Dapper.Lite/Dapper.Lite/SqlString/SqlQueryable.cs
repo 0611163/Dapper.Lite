@@ -262,6 +262,8 @@ namespace Dapper.Lite
         }
         #endregion
 
+        #region 实现增删改查接口
+
         #region ToList
         /// <summary>
         /// 执行查询
@@ -326,7 +328,7 @@ namespace Dapper.Lite
 
         #region First
         /// <summary>
-        /// 返回数量
+        /// 返回第一行的值，不存在则返回null
         /// </summary>
         public T First()
         {
@@ -334,7 +336,7 @@ namespace Dapper.Lite
         }
 
         /// <summary>
-        /// 返回数量
+        /// 返回第一行的值，不存在则返回null
         /// </summary>
         public async Task<T> FirstAsync()
         {
@@ -412,6 +414,8 @@ namespace Dapper.Lite
 
             return _session.DeleteByConditionAsync<T>(right, this.Params);
         }
+        #endregion 
+
         #endregion
 
     }

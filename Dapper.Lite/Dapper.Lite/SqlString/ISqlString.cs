@@ -115,6 +115,7 @@ namespace Dapper.Lite
     /// </summary>
     public interface ISqlString
     {
+        #region 变量
         /// <summary>
         /// 参数化查询的SQL
         /// </summary>
@@ -129,14 +130,18 @@ namespace Dapper.Lite
         /// 参数化查询的参数
         /// </summary>
         DynamicParameters DynamicParameters { get; }
+        #endregion
 
+        #region Append
         /// <summary>
         /// 追加参数化SQL
         /// </summary>
         /// <param name="sql">SQL</param>
         /// <param name="args">参数(支持多个参数或者把多个参数放在一个匿名对象中)</param>
         ISqlString Append(string sql, params object[] args);
+        #endregion
 
+        #region AppendIf
         /// <summary>
         /// 追加参数化SQL
         /// </summary>
@@ -144,71 +149,52 @@ namespace Dapper.Lite
         /// <param name="sql">SQL</param>
         /// <param name="args">参数</param>
         ISqlString AppendIf(bool condition, string sql, params object[] args);
+        #endregion
 
+        #region ToSql
         /// <summary>
         /// 返回SQL语句
         /// </summary>
         string ToSql();
+        #endregion
 
+        #region ForList
         /// <summary>
         /// 创建 in 或 not in SQL
         /// </summary>
         SqlValue ForList(IList list);
+        #endregion
 
         #region 增删改查接口
         /// <summary>
-        /// 查询实体
+        /// 返回第一行的值，不存在则返回null
         /// </summary>
-        T Query<T>() where T : new();
+        T First<T>() where T : new();
 
         /// <summary>
-        /// 查询实体
+        /// 返回第一行的值，不存在则返回null
         /// </summary>
-        Task<T> QueryAsync<T>() where T : new();
-
-        /// <summary>
-        /// 查询列表
-        /// </summary>
-        List<T> QueryList<T>() where T : new();
+        Task<T> FirstAsync<T>() where T : new();
 
         /// <summary>
         /// 查询列表
         /// </summary>
-        Task<List<T>> QueryListAsync<T>() where T : new();
+        List<T> ToList<T>() where T : new();
+
+        /// <summary>
+        /// 查询列表
+        /// </summary>
+        Task<List<T>> ToListAsync<T>() where T : new();
 
         /// <summary>
         /// 分页查询
         /// </summary>
-        List<T> QueryPage<T>(string orderby, int pageSize, int currentPage) where T : new();
+        List<T> ToPageList<T>(string orderby, int pageSize, int currentPage) where T : new();
 
         /// <summary>
         /// 分页查询
         /// </summary>
-        Task<List<T>> QueryPageAsync<T>(string orderby, int pageSize, int currentPage) where T : new();
-
-        /// <summary>
-        /// 条件删除
-        /// </summary>
-        [Obsolete]
-        int DeleteByCondition<T>();
-
-        /// <summary>
-        /// 条件删除
-        /// </summary>
-        [Obsolete]
-        Task<int> DeleteByConditionAsync<T>();
-
-        /// <summary>
-        /// 条件删除
-        /// </summary>
-        [Obsolete]
-        int DeleteByCondition(Type type);
-
-        /// <summary>
-        /// 条件删除
-        /// </summary>
-        [Obsolete]
-        Task<int> DeleteByConditionAsync(Type type);
+        Task<List<T>> ToPageListAsync<T>(string orderby, int pageSize, int currentPage) where T : new();
 
         /// <summary>
         /// 条件删除
@@ -289,6 +275,68 @@ namespace Dapper.Lite
         /// 给定一条查询SQL，返回其查询结果的数量
         /// </summary>
         Task<CountResult> QueryCountAsync(int pageSize);
+        #endregion
+
+        #region Obsolete 增删改查接口
+        /// <summary>
+        /// 查询实体
+        /// </summary>
+        [Obsolete]
+        T Query<T>() where T : new();
+
+        /// <summary>
+        /// 查询实体
+        /// </summary>
+        [Obsolete]
+        Task<T> QueryAsync<T>() where T : new();
+
+        /// <summary>
+        /// 查询列表
+        /// </summary>
+        [Obsolete]
+        List<T> QueryList<T>() where T : new();
+
+        /// <summary>
+        /// 查询列表
+        /// </summary>
+        [Obsolete]
+        Task<List<T>> QueryListAsync<T>() where T : new();
+
+        /// <summary>
+        /// 分页查询
+        /// </summary>
+        [Obsolete]
+        List<T> QueryPage<T>(string orderby, int pageSize, int currentPage) where T : new();
+
+        /// <summary>
+        /// 分页查询
+        /// </summary>
+        [Obsolete]
+        Task<List<T>> QueryPageAsync<T>(string orderby, int pageSize, int currentPage) where T : new();
+
+        /// <summary>
+        /// 条件删除
+        /// </summary>
+        [Obsolete]
+        int DeleteByCondition<T>();
+
+        /// <summary>
+        /// 条件删除
+        /// </summary>
+        [Obsolete]
+        Task<int> DeleteByConditionAsync<T>();
+
+        /// <summary>
+        /// 条件删除
+        /// </summary>
+        [Obsolete]
+        int DeleteByCondition(Type type);
+
+        /// <summary>
+        /// 条件删除
+        /// </summary>
+        [Obsolete]
+        Task<int> DeleteByConditionAsync(Type type);
         #endregion
 
     }
