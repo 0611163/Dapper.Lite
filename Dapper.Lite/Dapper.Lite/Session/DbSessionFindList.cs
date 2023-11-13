@@ -26,7 +26,7 @@ namespace Dapper.Lite
 
             try
             {
-                return conn.Query<T>(sql).ToList();
+                return conn.Query<T>(sql, null, _tran).ToList();
             }
             finally
             {
@@ -52,7 +52,7 @@ namespace Dapper.Lite
 
             try
             {
-                return (await conn.QueryAsync<T>(sql)).ToList();
+                return (await conn.QueryAsync<T>(sql, null, _tran)).ToList();
             }
             finally
             {
@@ -78,7 +78,7 @@ namespace Dapper.Lite
 
             try
             {
-                return conn.Query<T>(sql, ToDynamicParameters(cmdParms)).ToList();
+                return conn.Query<T>(sql, ToDynamicParameters(cmdParms), _tran).ToList();
             }
             finally
             {
@@ -103,7 +103,7 @@ namespace Dapper.Lite
 
             try
             {
-                return (await conn.QueryAsync<T>(sql, ToDynamicParameters(cmdParms))).ToList();
+                return (await conn.QueryAsync<T>(sql, ToDynamicParameters(cmdParms), _tran)).ToList();
             }
             finally
             {

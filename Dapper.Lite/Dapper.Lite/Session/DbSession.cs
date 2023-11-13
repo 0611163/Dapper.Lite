@@ -156,26 +156,14 @@ namespace Dapper.Lite
             string idName = GetIdName(type, out _);
             string sql = _provider.CreateGetMaxIdSql(GetTableName(_provider, type), _provider.OpenQuote + idName + _provider.CloseQuote);
 
-            var conn = GetConnection(_tran);
-
-            try
+            object obj = ExecuteScalar(sql);
+            if (object.Equals(obj, null) || object.Equals(obj, DBNull.Value))
             {
-                object obj = conn.ExecuteScalar(sql);
-                if (object.Equals(obj, null) || object.Equals(obj, DBNull.Value))
-                {
-                    return 1;
-                }
-                else
-                {
-                    return int.Parse(obj.ToString()) + 1;
-                }
+                return 1;
             }
-            finally
+            else
             {
-                if (_tran == null)
-                {
-                    if (conn.State != ConnectionState.Closed) conn.Close();
-                }
+                return int.Parse(obj.ToString()) + 1;
             }
         }
         #endregion

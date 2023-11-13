@@ -49,19 +49,7 @@ namespace Dapper.Lite
 
             OnExecuting?.Invoke(sbSql.ToString(), cmdParms);
 
-            var conn = GetConnection(_tran);
-
-            try
-            {
-                return conn.Execute(sbSql.ToString(), ToDynamicParameters(cmdParms), _tran);
-            }
-            finally
-            {
-                if (_tran == null)
-                {
-                    if (conn.State != ConnectionState.Closed) conn.Close();
-                }
-            }
+            return Execute(sbSql.ToString(), cmdParms);
         }
         #endregion
 
@@ -104,19 +92,7 @@ namespace Dapper.Lite
 
             OnExecuting?.Invoke(sbSql.ToString(), cmdParms);
 
-            var conn = GetConnection(_tran);
-
-            try
-            {
-                return await conn.ExecuteAsync(sbSql.ToString(), ToDynamicParameters(cmdParms), _tran);
-            }
-            finally
-            {
-                if (_tran == null)
-                {
-                    if (conn.State != ConnectionState.Closed) conn.Close();
-                }
-            }
+            return await ExecuteAsync(sbSql.ToString(), cmdParms);
         }
         #endregion
 
@@ -148,19 +124,7 @@ namespace Dapper.Lite
 
             OnExecuting?.Invoke(sbSql.ToString(), cmdParms);
 
-            var conn = GetConnection(_tran);
-
-            try
-            {
-                return conn.Execute(sbSql.ToString(), ToDynamicParameters(cmdParms), _tran);
-            }
-            finally
-            {
-                if (_tran == null)
-                {
-                    if (conn.State != ConnectionState.Closed) conn.Close();
-                }
-            }
+            return Execute(sbSql.ToString(), cmdParms);
         }
         #endregion
 
@@ -191,19 +155,7 @@ namespace Dapper.Lite
 
             OnExecuting?.Invoke(sbSql.ToString(), cmdParms);
 
-            var conn = GetConnection(_tran);
-
-            try
-            {
-                return await conn.ExecuteAsync(sbSql.ToString(), ToDynamicParameters(cmdParms), _tran);
-            }
-            finally
-            {
-                if (_tran == null)
-                {
-                    if (conn.State != ConnectionState.Closed) conn.Close();
-                }
-            }
+            return await ExecuteAsync(sbSql.ToString(), cmdParms);
         }
         #endregion
 
@@ -250,19 +202,7 @@ namespace Dapper.Lite
 
             OnExecuting?.Invoke(sbSql.ToString(), null);
 
-            var conn = GetConnection(_tran);
-
-            try
-            {
-                return conn.Execute(sbSql.ToString(), null, _tran);
-            }
-            finally
-            {
-                if (_tran == null)
-                {
-                    if (conn.State != ConnectionState.Closed) conn.Close();
-                }
-            }
+            return Execute(sbSql.ToString());
         }
         #endregion
 
@@ -281,19 +221,7 @@ namespace Dapper.Lite
 
             OnExecuting?.Invoke(sbSql.ToString(), null);
 
-            var conn = GetConnection(_tran);
-
-            try
-            {
-                return await conn.ExecuteAsync(sbSql.ToString(), null, _tran);
-            }
-            finally
-            {
-                if (_tran == null)
-                {
-                    if (conn.State != ConnectionState.Closed) conn.Close();
-                }
-            }
+            return await ExecuteAsync(sbSql.ToString());
         }
         #endregion
 
@@ -339,19 +267,7 @@ namespace Dapper.Lite
 
             OnExecuting?.Invoke(sbSql.ToString(), cmdParms);
 
-            var conn = GetConnection(_tran);
-
-            try
-            {
-                return conn.Execute(sbSql.ToString(), ToDynamicParameters(cmdParms), _tran);
-            }
-            finally
-            {
-                if (_tran == null)
-                {
-                    if (conn.State != ConnectionState.Closed) conn.Close();
-                }
-            }
+            return Execute(sbSql.ToString(), cmdParms);
         }
         #endregion
 
@@ -370,19 +286,7 @@ namespace Dapper.Lite
 
             OnExecuting?.Invoke(sbSql.ToString(), cmdParms);
 
-            var conn = GetConnection(_tran);
-
-            try
-            {
-                return await conn.ExecuteAsync(sbSql.ToString(), ToDynamicParameters(cmdParms), _tran);
-            }
-            finally
-            {
-                if (_tran == null)
-                {
-                    if (conn.State != ConnectionState.Closed) conn.Close();
-                }
-            }
+            return await ExecuteAsync(sbSql.ToString(), cmdParms);
         }
         #endregion
 

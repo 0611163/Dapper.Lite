@@ -6,9 +6,9 @@
         <Nullable>disable</Nullable>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <Title>Dapper.Lite</Title>
-        <AssemblyVersion>2.0.4</AssemblyVersion>
-        <FileVersion>2.0.4</FileVersion>
-        <Version>2.0.4</Version>
+        <AssemblyVersion>2.0.5</AssemblyVersion>
+        <FileVersion>2.0.5</FileVersion>
+        <Version>2.0.5</Version>
         <PackageId>Dapper.Lite</PackageId>
         <PackageProjectUrl>https://github.com/0611163/Dapper.Lite</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -20,7 +20,8 @@
         </Description>
         <PackageReleaseNotes>
             更新内容：
-            ISqlString查询接口变更，旧接口标记为Obsolete
+            1. 内部代码优化
+            2. 查询方法漏传事务参数
         </PackageReleaseNotes>
     </PropertyGroup>
 

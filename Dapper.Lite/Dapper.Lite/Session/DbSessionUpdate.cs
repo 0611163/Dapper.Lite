@@ -71,19 +71,7 @@ namespace Dapper.Lite
             {
                 OnExecuting?.Invoke(strSql.ToString(), parameters);
 
-                var conn = GetConnection(_tran);
-
-                try
-                {
-                    conn.Execute(strSql.ToString(), ToDynamicParameters(parameters), _tran);
-                }
-                finally
-                {
-                    if (_tran == null)
-                    {
-                        if (conn.State != ConnectionState.Closed) conn.Close();
-                    }
-                }
+                Execute(strSql.ToString(), parameters);
             }
         }
         #endregion
@@ -107,19 +95,7 @@ namespace Dapper.Lite
             {
                 OnExecuting?.Invoke(strSql.ToString(), parameters);
 
-                var conn = GetConnection(_tran);
-
-                try
-                {
-                    await conn.ExecuteAsync(strSql.ToString(), ToDynamicParameters(parameters), _tran);
-                }
-                finally
-                {
-                    if (_tran == null)
-                    {
-                        if (conn.State != ConnectionState.Closed) conn.Close();
-                    }
-                }
+                await ExecuteAsync(strSql.ToString(), parameters);
             }
         }
         #endregion
@@ -165,19 +141,7 @@ namespace Dapper.Lite
                 {
                     OnExecuting?.Invoke(strSql.ToString(), parameters);
 
-                    var conn = GetConnection(_tran);
-
-                    try
-                    {
-                        conn.Execute(strSql.ToString(), ToDynamicParameters(parameters), _tran);
-                    }
-                    finally
-                    {
-                        if (_tran == null)
-                        {
-                            if (conn.State != ConnectionState.Closed) conn.Close();
-                        }
-                    }
+                    Execute(strSql.ToString(), parameters);
                 }
             }
         }
@@ -224,19 +188,7 @@ namespace Dapper.Lite
                 {
                     OnExecuting?.Invoke(strSql.ToString(), parameters);
 
-                    var conn = GetConnection(_tran);
-
-                    try
-                    {
-                        await conn.ExecuteAsync(strSql.ToString(), ToDynamicParameters(parameters), _tran);
-                    }
-                    finally
-                    {
-                        if (_tran == null)
-                        {
-                            if (conn.State != ConnectionState.Closed) conn.Close();
-                        }
-                    }
+                    await ExecuteAsync(strSql.ToString(), parameters);
                 }
             }
         }

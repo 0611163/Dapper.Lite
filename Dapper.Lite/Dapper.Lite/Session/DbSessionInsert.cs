@@ -26,19 +26,7 @@ namespace Dapper.Lite
 
             OnExecuting?.Invoke(strSql.ToString(), parameters);
 
-            var conn = GetConnection(_tran);
-
-            try
-            {
-                conn.Execute(strSql.ToString(), ToDynamicParameters(parameters), _tran);
-            }
-            finally
-            {
-                if (_tran == null)
-                {
-                    if (conn.State != ConnectionState.Closed) conn.Close();
-                }
-            }
+            Execute(strSql.ToString(), parameters);
         }
 
         /// <summary>
@@ -54,20 +42,8 @@ namespace Dapper.Lite
 
             OnExecuting?.Invoke(strSql.ToString(), parameters);
 
-            var conn = GetConnection(_tran);
-
-            try
-            {
-                object id = conn.ExecuteScalar(strSql.ToString(), ToDynamicParameters(parameters), _tran);
-                return Convert.ToInt64(id);
-            }
-            finally
-            {
-                if (_tran == null)
-                {
-                    if (conn.State != ConnectionState.Closed) conn.Close();
-                }
-            }
+            object id = ExecuteScalar(strSql.ToString(), parameters);
+            return Convert.ToInt64(id);
         }
         #endregion
 
@@ -84,19 +60,7 @@ namespace Dapper.Lite
 
             OnExecuting?.Invoke(strSql.ToString(), parameters);
 
-            var conn = GetConnection(_tran);
-
-            try
-            {
-                await conn.ExecuteAsync(strSql.ToString(), ToDynamicParameters(parameters), _tran);
-            }
-            finally
-            {
-                if (_tran == null)
-                {
-                    if (conn.State != ConnectionState.Closed) conn.Close();
-                }
-            }
+            await ExecuteAsync(strSql.ToString(), parameters);
         }
 
         /// <summary>
@@ -112,20 +76,8 @@ namespace Dapper.Lite
 
             OnExecuting?.Invoke(strSql.ToString(), parameters);
 
-            var conn = GetConnection(_tran);
-
-            try
-            {
-                object id = await conn.ExecuteScalarAsync(strSql.ToString(), ToDynamicParameters(parameters), _tran);
-                return Convert.ToInt64(id);
-            }
-            finally
-            {
-                if (_tran == null)
-                {
-                    if (conn.State != ConnectionState.Closed) conn.Close();
-                }
-            }
+            object id = await ExecuteScalarAsync(strSql.ToString(), parameters);
+            return Convert.ToInt64(id);
         }
         #endregion
 
@@ -155,19 +107,7 @@ namespace Dapper.Lite
 
                 OnExecuting?.Invoke(strSql.ToString(), parameters);
 
-                var conn = GetConnection(_tran);
-
-                try
-                {
-                    conn.Execute(strSql.ToString(), ToDynamicParameters(parameters), _tran);
-                }
-                finally
-                {
-                    if (_tran == null)
-                    {
-                        if (conn.State != ConnectionState.Closed) conn.Close();
-                    }
-                }
+                Execute(strSql.ToString(), parameters);
             }
         }
         #endregion
@@ -198,19 +138,7 @@ namespace Dapper.Lite
 
                 OnExecuting?.Invoke(strSql.ToString(), parameters);
 
-                var conn = GetConnection(_tran);
-
-                try
-                {
-                    await conn.ExecuteAsync(strSql.ToString(), ToDynamicParameters(parameters), _tran);
-                }
-                finally
-                {
-                    if (_tran == null)
-                    {
-                        if (conn.State != ConnectionState.Closed) conn.Close();
-                    }
-                }
+                await ExecuteAsync(strSql.ToString(), parameters);
             }
         }
         #endregion
