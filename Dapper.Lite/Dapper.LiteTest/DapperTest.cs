@@ -177,12 +177,12 @@ namespace Dapper.LiteTest
 
             try
             {
-                var tran = session.BeginTransaction();
+                session.BeginTransaction();
 
                 var sql1 = session.Sql(@"update sys_user set remark=@Remark where id=@Id", new { Remark = remark1, Id = 1 });
                 var sql2 = session.Sql(@"update sys_user set remark=@Remark where id=@Id", new { Remark = remark2, Id = 2 });
-                tran.Connection.Execute(sql1.SQL, sql1.DynamicParameters);
-                tran.Connection.Execute(sql2.SQL, sql2.DynamicParameters);
+                session.Conn.Execute(sql1.SQL, sql1.DynamicParameters, session.Tran);
+                session.Conn.Execute(sql2.SQL, sql2.DynamicParameters, session.Tran);
 
                 session.CommitTransaction();
             }
@@ -224,20 +224,20 @@ namespace Dapper.LiteTest
 
                     session.SetTypeMap<SysUser>(); //设置数据库字段名与实体类属性名映射
 
-                    var tran = session.BeginTransaction();
+                    session.BeginTransaction();
 
                     try
                     {
                         var sql1 = session.Sql(@"update sys_user set remark=@Remark where id=@Id", new { Remark = remark1, Id = 1 });
                         var sql2 = session.Sql(@"update sys_user set remark=@Remark where id=@Id", new { Remark = remark2, Id = 2 });
-                        tran.Connection.Execute(sql1.SQL, sql1.DynamicParameters, tran);
-                        tran.Connection.Execute(sql2.SQL, sql2.DynamicParameters, tran);
+                        session.Conn.Execute(sql1.SQL, sql1.DynamicParameters, session.Tran);
+                        session.Conn.Execute(sql2.SQL, sql2.DynamicParameters, session.Tran);
 
-                        tran.Commit();
+                        session.CommitTransaction();
                     }
                     catch
                     {
-                        tran.Rollback();
+                        session.RollbackTransaction();
                         throw;
                     }
 

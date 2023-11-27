@@ -14,12 +14,12 @@ namespace Dapper.Lite
         /// <summary>
         /// 开始事务
         /// </summary>
-        DbTransaction BeginTransaction();
+        void BeginTransaction();
 
         /// <summary>
         /// 开始事务
         /// </summary>
-        DbTransaction BeginTransaction(IsolationLevel isolationLevel);
+        void BeginTransaction(IsolationLevel isolationLevel);
         #endregion
 
         #region 提交事务

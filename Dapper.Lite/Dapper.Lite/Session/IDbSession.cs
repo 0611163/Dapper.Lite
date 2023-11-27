@@ -24,6 +24,18 @@ namespace Dapper.Lite
     /// </summary>
     public partial interface IDbSession
     {
+        #region 变量
+        /// <summary>
+        /// 事务 (当前数据库会话Session的事务)
+        /// </summary>
+        DbTransaction Tran { get; }
+
+        /// <summary>
+        /// 数据库连接 (当前数据库会话Session的数据库连接)
+        /// </summary>
+        DbConnection Conn { get; }
+        #endregion
+
         #region 创建SqlString对象
         /// <summary>
         /// 创建SqlString对象
