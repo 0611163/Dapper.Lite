@@ -16,7 +16,7 @@ namespace Dapper.Lite
         /// <summary>
         /// 根据Id查询实体
         /// </summary>
-        public T QueryById<T>(object id) where T : new()
+        public T QueryById<T>(object id)
         {
             Type type = typeof(T);
 
@@ -45,7 +45,7 @@ namespace Dapper.Lite
         /// <summary>
         /// 根据Id查询实体
         /// </summary>
-        public async Task<T> QueryByIdAsync<T>(object id) where T : new()
+        public async Task<T> QueryByIdAsync<T>(object id)
         {
             Type type = typeof(T);
 
@@ -75,7 +75,7 @@ namespace Dapper.Lite
         /// <summary>
         /// 根据sql查询实体
         /// </summary>
-        public T Query<T>(string sql) where T : new()
+        public T Query<T>(string sql)
         {
             Type type = typeof(T);
             object result = Find(type, sql, null);
@@ -95,7 +95,7 @@ namespace Dapper.Lite
         /// <summary>
         /// 根据sql查询实体
         /// </summary>
-        public async Task<T> QueryAsync<T>(string sql) where T : new()
+        public async Task<T> QueryAsync<T>(string sql)
         {
             Type type = typeof(T);
             object result = await FindAsync(type, sql, null);
@@ -116,7 +116,7 @@ namespace Dapper.Lite
         /// <summary>
         /// 根据sql查询实体
         /// </summary>
-        public T Query<T>(string sql, DbParameter[] args) where T : new()
+        public T Query<T>(string sql, DbParameter[] args)
         {
             Type type = typeof(T);
             object result = Find(type, sql, args);
@@ -136,7 +136,7 @@ namespace Dapper.Lite
         /// <summary>
         /// 根据sql查询实体
         /// </summary>
-        public async Task<T> QueryAsync<T>(string sql, DbParameter[] args) where T : new()
+        public async Task<T> QueryAsync<T>(string sql, DbParameter[] args)
         {
             Type type = typeof(T);
             object result = await FindAsync(type, sql, args);
@@ -157,7 +157,7 @@ namespace Dapper.Lite
         /// <summary>
         /// 根据sql查询实体
         /// </summary>
-        public T Query<T>(ISqlString sql) where T : new()
+        public T Query<T>(ISqlString sql)
         {
             return Query<T>(sql.SQL, sql.Params);
         }
@@ -165,7 +165,7 @@ namespace Dapper.Lite
         /// <summary>
         /// 根据sql查询实体
         /// </summary>
-        public Task<T> QueryAsync<T>(ISqlString sql) where T : new()
+        public Task<T> QueryAsync<T>(ISqlString sql)
         {
             return QueryAsync<T>(sql.SQL, sql.Params);
         }

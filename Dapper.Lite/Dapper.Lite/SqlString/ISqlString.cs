@@ -169,32 +169,32 @@ namespace Dapper.Lite
         /// <summary>
         /// 返回第一行的值，不存在则返回null
         /// </summary>
-        T First<T>() where T : new();
+        T First<T>();
 
         /// <summary>
         /// 返回第一行的值，不存在则返回null
         /// </summary>
-        Task<T> FirstAsync<T>() where T : new();
+        Task<T> FirstAsync<T>();
 
         /// <summary>
         /// 查询列表
         /// </summary>
-        List<T> ToList<T>() where T : new();
+        List<T> ToList<T>();
 
         /// <summary>
         /// 查询列表
         /// </summary>
-        Task<List<T>> ToListAsync<T>() where T : new();
+        Task<List<T>> ToListAsync<T>();
 
         /// <summary>
         /// 分页查询
         /// </summary>
-        List<T> ToPageList<T>(string orderby, int pageSize, int currentPage) where T : new();
+        List<T> ToPageList<T>(string orderby, int pageSize, int currentPage);
 
         /// <summary>
         /// 分页查询
         /// </summary>
-        Task<List<T>> ToPageListAsync<T>(string orderby, int pageSize, int currentPage) where T : new();
+        Task<List<T>> ToPageListAsync<T>(string orderby, int pageSize, int currentPage);
 
         /// <summary>
         /// 条件删除
@@ -282,37 +282,37 @@ namespace Dapper.Lite
         /// 查询实体
         /// </summary>
         [Obsolete]
-        T Query<T>() where T : new();
+        T Query<T>();
 
         /// <summary>
         /// 查询实体
         /// </summary>
         [Obsolete]
-        Task<T> QueryAsync<T>() where T : new();
+        Task<T> QueryAsync<T>();
 
         /// <summary>
         /// 查询列表
         /// </summary>
         [Obsolete]
-        List<T> QueryList<T>() where T : new();
+        List<T> QueryList<T>();
 
         /// <summary>
         /// 查询列表
         /// </summary>
         [Obsolete]
-        Task<List<T>> QueryListAsync<T>() where T : new();
+        Task<List<T>> QueryListAsync<T>();
 
         /// <summary>
         /// 分页查询
         /// </summary>
         [Obsolete]
-        List<T> QueryPage<T>(string orderby, int pageSize, int currentPage) where T : new();
+        List<T> QueryPage<T>(string orderby, int pageSize, int currentPage);
 
         /// <summary>
         /// 分页查询
         /// </summary>
         [Obsolete]
-        Task<List<T>> QueryPageAsync<T>(string orderby, int pageSize, int currentPage) where T : new();
+        Task<List<T>> QueryPageAsync<T>(string orderby, int pageSize, int currentPage);
 
         /// <summary>
         /// 条件删除

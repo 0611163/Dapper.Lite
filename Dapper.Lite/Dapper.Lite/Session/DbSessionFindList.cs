@@ -16,7 +16,7 @@ namespace Dapper.Lite
         /// <summary>
         /// 查询列表
         /// </summary>
-        public List<T> QueryList<T>(string sql) where T : new()
+        public List<T> QueryList<T>(string sql)
         {
             SqlFilter(ref sql);
             SetTypeMap<T>();
@@ -42,7 +42,7 @@ namespace Dapper.Lite
         /// <summary>
         /// 查询列表
         /// </summary>
-        public async Task<List<T>> QueryListAsync<T>(string sql) where T : new()
+        public async Task<List<T>> QueryListAsync<T>(string sql)
         {
             SqlFilter(ref sql);
             SetTypeMap<T>();
@@ -69,7 +69,7 @@ namespace Dapper.Lite
         /// <summary>
         /// 查询列表
         /// </summary>
-        public List<T> QueryList<T>(string sql, DbParameter[] cmdParms) where T : new()
+        public List<T> QueryList<T>(string sql, DbParameter[] cmdParms)
         {
             SetTypeMap<T>();
             OnExecuting?.Invoke(sql, cmdParms);
@@ -94,7 +94,7 @@ namespace Dapper.Lite
         /// <summary>
         /// 查询列表
         /// </summary>
-        public async Task<List<T>> QueryListAsync<T>(string sql, DbParameter[] cmdParms) where T : new()
+        public async Task<List<T>> QueryListAsync<T>(string sql, DbParameter[] cmdParms)
         {
             SetTypeMap<T>();
             OnExecuting?.Invoke(sql, cmdParms);
@@ -119,7 +119,7 @@ namespace Dapper.Lite
         /// <summary>
         /// 查询列表
         /// </summary>
-        public List<T> QueryList<T>(ISqlString sql) where T : new()
+        public List<T> QueryList<T>(ISqlString sql)
         {
             return QueryList<T>(sql.SQL, sql.Params);
         }
@@ -127,7 +127,7 @@ namespace Dapper.Lite
         /// <summary>
         /// 查询列表
         /// </summary>
-        public Task<List<T>> QueryListAsync<T>(ISqlString sql) where T : new()
+        public Task<List<T>> QueryListAsync<T>(ISqlString sql)
         {
             return QueryListAsync<T>(sql.SQL, sql.Params);
         }

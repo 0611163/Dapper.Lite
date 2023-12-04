@@ -338,5 +338,113 @@ namespace Dapper.LiteTest
         }
         #endregion
 
+        #region 测试List<string>类型
+        [TestMethod]
+        public void TestListString()
+        {
+            var session = DapperLiteFactory.GetSession();
+
+            session.OnExecuting = (s, p) =>
+            {
+                Console.WriteLine(s);
+            };
+
+            var sql = session.Sql("select user_name from sys_user where id<=@Id", 20);
+            List<string> list = session.QueryList<string>(sql.SQL, sql.Params);
+
+            foreach (string item in list)
+            {
+                Console.WriteLine($"{item}");
+            }
+            Assert.IsTrue(list.Count > 0);
+        }
+        #endregion
+
+        #region 测试List<string>类型
+        [TestMethod]
+        public void TestListString2()
+        {
+            var session = DapperLiteFactory.GetSession();
+
+            session.OnExecuting = (s, p) =>
+            {
+                Console.WriteLine(s);
+            };
+
+            List<string> list = session.Sql("select user_name from sys_user where id<=@Id", 20).ToList<string>();
+
+            foreach (string item in list)
+            {
+                Console.WriteLine($"{item}");
+            }
+            Assert.IsTrue(list.Count > 0);
+        }
+        #endregion
+
+        #region 测试Dynamic类型
+        [TestMethod]
+        public void TestDynamic()
+        {
+            var session = DapperLiteFactory.GetSession();
+
+            session.OnExecuting = (s, p) =>
+            {
+                Console.WriteLine(s);
+            };
+
+            var sql = session.Sql("select user_name from sys_user where id<=@Id", 20);
+            List<dynamic> list = session.QueryList<dynamic>(sql.SQL, sql.Params);
+
+            foreach (var item in list)
+            {
+                Console.WriteLine($"{item.user_name}");
+            }
+            Assert.IsTrue(list.Count > 0);
+        }
+        #endregion
+
+        #region 测试Dynamic类型
+        [TestMethod]
+        public void TestDynamic2()
+        {
+            var session = DapperLiteFactory.GetSession();
+
+            session.OnExecuting = (s, p) =>
+            {
+                Console.WriteLine(s);
+            };
+
+            var sql = session.Sql("select user_name, real_name, remark from sys_user where id<=@Id", 20);
+            List<dynamic> list = session.QueryList<dynamic>(sql.SQL, sql.Params);
+
+            foreach (var item in list)
+            {
+                Console.WriteLine($"{item.user_name}, {item.real_name}, {item.remark}");
+            }
+            Assert.IsTrue(list.Count > 0);
+        }
+        #endregion
+
+        #region 测试Dynamic类型
+        [TestMethod]
+        public void TestDynamic3()
+        {
+            var session = DapperLiteFactory.GetSession();
+
+            session.OnExecuting = (s, p) =>
+            {
+                Console.WriteLine(s);
+            };
+
+            List<dynamic> list = session.Sql("select user_name, real_name, remark from sys_user where id<=@Id", 20).ToList<dynamic>();
+
+            foreach (var item in list)
+            {
+                Console.WriteLine($"{item.user_name}, {item.real_name}, {item.remark}");
+            }
+            Assert.IsTrue(list.Count > 0);
+        }
+        #endregion
+
     }
 }

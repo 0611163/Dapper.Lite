@@ -6,9 +6,9 @@
         <Nullable>disable</Nullable>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <Title>Dapper.Lite</Title>
-        <AssemblyVersion>2.0.6</AssemblyVersion>
-        <FileVersion>2.0.6</FileVersion>
-        <Version>2.0.6</Version>
+        <AssemblyVersion>2.0.7</AssemblyVersion>
+        <FileVersion>2.0.7</FileVersion>
+        <Version>2.0.7</Version>
         <PackageId>Dapper.Lite</PackageId>
         <PackageProjectUrl>https://github.com/0611163/Dapper.Lite</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -20,9 +20,7 @@
         </Description>
         <PackageReleaseNotes>
             更新内容：
-            1. IDbSession接口增加Tran(当前数据库会话的事务)和Conn(当前数据库会话的数据库连接)属性
-            2. IDbSession接口的BeginTransaction方法不再返回DbTransaction对象，防止误用，数据库事务的提交和回滚要使用IDbSession接口的CommitTransaction和RollbackTransaction方法
-            3. 升级Dapper版本
+            1. 移除接口的where T : new()限制，以支持QueryList＜string＞
         </PackageReleaseNotes>
     </PropertyGroup>
 

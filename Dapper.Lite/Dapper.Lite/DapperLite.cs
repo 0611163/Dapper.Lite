@@ -161,7 +161,7 @@ namespace Dapper.Lite
         /// <summary>
         /// 创建SqlString对象
         /// </summary>
-        public ISqlString<T> Sql<T>(string sql = null, params object[] args) where T : new()
+        public ISqlString<T> Sql<T>(string sql = null, params object[] args)
         {
             var session = GetSession();
             return session.Sql<T>(sql, args);
@@ -173,7 +173,7 @@ namespace Dapper.Lite
         /// 创建IQueryable
         /// </summary>
         /// <typeparam name="T">实体类型</typeparam>
-        public ISqlQueryable<T> Queryable<T>() where T : new()
+        public ISqlQueryable<T> Queryable<T>()
         {
             var session = GetSession();
             return session.Queryable<T>();

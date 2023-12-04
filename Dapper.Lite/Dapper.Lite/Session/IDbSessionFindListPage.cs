@@ -14,36 +14,36 @@ namespace Dapper.Lite
         /// <summary>
         /// 分页查询列表
         /// </summary>
-        List<T> QueryPage<T>(string sql, string orderby, int pageSize, int currentPage) where T : new();
+        List<T> QueryPage<T>(string sql, string orderby, int pageSize, int currentPage);
 
         /// <summary>
         /// 分页查询列表
         /// </summary>
-        Task<List<T>> QueryPageAsync<T>(string sql, string orderby, int pageSize, int currentPage) where T : new();
+        Task<List<T>> QueryPageAsync<T>(string sql, string orderby, int pageSize, int currentPage);
         #endregion
 
         #region 分页查询列表(参数化查询)
         /// <summary>
         /// 分页查询列表
         /// </summary>
-        List<T> QueryPage<T>(string sql, string orderby, int pageSize, int currentPage, DbParameter[] cmdParms) where T : new();
+        List<T> QueryPage<T>(string sql, string orderby, int pageSize, int currentPage, DbParameter[] cmdParms);
 
         /// <summary>
         /// 分页查询列表
         /// </summary>
-        Task<List<T>> QueryPageAsync<T>(string sql, string orderby, int pageSize, int currentPage, DbParameter[] cmdParms) where T : new();
+        Task<List<T>> QueryPageAsync<T>(string sql, string orderby, int pageSize, int currentPage, DbParameter[] cmdParms);
         #endregion
 
         #region 分页查询列表(传SqlString)
         /// <summary>
         /// 分页查询列表
         /// </summary>
-        List<T> QueryPage<T>(ISqlString sql, string orderby, int pageSize, int currentPage) where T : new();
+        List<T> QueryPage<T>(ISqlString sql, string orderby, int pageSize, int currentPage);
 
         /// <summary>
         /// 分页查询列表
         /// </summary>
-        Task<List<T>> QueryPageAsync<T>(ISqlString sql, string orderby, int pageSize, int currentPage) where T : new();
+        Task<List<T>> QueryPageAsync<T>(ISqlString sql, string orderby, int pageSize, int currentPage);
         #endregion
 
     }

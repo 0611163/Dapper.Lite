@@ -13,7 +13,7 @@ namespace Dapper.Lite
     /// <summary>
     /// 查询接口
     /// </summary>
-    public interface ISqlQueryable<T> where T : new()
+    public interface ISqlQueryable<T>
     {
         #region 变量
         /// <summary>

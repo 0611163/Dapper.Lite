@@ -23,7 +23,7 @@ namespace Dapper.Lite
         /// <summary>
         /// 附加更新前的旧实体，只更新数据发生变化的字段
         /// </summary>
-        public void AttachOld<T>(T obj) where T : new()
+        public void AttachOld<T>(T obj)
         {
             if (_oldObjs.ContainsKey(obj))
             {
@@ -42,7 +42,7 @@ namespace Dapper.Lite
         /// <summary>
         /// 附加更新前的旧实体，只更新数据发生变化的字段
         /// </summary>
-        public void AttachOld<T>(List<T> objList) where T : new()
+        public void AttachOld<T>(List<T> objList)
         {
             foreach (T obj in objList)
             {

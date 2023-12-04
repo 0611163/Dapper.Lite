@@ -63,7 +63,7 @@ namespace Dapper.Lite
         /// <summary>
         /// 创建SqlString对象
         /// </summary>
-        ISqlString<T> Sql<T>(string sql = null, params object[] args) where T : new();
+        ISqlString<T> Sql<T>(string sql = null, params object[] args);
         #endregion
 
         #region 创建SqlQueryable对象
@@ -71,7 +71,7 @@ namespace Dapper.Lite
         /// 创建IQueryable
         /// </summary>
         /// <typeparam name="T">实体类型</typeparam>
-        ISqlQueryable<T> Queryable<T>() where T : new();
+        ISqlQueryable<T> Queryable<T>();
         #endregion
 
         #region 查询下一个ID

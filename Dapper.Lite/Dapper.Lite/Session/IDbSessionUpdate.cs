@@ -41,11 +41,11 @@ namespace Dapper.Lite
         /// <summary>
         /// 附加更新前的旧数据，只更新数据发生变化的字段
         /// </summary>
-        void AttachOld<T>(T obj) where T : new();
+        void AttachOld<T>(T obj);
 
         /// <summary>
         /// 附加更新前的旧数据，只更新数据发生变化的字段
         /// </summary>
-        void AttachOld<T>(List<T> objList) where T : new();
+        void AttachOld<T>(List<T> objList);
     }
 }

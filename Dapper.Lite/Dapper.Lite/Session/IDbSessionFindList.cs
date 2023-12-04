@@ -13,36 +13,36 @@ namespace Dapper.Lite
         /// <summary>
         /// 查询列表
         /// </summary>
-        List<T> QueryList<T>(string sql) where T : new();
+        List<T> QueryList<T>(string sql);
 
         /// <summary>
         /// 查询列表
         /// </summary>
-        Task<List<T>> QueryListAsync<T>(string sql) where T : new();
+        Task<List<T>> QueryListAsync<T>(string sql);
         #endregion
 
         #region 查询列表(参数化查询)
         /// <summary>
         /// 查询列表
         /// </summary>
-        List<T> QueryList<T>(string sql, DbParameter[] cmdParms) where T : new();
+        List<T> QueryList<T>(string sql, DbParameter[] cmdParms);
 
         /// <summary>
         /// 查询列表
         /// </summary>
-        Task<List<T>> QueryListAsync<T>(string sql, DbParameter[] cmdParms) where T : new();
+        Task<List<T>> QueryListAsync<T>(string sql, DbParameter[] cmdParms);
         #endregion
 
         #region 查询列表(传SqlString)
         /// <summary>
         /// 查询列表
         /// </summary>
-        List<T> QueryList<T>(ISqlString sql) where T : new();
+        List<T> QueryList<T>(ISqlString sql);
 
         /// <summary>
         /// 查询列表
         /// </summary>
-        Task<List<T>> QueryListAsync<T>(ISqlString sql) where T : new();
+        Task<List<T>> QueryListAsync<T>(ISqlString sql);
         #endregion
 
     }
