@@ -86,6 +86,12 @@ namespace Dapper.Lite
         /// </summary>
         public DbConnection Conn => _tran?.Connection;
 
+        private CommandType _commandType = CommandType.Text;
+
+        private int? _commandTimeout = null; // Dapper参数
+
+        private bool _buffered = true; // Dapper参数
+
         #endregion
 
         #region 静态构造函数
@@ -251,6 +257,37 @@ namespace Dapper.Lite
                 if (conn.State == ConnectionState.Closed) await conn.OpenAsync();
                 return conn;
             }
+        }
+        #endregion
+
+        #region 设置CommandType
+        /// <summary>
+        /// 设置CommandType
+        /// </summary>
+        public IDbSession SetCommandType(CommandType commandType)
+        {
+            _commandType = commandType;
+            return this;
+        }
+        #endregion
+
+        #region Dapper参数设置
+        /// <summary>
+        /// 设置Dapper参数commandTimeout
+        /// </summary>
+        public IDbSession SetCommandTimeout(int? commandTimeout)
+        {
+            _commandTimeout = commandTimeout;
+            return this;
+        }
+
+        /// <summary>
+        /// 设置Dapper参数buffered
+        /// </summary>
+        public IDbSession SetBuffered(bool buffered)
+        {
+            _buffered = buffered;
+            return this;
         }
         #endregion
 

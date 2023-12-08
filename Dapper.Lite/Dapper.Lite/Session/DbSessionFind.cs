@@ -212,7 +212,7 @@ namespace Dapper.Lite
 
             try
             {
-                return conn.QueryFirstOrDefault(type, sql, ToDynamicParameters(parameters), _tran);
+                return conn.QueryFirstOrDefault(type, sql, ToDynamicParameters(parameters), _tran, _commandTimeout, _commandType);
             }
             finally
             {
@@ -237,7 +237,7 @@ namespace Dapper.Lite
 
             try
             {
-                return await conn.QueryFirstOrDefaultAsync(type, sql, ToDynamicParameters(parameters), _tran);
+                return await conn.QueryFirstOrDefaultAsync(type, sql, ToDynamicParameters(parameters), _tran, _commandTimeout, _commandType);
             }
             finally
             {

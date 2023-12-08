@@ -151,6 +151,34 @@ namespace Dapper.Lite
 
         #endregion
 
+        #region 查询并返回DataTable
+        /// <summary>
+        /// 执行查询语句，返回DbDataReader
+        /// </summary>
+        DataTable QueryDataTable(string sqlString);
+
+        /// <summary>
+        /// 执行查询语句，返回DbDataReader
+        /// </summary>
+        Task<DataTable> QueryDataTableAsync(string sqlString);
+
+        /// <summary>
+        /// 执行查询语句，返回DbDataReader
+        /// </summary>
+        /// <param name="sqlString">查询语句</param>
+        ///  <param name="cmdParms">参数</param>
+        /// <returns>IDataReader</returns>
+        DataTable QueryDataTable(string sqlString, DbParameter[] cmdParms);
+
+        /// <summary>
+        /// 执行查询语句，返回DbDataReader
+        /// </summary>
+        /// <param name="sqlString">查询语句</param>
+        ///  <param name="cmdParms">参数</param>
+        /// <returns>IDataReader</returns>
+        Task<DataTable> QueryDataTableAsync(string sqlString, DbParameter[] cmdParms);
+        #endregion
+
         #region 传SqlString
 
         /// <summary>

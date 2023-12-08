@@ -105,5 +105,24 @@ namespace Dapper.Lite
         void SetTypeMap<T>();
         #endregion
 
+        #region 设置CommandType
+        /// <summary>
+        /// 设置CommandType
+        /// </summary>
+        IDbSession SetCommandType(CommandType commandType);
+        #endregion
+
+        #region Dapper参数设置
+        /// <summary>
+        /// 设置Dapper参数commandTimeout
+        /// </summary>
+        IDbSession SetCommandTimeout(int? commandTimeout);
+
+        /// <summary>
+        /// 设置Dapper参数buffered
+        /// </summary>
+        IDbSession SetBuffered(bool buffered);
+        #endregion
+
     }
 }

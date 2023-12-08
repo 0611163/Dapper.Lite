@@ -28,7 +28,6 @@ namespace Dapper.Lite
         public bool Exists(string sqlString)
         {
             SqlFilter(ref sqlString);
-            OnExecuting?.Invoke(sqlString, null);
 
             object obj = ExecuteScalar(sqlString);
 
@@ -50,7 +49,6 @@ namespace Dapper.Lite
         public async Task<bool> ExistsAsync(string sqlString)
         {
             SqlFilter(ref sqlString);
-            OnExecuting?.Invoke(sqlString, null);
 
             object obj = await ExecuteScalarAsync(sqlString);
 
@@ -74,7 +72,6 @@ namespace Dapper.Lite
         public T QuerySingle<T>(string sqlString)
         {
             SqlFilter(ref sqlString);
-            OnExecuting?.Invoke(sqlString, null);
 
             object obj = ExecuteScalar(sqlString);
 
@@ -97,7 +94,6 @@ namespace Dapper.Lite
         public object QuerySingle(string sqlString)
         {
             SqlFilter(ref sqlString);
-            OnExecuting?.Invoke(sqlString, null);
 
             object obj = ExecuteScalar(sqlString);
 
@@ -120,7 +116,6 @@ namespace Dapper.Lite
         public async Task<T> QuerySingleAsync<T>(string sqlString)
         {
             SqlFilter(ref sqlString);
-            OnExecuting?.Invoke(sqlString, null);
 
             object obj = await ExecuteScalarAsync(sqlString);
 
@@ -143,7 +138,6 @@ namespace Dapper.Lite
         public async Task<object> QuerySingleAsync(string sqlString)
         {
             SqlFilter(ref sqlString);
-            OnExecuting?.Invoke(sqlString, null);
 
             object obj = await ExecuteScalarAsync(sqlString);
 
@@ -222,9 +216,6 @@ namespace Dapper.Lite
         /// </summary>
         public bool Exists(string sqlString, DbParameter[] cmdParms)
         {
-            SqlFilter(ref sqlString);
-            OnExecuting?.Invoke(sqlString, cmdParms);
-
             object obj = ExecuteScalar(sqlString, cmdParms);
 
             if (object.Equals(obj, null) || object.Equals(obj, DBNull.Value))
@@ -244,9 +235,6 @@ namespace Dapper.Lite
         /// </summary>
         public async Task<bool> ExistsAsync(string sqlString, DbParameter[] cmdParms)
         {
-            SqlFilter(ref sqlString);
-            OnExecuting?.Invoke(sqlString, cmdParms);
-
             object obj = ExecuteScalarAsync(sqlString, cmdParms);
 
             if (object.Equals(obj, null) || object.Equals(obj, DBNull.Value))
@@ -269,9 +257,6 @@ namespace Dapper.Lite
         /// <param name="cmdParms">参数</param>
         public T QuerySingle<T>(string sqlString, DbParameter[] cmdParms)
         {
-            SqlFilter(ref sqlString);
-            OnExecuting?.Invoke(sqlString, cmdParms);
-
             object obj = ExecuteScalar(sqlString, cmdParms);
 
             if (object.Equals(obj, null) || object.Equals(obj, DBNull.Value))
@@ -293,9 +278,6 @@ namespace Dapper.Lite
         /// <param name="cmdParms">参数</param>
         public object QuerySingle(string sqlString, DbParameter[] cmdParms)
         {
-            SqlFilter(ref sqlString);
-            OnExecuting?.Invoke(sqlString, cmdParms);
-
             object obj = ExecuteScalar(sqlString, cmdParms);
 
             if (object.Equals(obj, null) || object.Equals(obj, DBNull.Value))
@@ -317,9 +299,6 @@ namespace Dapper.Lite
         /// <param name="cmdParms">参数</param>
         public async Task<T> QuerySingleAsync<T>(string sqlString, DbParameter[] cmdParms)
         {
-            SqlFilter(ref sqlString);
-            OnExecuting?.Invoke(sqlString, cmdParms);
-
             object obj = await ExecuteScalarAsync(sqlString, cmdParms);
 
             if (object.Equals(obj, null) || object.Equals(obj, DBNull.Value))
@@ -341,9 +320,6 @@ namespace Dapper.Lite
         /// <param name="cmdParms">参数</param>
         public async Task<object> QuerySingleAsync(string sqlString, DbParameter[] cmdParms)
         {
-            SqlFilter(ref sqlString);
-            OnExecuting?.Invoke(sqlString, cmdParms);
-
             object obj = await ExecuteScalarAsync(sqlString, cmdParms);
 
             if (object.Equals(obj, null) || object.Equals(obj, DBNull.Value))
@@ -537,11 +513,13 @@ namespace Dapper.Lite
         #region ExecuteScalar
         internal object ExecuteScalar(string sqlString, DbParameter[] cmdParms = null)
         {
+            OnExecuting?.Invoke(sqlString, cmdParms);
+
             var conn = GetConnection(_tran);
 
             try
             {
-                return conn.ExecuteScalar(sqlString, ToDynamicParameters(cmdParms), _tran);
+                return conn.ExecuteScalar(sqlString, ToDynamicParameters(cmdParms), _tran, _commandTimeout, _commandType);
             }
             finally
             {
@@ -556,11 +534,13 @@ namespace Dapper.Lite
         #region ExecuteScalarAsync
         internal async Task<object> ExecuteScalarAsync(string sqlString, DbParameter[] cmdParms = null)
         {
+            OnExecuting?.Invoke(sqlString, cmdParms);
+
             var conn = GetConnection(_tran);
 
             try
             {
-                return await conn.ExecuteScalarAsync(sqlString, ToDynamicParameters(cmdParms), _tran);
+                return await conn.ExecuteScalarAsync(sqlString, ToDynamicParameters(cmdParms), _tran, _commandTimeout, _commandType);
             }
             finally
             {
@@ -575,11 +555,13 @@ namespace Dapper.Lite
         #region Execute
         internal int Execute(string sqlString, DbParameter[] cmdParms = null)
         {
+            OnExecuting?.Invoke(sqlString, cmdParms);
+
             var conn = GetConnection(_tran);
 
             try
             {
-                return conn.Execute(sqlString, ToDynamicParameters(cmdParms), _tran);
+                return conn.Execute(sqlString, ToDynamicParameters(cmdParms), _tran, _commandTimeout, _commandType);
             }
             finally
             {
@@ -594,11 +576,124 @@ namespace Dapper.Lite
         #region ExecuteAsync
         internal async Task<int> ExecuteAsync(string sqlString, DbParameter[] cmdParms = null)
         {
+            OnExecuting?.Invoke(sqlString, cmdParms);
+
             var conn = GetConnection(_tran);
 
             try
             {
-                return await conn.ExecuteAsync(sqlString, ToDynamicParameters(cmdParms), _tran);
+                return await conn.ExecuteAsync(sqlString, ToDynamicParameters(cmdParms), _tran, _commandTimeout, _commandType);
+            }
+            finally
+            {
+                if (_tran == null)
+                {
+                    if (conn.State != ConnectionState.Closed) conn.Close();
+                }
+            }
+        }
+        #endregion
+
+
+        #region 查询并返回DataTable
+        /// <summary>
+        /// 执行查询语句，返回DataTable
+        /// </summary>
+        public DataTable QueryDataTable(string sqlString)
+        {
+            SqlFilter(ref sqlString);
+            OnExecuting?.Invoke(sqlString, null);
+
+            var conn = GetConnection(_tran);
+
+            try
+            {
+                var reader = conn.ExecuteReader(sqlString, null, _tran, _commandTimeout, _commandType);
+                DataTable dt = new DataTable();
+                dt.Load(reader);
+                return dt;
+            }
+            finally
+            {
+                if (_tran == null)
+                {
+                    if (conn.State != ConnectionState.Closed) conn.Close();
+                }
+            }
+        }
+
+        /// <summary>
+        /// 执行查询语句，返回DataTable
+        /// </summary>
+        public async Task<DataTable> QueryDataTableAsync(string sqlString)
+        {
+            SqlFilter(ref sqlString);
+            OnExecuting?.Invoke(sqlString, null);
+
+            var conn = GetConnection(_tran);
+
+            try
+            {
+                var reader = await conn.ExecuteReaderAsync(sqlString, null, _tran, _commandTimeout, _commandType);
+                DataTable dt = new DataTable();
+                dt.Load(reader);
+                return dt;
+            }
+            finally
+            {
+                if (_tran == null)
+                {
+                    if (conn.State != ConnectionState.Closed) conn.Close();
+                }
+            }
+        }
+
+        /// <summary>
+        /// 执行查询语句，返回DataTable
+        /// </summary>
+        /// <param name="sqlString">查询语句</param>
+        ///  <param name="cmdParms">参数</param>
+        /// <returns>IDataReader</returns>
+        public DataTable QueryDataTable(string sqlString, DbParameter[] cmdParms)
+        {
+            OnExecuting?.Invoke(sqlString, cmdParms);
+
+            var conn = GetConnection(_tran);
+
+            try
+            {
+                var reader = conn.ExecuteReader(sqlString, ToDynamicParameters(cmdParms), _tran, _commandTimeout, _commandType);
+                DataTable dt = new DataTable();
+                dt.Load(reader);
+                return dt;
+            }
+            finally
+            {
+                if (_tran == null)
+                {
+                    if (conn.State != ConnectionState.Closed) conn.Close();
+                }
+            }
+        }
+
+        /// <summary>
+        /// 执行查询语句，返回DataTable
+        /// </summary>
+        /// <param name="sqlString">查询语句</param>
+        ///  <param name="cmdParms">参数</param>
+        /// <returns>IDataReader</returns>
+        public async Task<DataTable> QueryDataTableAsync(string sqlString, DbParameter[] cmdParms)
+        {
+            OnExecuting?.Invoke(sqlString, cmdParms);
+
+            var conn = GetConnection(_tran);
+
+            try
+            {
+                var reader = await conn.ExecuteReaderAsync(sqlString, ToDynamicParameters(cmdParms), _tran, _commandTimeout, _commandType);
+                DataTable dt = new DataTable();
+                dt.Load(reader);
+                return dt;
             }
             finally
             {

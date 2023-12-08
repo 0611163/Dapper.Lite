@@ -69,8 +69,6 @@ namespace Dapper.Lite
 
             if (savedCount > 0)
             {
-                OnExecuting?.Invoke(strSql.ToString(), parameters);
-
                 Execute(strSql.ToString(), parameters);
             }
         }
@@ -93,8 +91,6 @@ namespace Dapper.Lite
 
             if (savedCount > 0)
             {
-                OnExecuting?.Invoke(strSql.ToString(), parameters);
-
                 await ExecuteAsync(strSql.ToString(), parameters);
             }
         }
@@ -139,8 +135,6 @@ namespace Dapper.Lite
 
                 if (savedCount > 0)
                 {
-                    OnExecuting?.Invoke(strSql.ToString(), parameters);
-
                     Execute(strSql.ToString(), parameters);
                 }
             }
@@ -186,8 +180,6 @@ namespace Dapper.Lite
 
                 if (savedCount > 0)
                 {
-                    OnExecuting?.Invoke(strSql.ToString(), parameters);
-
                     await ExecuteAsync(strSql.ToString(), parameters);
                 }
             }
