@@ -6,9 +6,9 @@
         <Nullable>disable</Nullable>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <Title>Dapper.Lite</Title>
-        <AssemblyVersion>2.0.8</AssemblyVersion>
-        <FileVersion>2.0.8</FileVersion>
-        <Version>2.0.8</Version>
+        <AssemblyVersion>2.0.9</AssemblyVersion>
+        <FileVersion>2.0.9</FileVersion>
+        <Version>2.0.9</Version>
         <PackageId>Dapper.Lite</PackageId>
         <PackageProjectUrl>https://github.com/0611163/Dapper.Lite</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -20,10 +20,7 @@
         </Description>
         <PackageReleaseNotes>
             更新内容：
-            1. 新增：IDbSession接口增加SetCommandType方法，以支持调用存储过程
-            2. 优化：删除重复的OnExecuting调用
-            3. 新增：IDbSession接口新增查询并返回DataTable的方法
-            4. 新增：IDbSession接口增加设置Dapper参数的方法SetCommandTimeout和SetBuffered
+            1. 修复bug：防注入过滤会把查询语句中的字段FDelete替换成F
         </PackageReleaseNotes>
     </PropertyGroup>
 

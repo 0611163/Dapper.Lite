@@ -100,21 +100,22 @@ namespace Dapper.Lite
         /// </summary>
         static DbSession()
         {
-            _sqlFilteRegexDict.TryAdd("net localgroup ", new Regex("net[\\s]+localgroup[\\s]+", RegexOptions.IgnoreCase));
-            _sqlFilteRegexDict.TryAdd("net user ", new Regex("net[\\s]+user[\\s]+", RegexOptions.IgnoreCase));
-            _sqlFilteRegexDict.TryAdd("xp_cmdshell ", new Regex("xp_cmdshell[\\s]+", RegexOptions.IgnoreCase));
-            _sqlFilteRegexDict.TryAdd("exec ", new Regex("exec[\\s]+", RegexOptions.IgnoreCase));
-            _sqlFilteRegexDict.TryAdd("execute ", new Regex("execute[\\s]+", RegexOptions.IgnoreCase));
-            _sqlFilteRegexDict.TryAdd("truncate ", new Regex("truncate[\\s]+", RegexOptions.IgnoreCase));
-            _sqlFilteRegexDict.TryAdd("drop ", new Regex("drop[\\s]+", RegexOptions.IgnoreCase));
-            _sqlFilteRegexDict.TryAdd("restore ", new Regex("restore[\\s]+", RegexOptions.IgnoreCase));
-            _sqlFilteRegexDict.TryAdd("create ", new Regex("create[\\s]+", RegexOptions.IgnoreCase));
-            _sqlFilteRegexDict.TryAdd("alter ", new Regex("alter[\\s]+", RegexOptions.IgnoreCase));
-            _sqlFilteRegexDict.TryAdd("rename ", new Regex("rename[\\s]+", RegexOptions.IgnoreCase));
-            _sqlFilteRegexDict.TryAdd("insert ", new Regex("insert[\\s]+", RegexOptions.IgnoreCase));
-            _sqlFilteRegexDict.TryAdd("update ", new Regex("update[\\s]+", RegexOptions.IgnoreCase));
-            _sqlFilteRegexDict.TryAdd("delete ", new Regex("delete[\\s]+", RegexOptions.IgnoreCase));
-            _sqlFilteRegexDict.TryAdd("select ", new Regex("select[\\s]+", RegexOptions.IgnoreCase));
+            string prefix = "(?<![a-zA-Z_]+)";
+            _sqlFilteRegexDict.TryAdd("net localgroup ", new Regex(prefix + "net[\\s]+localgroup[\\s]+", RegexOptions.IgnoreCase));
+            _sqlFilteRegexDict.TryAdd("net user ", new Regex(prefix + "net[\\s]+user[\\s]+", RegexOptions.IgnoreCase));
+            _sqlFilteRegexDict.TryAdd("xp_cmdshell ", new Regex(prefix + "xp_cmdshell[\\s]+", RegexOptions.IgnoreCase));
+            _sqlFilteRegexDict.TryAdd("exec ", new Regex(prefix + "exec[\\s]+", RegexOptions.IgnoreCase));
+            _sqlFilteRegexDict.TryAdd("execute ", new Regex(prefix + "execute[\\s]+", RegexOptions.IgnoreCase));
+            _sqlFilteRegexDict.TryAdd("truncate ", new Regex(prefix + "truncate[\\s]+", RegexOptions.IgnoreCase));
+            _sqlFilteRegexDict.TryAdd("drop ", new Regex(prefix + "drop[\\s]+", RegexOptions.IgnoreCase));
+            _sqlFilteRegexDict.TryAdd("restore ", new Regex(prefix + "restore[\\s]+", RegexOptions.IgnoreCase));
+            _sqlFilteRegexDict.TryAdd("create ", new Regex(prefix + "create[\\s]+", RegexOptions.IgnoreCase));
+            _sqlFilteRegexDict.TryAdd("alter ", new Regex(prefix + "alter[\\s]+", RegexOptions.IgnoreCase));
+            _sqlFilteRegexDict.TryAdd("rename ", new Regex(prefix + "rename[\\s]+", RegexOptions.IgnoreCase));
+            _sqlFilteRegexDict.TryAdd("insert ", new Regex(prefix + "insert[\\s]+", RegexOptions.IgnoreCase));
+            _sqlFilteRegexDict.TryAdd("update ", new Regex(prefix + "update[\\s]+", RegexOptions.IgnoreCase));
+            _sqlFilteRegexDict.TryAdd("delete ", new Regex(prefix + "delete[\\s]+", RegexOptions.IgnoreCase));
+            _sqlFilteRegexDict.TryAdd("select ", new Regex(prefix + "select[\\s]+", RegexOptions.IgnoreCase));
         }
         #endregion
 
