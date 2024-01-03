@@ -52,7 +52,7 @@ namespace Dapper.LiteTest
 
             SysUser userInfo = session.Sql(
                 "select * from sys_user_202208 where id = @Id", new { user.Id })
-                .Query<SysUser>();
+                .First<SysUser>();
             Assert.IsTrue(userInfo != null);
 
             Assert.IsTrue(userInfo.Remark == (start + index).ToString());
@@ -125,7 +125,7 @@ namespace Dapper.LiteTest
 
                 SysUser userInfo = session.Sql(
                     "select * from sys_user_202208 where Remark like @Remark", new { Remark = "测试修改分表数据%" })
-                    .Query<SysUser>();
+                    .First<SysUser>();
                 Assert.IsTrue(userInfo.Remark == user.Remark);
 
                 Console.WriteLine("用户 ID=" + user.Id + " 已修改");

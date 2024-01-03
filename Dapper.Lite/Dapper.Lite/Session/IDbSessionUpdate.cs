@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -47,5 +48,15 @@ namespace Dapper.Lite
         /// 附加更新前的旧数据，只更新数据发生变化的字段
         /// </summary>
         void AttachOld<T>(List<T> objList);
+
+        /// <summary>
+        /// 设置只更新某些字段
+        /// </summary>
+        IDbSession UpdateColumns<T>(Expression<Func<T, object>> expression);
+
+        /// <summary>
+        /// 设置不更新某些字段
+        /// </summary>
+        IDbSession IgnoreColumns<T>(Expression<Func<T, object>> expression);
     }
 }

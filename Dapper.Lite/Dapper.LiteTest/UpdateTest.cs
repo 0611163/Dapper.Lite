@@ -81,7 +81,7 @@ namespace Dapper.LiteTest
             var session = DapperLiteFactory.GetSession();
             BsOrder orderInfo = session.Sql(
                 "select * from bs_order where Id like @Id", new { Id = order.Id })
-                .Query<BsOrder>();
+                .First<BsOrder>();
             Assert.IsTrue(orderInfo.Remark == order.Remark);
         }
         #endregion
@@ -110,7 +110,7 @@ namespace Dapper.LiteTest
 
                 SysUser userInfo = session.Sql(
                     "select * from sys_user where Id = @Id", new { Id = userId })
-                    .Query<SysUser>();
+                    .First<SysUser>();
                 Assert.IsTrue(userInfo.Remark == user.Remark);
                 Console.WriteLine("用户 ID=" + user.Id + " 已修改");
             }
@@ -137,13 +137,71 @@ namespace Dapper.LiteTest
                 var session = DapperLiteFactory.GetSession();
                 SysUser userInfo = session.Sql(
                     "select * from sys_user where Id like @Id", new { Id = userId })
-                    .Query<SysUser>();
+                    .First<SysUser>();
                 Assert.IsTrue(userInfo.Remark == user.Remark);
             }
             else
             {
                 throw new Exception("测试数据被删除");
             }
+        }
+        #endregion
+
+        #region 测试只更新某些字段
+        /// <summary>
+        /// 测试只更新某些字段
+        /// </summary>
+        [TestMethod]
+        public void TestUpdateColumns()
+        {
+            var session = DapperLiteFactory.Db.GetSession();
+
+            session.OnExecuting = (s, p) =>
+            {
+                Console.WriteLine(s);
+            };
+
+            SysUser user = new SysUser();
+            user.Id = 11;
+            user.RealName = "李四" + _rnd.Next(1, 100);
+            user.Remark = "更新Remark字段" + _rnd.Next(1, 10000);
+            user.UpdateTime = DateTime.Now;
+
+            session.UpdateColumns<SysUser>(t => new { t.RealName, t.Remark, t.UpdateTime });
+            session.Update(user);
+            session.Update(new List<SysUser>() { user });
+
+            SysUser userInfo = session.Queryable<SysUser>().Where(t => t.Id == 11).First();
+            Assert.IsTrue(userInfo.RealName == user.RealName);
+        }
+        #endregion
+
+        #region 测试不更新某些字段
+        /// <summary>
+        /// 测试不更新某些字段
+        /// </summary>
+        [TestMethod]
+        public void TestIgnoreColumns()
+        {
+            var session = DapperLiteFactory.Db.GetSession();
+
+            session.OnExecuting = (s, p) =>
+            {
+                Console.WriteLine(s);
+            };
+
+            SysUser user = session.Queryable<SysUser>().Where(t => t.Id == 11).First();
+            session.AttachOld(user);
+            user.RealName = "李四_ABC";
+            user.Remark = "更新Remark字段" + _rnd.Next(1, 10000);
+            user.UpdateTime = DateTime.Now;
+
+            session.IgnoreColumns<SysUser>(t => new { t.RealName });
+            session.Update(user);
+            session.Update(new List<SysUser>() { user });
+
+            SysUser userInfo = session.Queryable<SysUser>().Where(t => t.Id == 11).First();
+            Assert.IsTrue(userInfo.RealName != user.RealName);
         }
         #endregion
 

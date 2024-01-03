@@ -373,7 +373,7 @@ namespace DAL
             sql.Append(" order by t.order_time desc, t.id asc ");
 
             pageModel.TotalRows = sql.QueryCount();
-            List<BsOrder> result = sql.QueryPage<BsOrder>(null, pageModel.PageSize, pageModel.CurrentPage);
+            List<BsOrder> result = sql.ToPageList<BsOrder>(null, pageModel.PageSize, pageModel.CurrentPage);
             return result;
         }
         #endregion

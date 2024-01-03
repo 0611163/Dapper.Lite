@@ -118,7 +118,7 @@ namespace PerformanceTest
             {
                 Log("删除 开始");
                 var session = DapperLiteFactory.GetSession();
-                session.Sql("id>@Id", 12).DeleteByCondition<SysUser>();
+                session.Sql("id>@Id", 12).Delete<SysUser>();
                 Log("删除 完成");
             });
         }
@@ -365,7 +365,7 @@ namespace PerformanceTest
 
                         string orderby = " order by t.create_time desc, t.id asc";
 
-                        userList.AddRange(sql.QueryPage<SysUser>(orderby, pageSize, page));
+                        userList.AddRange(sql.ToPageList<SysUser>(orderby, pageSize, page));
                     }
                     Log("分页查询结果 count=" + userList.Count.ToString());
                 }
@@ -403,7 +403,7 @@ namespace PerformanceTest
 
                         sql.Append(" order by t.create_time desc, t.id asc");
 
-                        List<SysUser> userList = sql.QueryList<SysUser>();
+                        List<SysUser> userList = sql.ToList<SysUser>();
                         if (index % 50 == 0) Log("第" + index + "次查询结果 count=" + userList.Count);
                     });
                     tasks.Add(task);

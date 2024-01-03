@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data;
+using System.Linq.Expressions;
 
 namespace Dapper.Lite
 {
@@ -16,7 +17,17 @@ namespace Dapper.Lite
         /// <summary>
         /// 新旧数据集合 key:新数据 value:旧数据
         /// </summary>
-        private ConcurrentDictionary<object, object> _oldObjs = new ConcurrentDictionary<object, object>();
+        private readonly ConcurrentDictionary<object, object> _oldObjs = new ConcurrentDictionary<object, object>();
+
+        /// <summary>
+        /// 只更新这些字段
+        /// </summary>
+        private readonly ConcurrentDictionary<Type, HashSet<string>> _updateColumns = new ConcurrentDictionary<Type, HashSet<string>>();
+
+        /// <summary>
+        /// 不更新这些字段
+        /// </summary>
+        private readonly ConcurrentDictionary<Type, HashSet<string>> _ignoreColumns = new ConcurrentDictionary<Type, HashSet<string>>();
         #endregion
 
         #region AttachOld 附加更新前的旧实体
@@ -27,14 +38,12 @@ namespace Dapper.Lite
         {
             if (_oldObjs.ContainsKey(obj))
             {
-                object temp;
-                _oldObjs.TryRemove(obj, out temp);
+                _oldObjs.TryRemove(obj, out object _);
             }
 
             if (!_oldObjs.ContainsKey(obj))
             {
-                object cloneObj;
-                cloneObj = ModelMapper<T>.Map(obj);
+                object cloneObj = ModelMapper<T>.Map(obj);
                 _oldObjs.TryAdd(obj, cloneObj);
             }
         }
@@ -48,6 +57,44 @@ namespace Dapper.Lite
             {
                 AttachOld(obj);
             }
+        }
+        #endregion
+
+        #region UpdateColumns 设置只更新某些字段
+        /// <summary>
+        /// 设置只更新某些字段
+        /// </summary>
+        public IDbSession UpdateColumns<T>(Expression<Func<T, object>> expression)
+        {
+            Type type = expression.Body.Type;
+            PropertyInfo[] props = type.GetProperties();
+            HashSet<string> updateColumnsSet = new HashSet<string>();
+            _updateColumns.TryAdd(typeof(T), updateColumnsSet);
+            foreach (PropertyInfo propertyInfo in props)
+            {
+                updateColumnsSet.Add(propertyInfo.Name);
+            }
+
+            return this;
+        }
+        #endregion
+
+        #region IgnoreColumns 设置不更新某些字段
+        /// <summary>
+        /// 设置不更新某些字段
+        /// </summary>
+        public IDbSession IgnoreColumns<T>(Expression<Func<T, object>> expression)
+        {
+            Type type = expression.Body.Type;
+            PropertyInfo[] props = type.GetProperties();
+            HashSet<string> ignoreColumnsSet = new HashSet<string>();
+            _ignoreColumns.TryAdd(typeof(T), ignoreColumnsSet);
+            foreach (PropertyInfo propertyInfo in props)
+            {
+                ignoreColumnsSet.Add(propertyInfo.Name);
+            }
+
+            return this;
         }
         #endregion
 
@@ -198,9 +245,14 @@ namespace Dapper.Lite
             List<DbParameter> paramList = new List<DbParameter>();
             PropertyInfoEx[] propertyInfoList = GetEntityProperties(type);
             StringBuilder sbPros = new StringBuilder();
+            _updateColumns.TryGetValue(type, out HashSet<string> updateColumnsSet);
+            _ignoreColumns.TryGetValue(type, out HashSet<string> ignoreColumnsSet);
             foreach (PropertyInfoEx propertyInfoEx in propertyInfoList)
             {
                 PropertyInfo propertyInfo = propertyInfoEx.PropertyInfo;
+
+                if (updateColumnsSet != null && updateColumnsSet.Count > 0 && !updateColumnsSet.Contains(propertyInfo.Name)) continue;
+                if (ignoreColumnsSet != null && ignoreColumnsSet.Count > 0 && ignoreColumnsSet.Contains(propertyInfo.Name)) continue;
 
                 if (propertyInfoEx.IsReadOnly) continue;
 
@@ -242,6 +294,9 @@ namespace Dapper.Lite
 
             Tuple<string, string, string> updateTmpl = _provider.CreateUpdateSqlTempldate();
             List<DbParameter> paramList = new List<DbParameter>();
+            _updateColumns.TryGetValue(type, out HashSet<string> updateColumnsSet);
+            _ignoreColumns.TryGetValue(type, out HashSet<string> ignoreColumnsSet);
+            PropertyInfoEx[] propertyInfoList = GetEntityProperties(type);
             for (int n = 0; n < list.Count; n++)
             {
                 T obj = list[n];
@@ -249,11 +304,13 @@ namespace Dapper.Lite
 
                 int subSavedCount = 0;
 
-                PropertyInfoEx[] propertyInfoList = GetEntityProperties(type);
                 StringBuilder sbPros = new StringBuilder();
                 foreach (PropertyInfoEx propertyInfoEx in propertyInfoList)
                 {
                     PropertyInfo propertyInfo = propertyInfoEx.PropertyInfo;
+
+                    if (updateColumnsSet != null && updateColumnsSet.Count > 0 && !updateColumnsSet.Contains(propertyInfo.Name)) continue;
+                    if (ignoreColumnsSet != null && ignoreColumnsSet.Count > 0 && ignoreColumnsSet.Contains(propertyInfo.Name)) continue;
 
                     if (propertyInfoEx.IsReadOnly) continue;
 

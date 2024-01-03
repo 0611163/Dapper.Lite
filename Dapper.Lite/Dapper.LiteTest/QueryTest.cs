@@ -163,7 +163,7 @@ namespace Dapper.LiteTest
 
                 .Append(" and t.create_time <= @EndTime ", new { EndTime = new DateTime(2022, 8, 1) })
 
-                .QueryList<SysUser>();
+                .ToList<SysUser>();
 
             long id = session.Sql("select id from sys_user where id=@Id", new { Id = 1 })
                 .QuerySingle<long>();
@@ -231,7 +231,7 @@ namespace Dapper.LiteTest
             long id = db.Sql("select id from sys_user where id=@Id", new { Id = 1 }).QuerySingle<long>();
             Assert.IsTrue(id == 1);
 
-            List<SysUser> list = sql.QueryList<SysUser>();
+            List<SysUser> list = sql.ToList<SysUser>();
             foreach (SysUser item in list)
             {
                 Console.WriteLine(ModelToStringUtil.ToString(item));
