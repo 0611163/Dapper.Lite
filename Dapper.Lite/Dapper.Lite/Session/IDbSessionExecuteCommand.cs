@@ -177,6 +177,26 @@ namespace Dapper.Lite
         ///  <param name="cmdParms">参数</param>
         /// <returns>IDataReader</returns>
         Task<DataTable> QueryDataTableAsync(string sqlString, DbParameter[] cmdParms);
+
+        /// <summary>
+        /// 分页查询，返回DataTable
+        /// </summary>
+        DataTable QueryPage(string sql, string orderby, int pageSize, int currentPage);
+
+        /// <summary>
+        /// 分页查询，返回DataTable
+        /// </summary>
+        Task<DataTable> QueryPageAsync(string sql, string orderby, int pageSize, int currentPage);
+
+        /// <summary>
+        /// 分页查询，返回DataTable
+        /// </summary>
+        DataTable QueryPage(string sql, string orderby, int pageSize, int currentPage, DbParameter[] cmdParms);
+
+        /// <summary>
+        /// 分页查询，返回DataTable
+        /// </summary>
+        Task<DataTable> QueryPageAsync(string sql, string orderby, int pageSize, int currentPage, DbParameter[] cmdParms);
         #endregion
 
         #region 传SqlString

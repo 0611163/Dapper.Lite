@@ -6,9 +6,9 @@
         <Nullable>disable</Nullable>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <Title>Dapper.Lite</Title>
-        <AssemblyVersion>2.0.10</AssemblyVersion>
-        <FileVersion>2.0.10</FileVersion>
-        <Version>2.0.10</Version>
+        <AssemblyVersion>2.0.11</AssemblyVersion>
+        <FileVersion>2.0.11</FileVersion>
+        <Version>2.0.11</Version>
         <PackageId>Dapper.Lite</PackageId>
         <PackageProjectUrl>https://github.com/0611163/Dapper.Lite</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -20,9 +20,7 @@
         </Description>
         <PackageReleaseNotes>
             更新内容：
-            1. 更新数据时，支持设置只更新某些字段，支持设置不更新某些字段。
-            2. ISqlString接口移除之前版本标记为Obsolete的方法。替代方法：Query的替代方法是First，QueryAsync的替代方法是FirstAsync，QueryList的替代方法是ToList，QueryListAsync的替代方法是ToListAsync
-            QueryPage的替代方法是ToPageList，QueryPageAsync的替代方法是ToPageListAsync，DeleteByCondition的替代方法是Delete，DeleteByConditionAsync的替代方法是DeleteAsync。
+            1. IDbSession接口新增返回DataTable的分页查询方法
         </PackageReleaseNotes>
     </PropertyGroup>
 

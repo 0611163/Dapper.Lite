@@ -703,6 +703,46 @@ namespace Dapper.Lite
                 }
             }
         }
+
+        /// <summary>
+        /// 分页查询，返回DataTable
+        /// </summary>
+        public DataTable QueryPage(string sql, string orderby, int pageSize, int currentPage)
+        {
+            sql = _provider.CreatePageSql(sql, orderby, pageSize, currentPage);
+
+            return QueryDataTable(sql);
+        }
+
+        /// <summary>
+        /// 分页查询，返回DataTable
+        /// </summary>
+        public async Task<DataTable> QueryPageAsync(string sql, string orderby, int pageSize, int currentPage)
+        {
+            sql = _provider.CreatePageSql(sql, orderby, pageSize, currentPage);
+
+            return await QueryDataTableAsync(sql);
+        }
+
+        /// <summary>
+        /// 分页查询，返回DataTable
+        /// </summary>
+        public DataTable QueryPage(string sql, string orderby, int pageSize, int currentPage, DbParameter[] cmdParms)
+        {
+            sql = _provider.CreatePageSql(sql, orderby, pageSize, currentPage);
+
+            return QueryDataTable(sql, cmdParms);
+        }
+
+        /// <summary>
+        /// 分页查询，返回DataTable
+        /// </summary>
+        public async Task<DataTable> QueryPageAsync(string sql, string orderby, int pageSize, int currentPage, DbParameter[] cmdParms)
+        {
+            sql = _provider.CreatePageSql(sql, orderby, pageSize, currentPage);
+
+            return await QueryDataTableAsync(sql, cmdParms);
+        }
         #endregion
 
     }

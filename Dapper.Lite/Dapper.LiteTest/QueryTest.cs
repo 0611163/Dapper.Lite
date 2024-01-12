@@ -496,5 +496,30 @@ namespace Dapper.LiteTest
         }
         #endregion
 
+        #region 测试分页查询并返回DataTable
+        [TestMethod]
+        public void TestReturnDataTablePage()
+        {
+            var session = DapperLiteFactory.GetSession();
+
+            session.OnExecuting = (s, p) =>
+            {
+                Console.WriteLine(s);
+            };
+
+            var sql = session.Sql("select * from sys_user where id<=@Id", 20);
+            DataTable dt = session.QueryPage(sql.SQL, "order by id asc", 5, 1, sql.Params);
+
+            foreach (DataRow dr in dt.Rows)
+            {
+                Console.WriteLine($"{dr["user_name"]}, {dr["real_name"]}, {dr["remark"]}");
+            }
+            Assert.IsTrue(dt.Rows.Count > 0);
+
+            var list = sql.ToList<dynamic>();
+            Assert.IsTrue(list.Count > 0);
+        }
+        #endregion
+
     }
 }
