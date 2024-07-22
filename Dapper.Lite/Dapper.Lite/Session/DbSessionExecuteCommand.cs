@@ -235,7 +235,7 @@ namespace Dapper.Lite
         /// </summary>
         public async Task<bool> ExistsAsync(string sqlString, DbParameter[] cmdParms)
         {
-            object obj = ExecuteScalarAsync(sqlString, cmdParms);
+            object obj = await ExecuteScalarAsync(sqlString, cmdParms);
 
             if (object.Equals(obj, null) || object.Equals(obj, DBNull.Value))
             {
