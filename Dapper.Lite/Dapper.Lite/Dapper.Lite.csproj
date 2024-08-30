@@ -6,9 +6,9 @@
         <Nullable>disable</Nullable>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <Title>Dapper.Lite</Title>
-        <AssemblyVersion>2.0.12</AssemblyVersion>
-        <FileVersion>2.0.12</FileVersion>
-        <Version>2.0.12</Version>
+        <AssemblyVersion>2.0.13</AssemblyVersion>
+        <FileVersion>2.0.13</FileVersion>
+        <Version>2.0.13</Version>
         <PackageId>Dapper.Lite</PackageId>
         <PackageProjectUrl>https://github.com/0611163/Dapper.Lite</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -20,7 +20,7 @@
         </Description>
         <PackageReleaseNotes>
             更新内容：
-            1. 修复BUG：ExistsAsync的实现代码中漏写了await，导致返回结果始终为true
+            1. lambda表达式支持对象变量属性的属性 例:t => t.Remark == info.Order.Remark
         </PackageReleaseNotes>
     </PropertyGroup>
 

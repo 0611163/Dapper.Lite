@@ -417,7 +417,14 @@ namespace Dapper.Lite
                 MemberExpression memberExp = exp as MemberExpression;
                 if (memberExp.Expression is MemberExpression) // 支持对象变量的属性 例: t => t.OrderTime > time.startTime.Value 例: t => t.Remark.Contains(order.Remark)
                 {
-                    result = VisitValue(memberExp.Expression, memberExp);
+                    if (parent != null)
+                    {
+                        result = ReflectionValue(memberExp.Expression, parent); // 支持对象变量属性的属性 例:t => t.Remark == info.Order.Remark
+                    }
+                    else
+                    {
+                        result = VisitValue(memberExp.Expression, memberExp);
+                    }
                 }
                 else
                 {
