@@ -7,19 +7,23 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Models
 {
+    public class BaseModel
+    {
+        public string PlatformName { get; set; }
+    }
+
     /// <summary>
     /// 用户表
     /// </summary>
     [Serializable]
     [Table("sys_user")]
-    public partial class SysUser
+    public partial class SysUser: BaseModel
     {
 
         /// <summary>
         /// 主键
         /// </summary>
         [Key]
-        [Column("id")]
         public long Id { get; set; }
 
         /// <summary>
@@ -37,13 +41,11 @@ namespace Models
         /// <summary>
         /// 用户密码
         /// </summary>
-        [Column("password")]
         public string Password { get; set; }
 
         /// <summary>
         /// 备注
         /// </summary>
-        [Column("remark")]
         public string Remark { get; set; }
 
         /// <summary>

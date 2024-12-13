@@ -6,9 +6,9 @@
         <Nullable>disable</Nullable>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <Title>Dapper.Lite</Title>
-        <AssemblyVersion>2.0.13</AssemblyVersion>
-        <FileVersion>2.0.13</FileVersion>
-        <Version>2.0.13</Version>
+        <AssemblyVersion>2.1.0</AssemblyVersion>
+        <FileVersion>2.1.0</FileVersion>
+        <Version>2.1.0</Version>
         <PackageId>Dapper.Lite</PackageId>
         <PackageProjectUrl>https://github.com/0611163/Dapper.Lite</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -20,7 +20,8 @@
         </Description>
         <PackageReleaseNotes>
             更新内容：
-            1. lambda表达式支持对象变量属性的属性 例:t => t.Remark == info.Order.Remark
+            1. 当实体类属性名和数据库字段名相同时，实体类属性不需要再使用Column标识，但是非数据库字段要使用NotMapped标识。
+            注意：这是一个破坏性更改。
         </PackageReleaseNotes>
     </PropertyGroup>
 
