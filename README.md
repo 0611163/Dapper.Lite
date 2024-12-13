@@ -259,7 +259,6 @@ public partial class BsOrder
     /// 主键
     /// </summary>
     [Key]
-    [Column("id")]
     public string Id { get; set; }
 
     /// <summary>
@@ -271,7 +270,6 @@ public partial class BsOrder
     /// <summary>
     /// 订单金额
     /// </summary>
-    [Column("amount")]
     public decimal? Amount { get; set; }
 
     /// <summary>
@@ -283,13 +281,11 @@ public partial class BsOrder
     /// <summary>
     /// 订单状态(0草稿 1已下单 2已付款 3已发货 4完成)
     /// </summary>
-    [Column("status")]
     public int Status { get; set; }
 
     /// <summary>
     /// 备注
     /// </summary>
-    [Column("remark")]
     public string Remark { get; set; }
 
     /// <summary>
@@ -336,16 +332,19 @@ public partial class BsOrder
     /// <summary>
     /// 订单明细集合
     /// </summary>
+    [NotMapped]
     public List<BsOrderDetail> DetailList { get; set; }
 
     /// <summary>
     /// 下单用户姓名
     /// </summary>
+    [NotMapped]
     public string OrderUserRealName { get; set; }
 
     /// <summary>
     /// 下单用户名
     /// </summary>
+    [NotMapped]
     public string OrderUserName { get; set; }
 }
 ```
