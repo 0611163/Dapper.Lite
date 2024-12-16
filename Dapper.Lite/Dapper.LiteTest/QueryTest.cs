@@ -521,5 +521,26 @@ namespace Dapper.LiteTest
         }
         #endregion
 
+        #region 测试实体类和属性不打标签
+        [TestMethod]
+        public void TestNoDataAnnotations()
+        {
+            var session = DapperLiteFactory.GetSession();
+
+            session.OnExecuting = (s, p) =>
+            {
+                Console.WriteLine(s);
+            };
+
+            List<Sys_user> list = session.Queryable<Sys_user>().Where(t => t.Id > 0).ToList();
+
+            foreach (Sys_user item in list)
+            {
+                Console.WriteLine(ModelToStringUtil.ToString(item));
+            }
+            Assert.IsTrue(list.Count > 0);
+        }
+        #endregion
+
     }
 }

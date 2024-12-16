@@ -197,27 +197,21 @@ namespace Dapper.Lite
             else
             {
                 TableAttribute dbTableAttribute = type.GetCustomAttribute<TableAttribute>();
-                if (dbTableAttribute != null && !string.IsNullOrWhiteSpace(dbTableAttribute.Name))
+                if (dbTableAttribute != null)
                 {
+                    string tableName = string.IsNullOrWhiteSpace(dbTableAttribute.Name) ? type.Name : dbTableAttribute.Name;
                     if (dbTableAttribute.Schema == null)
                     {
-                        return $"{provider.OpenQuote}{dbTableAttribute.Name}{provider.CloseQuote}";
+                        return $"{provider.OpenQuote}{tableName}{provider.CloseQuote}";
                     }
                     else
                     {
-                        return $"{provider.OpenQuote}{dbTableAttribute.Schema}{provider.CloseQuote}.{provider.OpenQuote}{dbTableAttribute.Name}{provider.CloseQuote}";
+                        return $"{provider.OpenQuote}{dbTableAttribute.Schema}{provider.CloseQuote}.{provider.OpenQuote}{tableName}{provider.CloseQuote}";
                     }
                 }
                 else
                 {
-                    if (dbTableAttribute.Schema == null)
-                    {
-                        return $"{provider.OpenQuote}{type.Name}{provider.CloseQuote}";
-                    }
-                    else
-                    {
-                        return $"{provider.OpenQuote}{dbTableAttribute.Schema}{provider.CloseQuote}.{provider.OpenQuote}{type.Name}{provider.CloseQuote}";
-                    }
+                    return $"{provider.OpenQuote}{type.Name}{provider.CloseQuote}";
                 }
             }
         }
