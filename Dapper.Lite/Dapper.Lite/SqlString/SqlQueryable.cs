@@ -59,6 +59,11 @@ namespace Dapper.Lite
         private QueryableInfo queryableInfo = new QueryableInfo();
 
         /// <summary>
+        /// Join 集合
+        /// </summary>
+        private List<string> joinList = new List<string>();
+
+        /// <summary>
         /// where 信息集合
         /// </summary>
         private List<WhereInfo> whereList = new List<WhereInfo>();
@@ -99,6 +104,7 @@ namespace Dapper.Lite
             if (_sqlString.Sql.Length == 0)
             {
                 AppendQueryable();
+                AppendLeftJoin();
                 AppendWhere();
                 AppendOrderBy();
             }
@@ -107,6 +113,14 @@ namespace Dapper.Lite
         private void AppendQueryable()
         {
             _sqlString.Sql.AppendFormat(queryableInfo.Sql.ToString(), _alias);
+        }
+
+        private void AppendLeftJoin()
+        {
+            foreach (string leftJoinStr in joinList)
+            {
+                _sqlString.Sql.Append(leftJoinStr);
+            }
         }
 
         private void AppendWhere()
@@ -167,6 +181,56 @@ namespace Dapper.Lite
             queryableInfo.Sql.Remove(queryableInfo.Sql.Length - 1, 1);
 
             queryableInfo.Sql.AppendFormat(" from {0} {1}", _dbSession.GetTableName(_provider, type), "{0}");
+
+            return this;
+        }
+        #endregion
+
+        #region LeftJoin
+        /// <summary>
+        /// 追加 left join SQL
+        /// </summary>
+        public ISqlQueryable<T> LeftJoin<U>(Expression<Func<T, U, object>> expression)
+        {
+            ExpressionHelper<T> condition = new ExpressionHelper<T>(_provider, _sqlString.DbParameterNames, SqlStringMethod.LeftJoin);
+            string sql = condition.VisitLambda(expression, out DbParameter[] dbParameters);
+
+            _alias = condition.Alias;
+            string tableName = _dbSession.GetTableName(_provider, typeof(U));
+
+            string alias = sql.Split('=')[1].Split('.')[0].Trim();
+
+            if (alias == _alias)
+            {
+                alias = sql.Split('=')[0].Split('.')[0].Trim();
+            }
+
+            joinList.Add(string.Format(" left join {0} {1} on {2}", tableName, alias, sql));
+
+            return this;
+        }
+        #endregion
+
+        #region InnerJoin
+        /// <summary>
+        /// 追加 inner join SQL
+        /// </summary>
+        public ISqlQueryable<T> InnerJoin<U>(Expression<Func<T, U, object>> expression)
+        {
+            ExpressionHelper<T> condition = new ExpressionHelper<T>(_provider, _sqlString.DbParameterNames, SqlStringMethod.LeftJoin);
+            string sql = condition.VisitLambda(expression, out DbParameter[] dbParameters);
+
+            _alias = condition.Alias;
+            string tableName = _dbSession.GetTableName(_provider, typeof(U));
+
+            string alias = sql.Split('=')[1].Split('.')[0].Trim();
+
+            if (alias == _alias)
+            {
+                alias = sql.Split('=')[0].Split('.')[0].Trim();
+            }
+
+            joinList.Add(string.Format(" inner join {0} {1} on {2}", tableName, alias, sql));
 
             return this;
         }

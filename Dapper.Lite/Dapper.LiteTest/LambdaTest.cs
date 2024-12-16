@@ -384,5 +384,53 @@ namespace Dapper.LiteTest
         }
         #endregion
 
+        #region 测试Left Join
+        [TestMethod]
+        public void TestQueryLeftJoin()
+        {
+            var session = DapperLiteFactory.GetSession();
+
+            session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
+
+            List<BsOrder> list = session.Queryable<BsOrder>()
+                .LeftJoin<SysUser>((o, u) => o.OrderUserid == u.Id)
+                .LeftJoin<BsOrderDetail>((o, d) => d.OrderId == o.Id)
+                .Where<BsOrder>(o => o.Remark.Contains("测试"))
+                .Where<SysUser>(u => u.CreateUserid == "1")
+                .OrderByDescending(o => o.OrderTime).OrderBy(o => o.Id)
+                .ToList();
+
+            foreach (BsOrder item in list)
+            {
+                Console.WriteLine(ModelToStringUtil.ToString(item));
+            }
+            Assert.IsTrue(list.Count > 0);
+        }
+        #endregion
+
+        #region 测试Inner Join
+        [TestMethod]
+        public void TestQueryInnerJoin()
+        {
+            var session = DapperLiteFactory.GetSession();
+
+            session.OnExecuting = (s, p) => Console.WriteLine(s); //打印SQL
+
+            List<BsOrder> list = session.Queryable<BsOrder>()
+                .InnerJoin<SysUser>((o, u) => o.OrderUserid == u.Id)
+                .InnerJoin<BsOrderDetail>((o, d) => d.OrderId == o.Id)
+                .Where<BsOrder>(o => o.Remark.Contains("测试"))
+                .Where<SysUser>(u => u.CreateUserid == "1")
+                .OrderByDescending(o => o.OrderTime).OrderBy(o => o.Id)
+                .ToList();
+
+            foreach (BsOrder item in list)
+            {
+                Console.WriteLine(ModelToStringUtil.ToString(item));
+            }
+            Assert.IsTrue(list.Count > 0);
+        }
+        #endregion
+
     }
 }

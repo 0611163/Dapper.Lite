@@ -32,6 +32,20 @@ namespace Dapper.Lite
         DynamicParameters DynamicParameters { get; }
         #endregion
 
+        #region LeftJoin
+        /// <summary>
+        /// 追加 left join SQL
+        /// </summary>
+        ISqlQueryable<T> LeftJoin<U>(Expression<Func<T, U, object>> expression);
+        #endregion
+
+        #region InnerJoin
+        /// <summary>
+        /// 追加 inner join SQL
+        /// </summary>
+        ISqlQueryable<T> InnerJoin<U>(Expression<Func<T, U, object>> expression);
+        #endregion
+
         #region Where
         /// <summary>
         /// 追加参数化SQL
